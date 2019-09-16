@@ -1,0 +1,46 @@
+{
+    "requirements" : [ 
+    {
+        "code" : 0,
+        "requirement": "R0. Please provide context for your repository.",
+        "guidance": "<ul><li>Repository Type. Select all relevant types from:<ul><li>Domain or subject-based repository</li><li>Institutional repository</li><li>National repository system, including governmental</li><li>Publication repository</li><li>Library/Museum/Archives</li><li>Research project repository</li><li>Other (Please describe)</li></ul></li><li>Brief Description of the Repository’s Designated Community</li><li>Level of Curation Performed. Select all relevant types from:</li><ul><li>A.  Content distributed as deposited</li><li>B.  Basic curation – e.g., brief checking, addition of basic metadata or documentation</li><li>C.  Enhanced curation – e.g., conversion to new formats, enhancement of documentation</li><li>D.  Data-level curation – as in C above, but with additional editing of deposited data for accuracy</li></ul><li>Outsource Partners. If applicable, please list them.</li><li>Other Relevant Information</li></ul>",
+        "response": null,
+        "level" : null
+    }, 
+    {
+        "code" : 1,
+        "requirement": "R1. The repository has an explicit mission to provide access to and preserve data in its domain.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    }, 
+    {
+        "code" : 2,
+        "requirement": "R2. The repository maintains all applicable licenses covering data access and use and monitors compliance.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 3,
+        "requirement": "R3. The repository has a continuity plan to ensure ongoing access to and preservation of its holdings.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },        
+    {
+        "code" : 4,
+        "requirement": "R4. The repository ensures, to the extent possible, that data are created, curated, accessed, and used in compliance with disciplinary and ethical norms",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 5,
+        "requirement": "R5. The repository has adequate funding and sufficient numbers of qualified staff managed through a clear system of governance to effectively carry out the mission.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    }    
+]
+}

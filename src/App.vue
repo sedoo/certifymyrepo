@@ -52,6 +52,8 @@ export default {
   components: {
   },
   data: () => ({
+    profile: null,
+    errored: false,
     drawer : false,
     link: null,
     links : [{label:"My repositories", route: '/repositories', icon: 'fa-archive'},{label:"My Profile", route: "/profile", icon: 'fa-user'}]
@@ -60,6 +62,6 @@ export default {
       toggleDrawer: function() {
         this.drawer = !this.drawer
         }
-    }
+  }
 };
 </script>
