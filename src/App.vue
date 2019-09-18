@@ -9,11 +9,6 @@
             </v-toolbar-title>
             
             <v-spacer></v-spacer>
-            <v-btn text icon color="grey">
-              <v-icon>mdi-face</v-icon>
-               <v-icon>fa-anchor</v-icon>
-               <v-icon>mdi-storage</v-icon>
-            </v-btn>
      
     </v-app-bar>
  

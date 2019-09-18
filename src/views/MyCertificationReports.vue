@@ -30,20 +30,27 @@
             <span>{{ formatDate(item.updateDate) }}</span>
         </template> 
         <template v-slot:item.actions="{ item }">
-            <v-btn icon class="mx-0" @click="editItem(item)">     
+            <v-btn v-if="!isReleased(item)" icon class="mx-0" @click="editItem(item)">     
                 <v-icon size='20px'>fa-edit</v-icon>    
             </v-btn>
-            <!--
-            <v-btn icon class="mx-0" @click="deleteItem(item)">     
-                <v-icon size='20px'>fa-trash-alt</v-icon>    
-            </v-btn>-->
+
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                    <v-btn v-if="isReleased(item)" icon v-on="on" class="mx-0" @click="copyItem(item)">     
+                        <v-icon size='20px'>fa-copy</v-icon>    
+                    </v-btn>
+                </template>
+                <span>Create a new report from a copy</span>
+            </v-tooltip>
+
+
 
             <v-dialog
                 v-model="dialog"
                 width="500"
                 >
             <template v-slot:activator="{ on }">
-                <v-btn icon class="mx-0" v-on="on">     
+                <v-btn v-if="!isReleased(item)" icon class="mx-0" v-on="on" @click="reportId=item.id">     
                     <v-icon size='20px'>fa-trash-alt</v-icon>    
                 </v-btn>  
             </template>
@@ -57,7 +64,7 @@
                 </v-card-title>
 
                 <v-card-text>
-                Do you really want to delete these report? This process cannot be undone.
+                Do you really want to delete these report ? This process cannot be undone.
                 </v-card-text>
 
                 <v-divider></v-divider>
@@ -73,7 +80,7 @@
                 </v-btn>
                 <v-btn
                     color="primary"
-                    @click="dialog = false; deleteItem(item)"
+                    @click="dialog = false; deleteItem()"
                 >
                     Confirm
                 </v-btn>
@@ -111,6 +118,7 @@ export default {
         return {
             reports: [],
             dialog: false,
+            reportId: null,
             repositoryId: this.$route.params.id,
             repositoryName: this.$route.params.name,
             headers: [
@@ -125,24 +133,10 @@ export default {
                 'repositoryId': this.$route.params.id, 
                 'repositoryName': this.$route.params.name, 
                 'items': requirementTemplateJson.requirements, 
-                'status': null,
+                'status': 'NEW',
                 'updateDate': null,
                 'version': null
-                },
-           series: [{
-                name: 'Series 1',
-                data: [0, 4, 3, 2, 2, 4],
-                //data: [null]
-            }]
-           // series : [this.levelList()],
-            /*chartOptions: {
-                //labels: this.requirementCodeList(),
-                labels: ['R0', 'R1', 'R2', 'R3', 'R4', 'R5'],
-                //labels: [null],
-                title: {
-                    text: 'Requirements Radar Chart'
                 }
-            } */
         }
     },
     computed: {
@@ -183,10 +177,8 @@ export default {
         //console.log(JSON.stringify(option))
         return option
     },
-
-      deleteItem (item) {
-        //console.log("Delete item"+item.id)
-          this.axios.delete(this.service+'certificationReport/v1_0/delete/'+item.id)
+    deleteItem () {
+        this.axios.delete(this.service+'certificationReport/v1_0/delete/'+this.reportId)
             .then( () =>
                 this.axios
                     .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
@@ -196,30 +188,47 @@ export default {
             )
             .catch(error => {
                 console.log(error)
-            })
-        console.log("item"+item.id+" deleted")
-      },
+        })
+    },
     editItem (item) {
-          //console.log("Edit item"+item.id)
+        item.updateDate = new Date()
+        this.$router.push({name: 'editMyReport', query: { report: JSON.stringify(item)} });
+      }, 
+    copyItem (item) {
+          item.id = null
+          item.version = null
+          item.updateDate = new Date()
+          item.status = 'NEW'
           this.$router.push({name: 'editMyReport', query: { report: JSON.stringify(item)} });
       }, 
     formatDate (timestamp) {
         return moment(timestamp).format('DD MMM YYYY HH:mm')
-      }
+      },
+    isReleased: function (item) {
+        if(item.status == 'RELEASED') {
+            return true
+        } else {
+            return false
+        }
+    }
     },
 
     mounted: function() {
-    	console.log("Monté")
+    	console.log("-------> MyCertificationReports Monté")
     },
     
     created: function() {
-      //console.log('-------> Component: MyCertificationReports')
-      //console.log('------->:repository id: '+this.$route.params.id)
+      console.log('-------> MyCertificationReports créé')
+      console.log('------->:repository id: '+this.$route.params.id)
+      var self = this
       this.errored = false;
       this.axios
       .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.$route.params.id)
       .then(response => {
-        this.reports = response.data
+        self.reports = response.data
+        console.log(self.reports)
+
+         console.log('-------> MyCertificationReports'+JSON.stringify(this.reports))
       })
       .catch(error => {
         console.log(error)

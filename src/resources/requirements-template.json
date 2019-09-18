@@ -41,6 +41,83 @@
         "guidance": null,
         "response": null,
         "level" : null
-    }    
+    },
+    {
+        "code" : 6,
+        "requirement": "R6. The repository adopts mechanism(s) to secure ongoing expert guidance and feedback (either in-house, or external, including scientific guidance, if relevant).",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 7,
+        "requirement": "R7. The repository guarantees the integrity and authenticity of the data.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 8,
+        "requirement": "R8. The repository accepts data and metadata based on defined criteria to ensure relevance and understandability for data users.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 9,
+        "requirement": "R9. The repository applies documented processes and procedures in managing archival storage of the data.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 10,
+        "requirement": "R10. The repository assumes responsibility for long-term preservation and manages this function in a planned and documented way.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 11,
+        "requirement": "R11. The repository has appropriate expertise to address technical data and metadata quality and ensures that sufficient information is available for end users to make quality-related evaluations.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 12,
+        "requirement": "R12. Archiving takes place according to defined workflows from ingest to dissemination.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 13,
+        "requirement": "R13. The repository enables users to discover the data and refer to them in a persistent way through proper citation.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 14,
+        "requirement": "R14. The repository enables reuse of the data over time, ensuring that appropriate metadata are available to support the understanding and use of the data.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 15,
+        "requirement": "R15. The repository functions on well-supported operating systems and other core infrastructural software and is using hardware and software technologies appropriate to the services it provides to its Designated Community.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    },
+    {
+        "code" : 16,
+        "requirement": "R16. The technical infrastructure of the repository provides for protection of the facility and its data, products, services, and users.",
+        "guidance": null,
+        "response": null,
+        "level" : null
+    } 
 ]
 }

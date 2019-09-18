@@ -10,7 +10,7 @@
   <template>
   <div class="text-center">
 
-      <router-link tag="icon" color="grey" class="link-title" to="/repository">
+      <router-link tag="icon" color="grey" class="link-title" :to="{name: 'repository', query: {repository: JSON.stringify(emptyRepo)}}">
           <v-icon size='20px' left>fa-plus</v-icon>
           <span style="font-weight: bold;">Create a new repository</span>
       </router-link>
@@ -37,7 +37,7 @@
               <v-card-title >
                 <router-link tag="div" class="link-title" v-bind:to="'/certificationReports/' + item.id + '/' + item.name "><h4>{{ item.name }}</h4></router-link>
                 <div class="icon-edit-delete">
-                  <v-btn icon class="mx-0">     
+                  <v-btn icon class="mx-0" @click="editRepository(item)">     
                       <v-icon size='20px'>fa-edit</v-icon>    
                   </v-btn> 
 
@@ -46,7 +46,7 @@
                       width="500"
                       >
                   <template v-slot:activator="{ on }">
-                      <v-btn icon class="mx-0" v-on="on">     
+                      <v-btn icon class="mx-0" v-on="on" @click="repositoryId = item.id">     
                           <v-icon size='20px'>fa-trash-alt</v-icon>    
                       </v-btn>  
                   </template>
@@ -76,7 +76,7 @@
                       </v-btn>
                       <v-btn
                           color="primary"
-                          @click="dialog = false; deleteRepository(item.id)"
+                          @click="dialog = false; deleteRepository()"
                       >
                           Confirm
                       </v-btn>
@@ -116,17 +116,18 @@ export default {
     data() {
         return {
           dialog: false,
+          repositoryId: null,
           resultMyRepo: [],
           errorMessage: null,
           errored: false,
-          loading: false
+          loading: false,
+          emptyRepo: {id:null, name: null, pole: null, contact: null, managerIds: []}
         }
     },
 
     methods: {
-      deleteRepository (id) {
-          console.log('------->'+id)
-          this.axios.delete(this.service+'repository/v1_0/delete/'+id)
+      deleteRepository () {
+          this.axios.delete(this.service+'repository/v1_0/delete/'+this.repositoryId)
             .then( () =>
                 this.axios
                     .get(this.service+'repository/v1_0/listAll')
@@ -137,11 +138,14 @@ export default {
             .catch(error => {
                 console.log(error)
             })
-      }
+      },
+      editRepository (item) {
+          this.$router.push({name: 'repository', query: { repository: JSON.stringify(item)} });
+      }, 
     },
     
     created: function() {
-    
+    console.log('created MyRepositories.vue')
     console.log("----->"+this.service)
     
       this.errored = false;
