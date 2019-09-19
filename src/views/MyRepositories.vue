@@ -27,17 +27,16 @@
         <v-row>
           <v-col
             v-for="item in props.items"
-            :key="item.name"
+            :key="item.repository.name"
             cols="12"
             sm="6"
-            md="4"
-            lg="6"
+            md="3"
           >
             <v-card>
-              <v-card-title >
-                <router-link tag="div" class="link-title" v-bind:to="'/certificationReports/' + item.id + '/' + item.name "><h4>{{ item.name }}</h4></router-link>
+              <v-card-title v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
+                <router-link tag="div" class="link-title" v-bind:to="'/certificationReports/' + item.repository.id + '/' + item.repository.name "><h4>{{ item.repository.name }}</h4></router-link>
                 <div class="icon-edit-delete">
-                  <v-btn icon class="mx-0" @click="editRepository(item)">     
+                  <v-btn icon class="mx-0" @click="editRepository(item.repository)">     
                       <v-icon size='20px'>fa-edit</v-icon>    
                   </v-btn> 
 
@@ -46,7 +45,7 @@
                       width="500"
                       >
                   <template v-slot:activator="{ on }">
-                      <v-btn icon class="mx-0" v-on="on" @click="repositoryId = item.id">     
+                      <v-btn icon class="mx-0" v-on="on" @click="repositoryId = item.repository.id">     
                           <v-icon size='20px'>fa-trash-alt</v-icon>    
                       </v-btn>  
                   </template>
@@ -86,15 +85,18 @@
                 </div>
               </v-card-title>
               <v-divider></v-divider>
-              <v-list dense>
+              <v-list dense v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
                 <v-list-item>
                   <v-list-item-content>Department:</v-list-item-content>
-                  <v-list-item-content class="align-end">{{ item.pole}}</v-list-item-content>
+                  <v-list-item-content class="align-end">{{ item.repository.pole}}</v-list-item-content>
                 </v-list-item>
                 <v-list-item>
                   <v-list-item-content>Contact:</v-list-item-content>
-                  <v-list-item-content class="align-end">{{ item.contact }}</v-list-item-content>
+                  <v-list-item-content class="align-end">{{ item.repository.contact }}</v-list-item-content>
                 </v-list-item>
+              <v-list-item>
+                   <td colspan="12"><apexchart v-show="item.health != null" type=radar :options="chartOptions(item.health)" :series="levelList(item.health)" /></td>
+              </v-list-item>
               </v-list>
             </v-card>
           </v-col>
@@ -121,7 +123,29 @@ export default {
           errorMessage: null,
           errored: false,
           loading: false,
-          emptyRepo: {id:null, name: null, pole: null, contact: null, managerIds: []}
+          emptyRepo: {id:null, name: null, pole: null, contact: null, managerIds: []},
+          dataLabels: {
+              enabled: true,
+              enabledOnSeries: undefined,
+              formatter: function (val, opts) {
+                  return val
+              },
+              textAnchor: 'middle',
+              offsetX: 0,
+              offsetY: 0,
+              style: {
+                  fontSize: '14px',
+                  fontFamily: 'Helvetica, Arial, sans-serif',
+                  colors: ['#000']
+              },
+              dropShadow: {
+                  enabled: false,
+                  top: 1,
+                  left: 1,
+                  blur: 1,
+                  opacity: 0.45
+              }
+    }
         }
     },
 
@@ -141,7 +165,23 @@ export default {
       },
       editRepository (item) {
           this.$router.push({name: 'repository', query: { repository: JSON.stringify(item)} });
-      }, 
+      },
+      levelList (health) {
+            var serie = {name: 'certificationReport', data: []}
+            if(health != null) {
+              serie.data = health.requirementLevelList
+            }
+            
+            return [serie];
+        },
+      chartOptions (health) {
+          var option = {labels: null, title: {text: 'Requirements Radar Chart'}}  
+          if(health != null) {
+            option.labels = health.requirementCodeList
+          }
+          option.dataLabels = this.dataLabels
+          return option
+      }     
     },
     
     created: function() {
@@ -149,7 +189,7 @@ export default {
     console.log("----->"+this.service)
     
       this.errored = false;
-      this.axios.get(this.service+'repository/v1_0/listAll')
+      this.axios.get(this.service+'repository/v1_0/listAllFullRepository')
       .then(response => {
         this.resultMyRepo = response.data
       })
@@ -171,5 +211,15 @@ export default {
 .icon-edit-delete {
   position: absolute;
   right: 0;
+}
+
+.light-green {
+  background-color: #A5D6A7;
+}
+.light-orange {
+  background-color: #ffcc80;
+}
+.light-red {
+  background-color: #EF9A9A;
 }
 </style>

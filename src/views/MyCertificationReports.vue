@@ -34,6 +34,10 @@
                 <v-icon size='20px'>fa-edit</v-icon>    
             </v-btn>
 
+            <v-btn v-if="isReleased(item)" icon class="mx-0" >     
+                <v-icon size='20px'>fa-book-open</v-icon>    
+            </v-btn>
+
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                     <v-btn v-if="isReleased(item)" icon v-on="on" class="mx-0" @click="copyItem(item)">     
@@ -42,8 +46,6 @@
                 </template>
                 <span>Create a new report from a copy</span>
             </v-tooltip>
-
-
 
             <v-dialog
                 v-model="dialog"
