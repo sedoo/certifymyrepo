@@ -8,7 +8,7 @@
             <v-row>
                 <v-col
                 cols="12"
-                md="4"
+                md="6"
                 >
                 <v-text-field
                     v-model="myRepository.name"
@@ -18,95 +18,49 @@
                     required
                 ></v-text-field>
                 </v-col>
-
                 <v-col
-                cols="12"
-                md="4"
-                >
-                <v-text-field
-                    v-model="myRepository.pole"
-                    :rules="nameRules"
-                    :counter="20"
-                    label="Department name"
-                    required
-                ></v-text-field>
-                </v-col>
-
-                <v-col
-                cols="12"
-                md="4"
-                >
-                <v-text-field
-                    v-model="myRepository.contact"
-                    :rules="emailRules"
-                    label="E-mail"
-                    required
-                ></v-text-field>
+                    cols="12"
+                    md="6"
+                    >
+                    <v-text-field
+                        v-model="myRepository.pole"
+                        :rules="nameRules"
+                        :counter="20"
+                        label="Department name"
+                        required
+                    ></v-text-field>
                 </v-col>
             </v-row>
             <v-row>
-                <v-form v-model="validOrcid" class="form-orcid">
-                    <div id="secondForm" style="width=100%">
-                    <v-container>
-                        <v-row>
-                            <v-col
-                            cols="12"
-                            md="4"
-                            >
-                            <v-text-field
-                                v-model="orcId"
-                                :counter="19"
-                                :maxlength="19"
+                <v-col
+                    cols="12"
+                    md="6"
+                    >
+                    <v-text-field
+                        v-model="myRepository.contact"
+                        :rules="emailRules"
+                        label="E-mail"
+                        required
+                    ></v-text-field>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col
+                    cols="12"
+                    md="6"
+                    >
+                    <v-combobox multiple
+                                v-model="orcIdList" 
+                                label="Repository managers ORCID"
+                                chips
+                                deletable-chips
+                                :search-input.sync="search" 
                                 :rules="orcIdRules"
-                                label="Manager orcid"
-                            ></v-text-field>
-                            </v-col>
-                            <v-col
-                            cols="12"
-                            md="4"
-                            >
-                            <div class="information">You will be manager by default. You do not have to enter your ORCID.</div>
-                            <div class="information">Add others orcid one by one if needed. Type the ORCID and press +</div>
-                            <p>
-                            <v-btn icon dense @click="add()" :disabled="!validOrcid">     
-                                <v-icon size='20px'>fa-plus</v-icon>
-                            </v-btn>
-                            </p>
-                            <div style="background:red" v-if="duplicateOrcIdError">
-                                This ORCID has been already added
-                            </div>
-                            </v-col>
-                        </v-row>
-                    </v-container>
-                    </div>
-                </v-form>
-            </v-row>
-            <v-row>
-                <v-col
-                cols="12"
-                md="4"
-                >
-                <v-card v-for="(item, index) in myRepository.managerIds" :key=index>
-                    <v-row>
-                        <v-col>
-                            <v-card-text >
-                                {{ item }}
-                            </v-card-text>
-                        </v-col>
-                        <v-col>
-                            <div class="icon-delete">
-                            <v-btn icon class="mx-0" @click="myRepository.managerIds.splice(index,1)">     
-                                <v-icon size='20px'>fa-trash-alt</v-icon>    
-                            </v-btn>  
-                            </div>
-                        </v-col>
-                    </v-row>
-                </v-card>
-                
+                                >
+                    </v-combobox>
                 </v-col>
-             </v-row>
+            </v-row>
             </v-container>
-
             <div class="text-right save-button">
                      <v-btn text
                         color="primary"
@@ -138,18 +92,18 @@ export default {
     data() {
         return {
             valid: false,
-            validOrcid: false,
             repositoryName: '',
             duplicateOrcIdError: false,
             department: '',
-            orcId: '',
+            orcIdList: [],
             myRepository: JSON.parse(this.$route.query.repository),
             nameRules: [
                 v => !!v || 'Name is required',
-                v => v.length <= 10 || 'Name must be less than 10 characters',
+                v => v.length <= 20 || 'Name must be less than 20 characters',
             ],
             orcIdRules: [
-                v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{4,4})/.test(v) || 'ORCID must be valid'
+                v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{4,4})/.test(v) || 'ORCID must be valid. '+this.erroredOcrif(v),
+                v => this.orcidvalidation(v) || 'ORCID must be exactly 19 characters in length '+this.erroredOcrif(v)
             ],
             email: '',
             emailRules: [
@@ -168,6 +122,27 @@ export default {
     },
 
     methods: {
+        orcidvalidation(v) {
+            for(var index in v) {
+                if(v[index].length != 19) {
+                    return false
+                }
+            }
+            return true
+        },
+        erroredOcrif(v) {
+            var message = '['
+            var regex = RegExp(/^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{4,4})/)
+            for(var index in v) {
+                if(v[index].length != 19) {
+                    message = message + v[index] + ' '
+                } else if(!regex.test(v[index])){
+                    message = message + v[index] + ' '
+                }
+            }
+            message = message + ']'
+            return message
+        },             
         add () {
             if(this.orcId != null && this.orcId.length > 0) {
                 if(!this.myRepository.managerIds.includes(this.orcId)) {

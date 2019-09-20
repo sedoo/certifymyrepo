@@ -29,8 +29,9 @@
             v-for="item in props.items"
             :key="item.repository.name"
             cols="12"
-            sm="6"
-            md="3"
+            sm="12"
+            md="6"
+            lg="4"
           >
             <v-card>
               <v-card-title v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
@@ -94,9 +95,18 @@
                   <v-list-item-content>Contact:</v-list-item-content>
                   <v-list-item-content class="align-end">{{ item.repository.contact }}</v-list-item-content>
                 </v-list-item>
-              <v-list-item>
-                   <td colspan="12"><apexchart v-show="item.health != null" type=radar :options="chartOptions(item.health)" :series="levelList(item.health)" /></td>
-              </v-list-item>
+              <v-list-group sub-group no-action>
+                <template v-slot:activator>
+                  <v-list-item-content>
+                    <v-list-item-title>Radar chart</v-list-item-title>
+                  </v-list-item-content>
+                </template>
+                <v-list-item>
+                   <td >
+                     <apexchart v-show="item.health != null" type=radar :options="chartOptions(item.health)" :series="levelList(item.health)" />
+                    </td>
+                </v-list-item>
+              </v-list-group>
               </v-list>
             </v-card>
           </v-col>
@@ -127,7 +137,7 @@ export default {
           dataLabels: {
               enabled: true,
               enabledOnSeries: undefined,
-              formatter: function (val, opts) {
+              formatter: function (val) {
                   return val
               },
               textAnchor: 'middle',
@@ -154,7 +164,7 @@ export default {
           this.axios.delete(this.service+'repository/v1_0/delete/'+this.repositoryId)
             .then( () =>
                 this.axios
-                    .get(this.service+'repository/v1_0/listAll')
+                    .get(this.service+'repository/v1_0/listAllFullRepository')
                     .then(response => {
                         this.resultMyRepo = response.data
                     })

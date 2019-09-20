@@ -2,36 +2,36 @@
     <div>
     <div class="report">
     <h1 class="subheading grey--text">My {{ myReport.repositoryName }} report</h1>
-    <v-container class="my-3">
       <v-form v-model="valid">
-        <template>
+      
 
             <v-text-field
                 label="Version Number"
                 v-model="myReport.version"
                 :rules="versionRules"
                 required
+                :readonly="readOnly"
             ></v-text-field>
-
-            <v-col class="d-flex">
-                <v-select
+         
+            <v-select v-if="!readOnly"
                 :items="status"
                 v-model="myReport.status"
                 :rules="statusRules"
-                ></v-select>
-            </v-col>
+                >
+            </v-select>
+            <v-text-field v-else
+                v-model="myReport.status"
+                :readonly="readOnly"
+            ></v-text-field>
+           
 
-              <v-stepper v-model="e1" vertical>
+              <v-stepper v-model="e1" vertical >
                 <div v-for="(item, index) in myReport.items" :key=index>
-                      
-                        <v-stepper-step :complete="e1 > index + 1" :step="index+1" editable>
-                        <v-container class="my-5">
-                          <v-layout row> 
-                            <v-flex ><h3>{{item.requirement}}</h3></v-flex>
-                            <v-flex ><div class="align-right" v-if="item.level != null">Level: {{item.level.code}}</div></v-flex>
-                          </v-layout>
-                        </v-container>
+                        <v-stepper-step :complete="e1 > index + 1" :step="index+1" editable >
+                        <h3>{{item.requirement}}</h3>
+                        <small v-if="item.level != null">Level: {{item.level.code}}</small>
                         </v-stepper-step>
+                      
                         <v-stepper-content :step="index+1">
                           <v-card
                               class="mb-12"
@@ -44,6 +44,7 @@
                                   outlined
                                   label="Edit the response"
                                   v-model="item.response"
+                                  :readonly="readOnly"
                               >
                               </v-textarea>
                             </div>
@@ -54,6 +55,7 @@
                               v-model="item.level"
                               item-text="label"
                               return-object
+                              :readonly="readOnly"
                             ></v-select>
                           </v-card>
                           <v-btn text
@@ -80,10 +82,11 @@
                         >
                         Cancel
                     </v-btn>
-                     <v-btn
+                     <v-btn v-show="!readOnly"
                         color="primary"
                         @click="save"
                         :disabled="!valid"
+
                         >
                         Save
                     </v-btn>
@@ -96,7 +99,7 @@
                   width="500"
                   >
               <template v-slot:activator="{ on }">
-                     <v-btn
+                     <v-btn v-show="!readOnly"
                         color="primary"
                         v-on="on"
                         :disabled="!valid || !isReleasable"
@@ -139,9 +142,8 @@
               </v-dialog>
             </div>
 
-        </template>
+        
       </v-form>
-    </v-container>
     </div>
     </div>
 </template>
@@ -166,7 +168,7 @@ export default {
                 { text: 'Response', sortable: false, value: 'response' },
                 { text: 'Compliance level', sortable: false, value: 'level' }
             ],
-            status: ["NEW","IN_PROGRESS","READY",],
+            status: ["NEW","IN_PROGRESS","READY"],
             e1: 0,
             steps: 17,
             versionRules: [
@@ -181,7 +183,15 @@ export default {
         } else {
           return false
         }
-      }
+      },
+      readOnly: function () {
+        if(this.myReport.status == 'RELEASED') {
+          return true
+        } else {
+          return false
+        }
+      },      
+
     },
     watch: {
       steps (val) {
@@ -252,6 +262,5 @@ export default {
 	position: absolute;
   right: 3%;
 }
-
 
 </style>
