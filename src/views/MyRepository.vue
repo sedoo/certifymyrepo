@@ -92,18 +92,19 @@ export default {
     data() {
         return {
             valid: false,
+            search: null,
             repositoryName: '',
             duplicateOrcIdError: false,
             department: '',
             orcIdList: [],
+            orcidNotValid: '',
             myRepository: JSON.parse(this.$route.query.repository),
             nameRules: [
                 v => !!v || 'Name is required',
                 v => v.length <= 20 || 'Name must be less than 20 characters',
             ],
             orcIdRules: [
-                v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{4,4})/.test(v) || 'ORCID must be valid. '+this.erroredOcrif(v),
-                v => this.orcidvalidation(v) || 'ORCID must be exactly 19 characters in length '+this.erroredOcrif(v)
+                v => this.orcidvalidation(v) || 'ORCID must be valid ['+this.orcidNotValid+']'
             ],
             email: '',
             emailRules: [
@@ -114,35 +115,29 @@ export default {
     },
     
     mounted: function() {
-    	console.log("Monté")
+    	//console.log("Monté")
     },
     
     created: function() {
-    	console.log("Créé")
+    	//console.log("Créé")
     },
 
     methods: {
         orcidvalidation(v) {
-            for(var index in v) {
-                if(v[index].length != 19) {
-                    return false
-                }
-            }
-            return true
-        },
-        erroredOcrif(v) {
-            var message = '['
+            var result = true
+            this.orcidNotValid = ''
             var regex = RegExp(/^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{4,4})/)
-            for(var index in v) {
-                if(v[index].length != 19) {
-                    message = message + v[index] + ' '
-                } else if(!regex.test(v[index])){
-                    message = message + v[index] + ' '
+            for(var index in v) {       
+                if(!regex.test(v[index])){
+                    this.orcidNotValid = this.orcidNotValid + v[index]
+                    result = false
+                } else if(v[index].length != 19) {
+                    this.orcidNotValid = this.orcidNotValid + v[index]
+                    result = false
                 }
             }
-            message = message + ']'
-            return message
-        },             
+            return result
+        },           
         add () {
             if(this.orcId != null && this.orcId.length > 0) {
                 if(!this.myRepository.managerIds.includes(this.orcId)) {
@@ -165,12 +160,14 @@ export default {
         this.myRepository.managerIds = this.orcIdList
         this.myRepository.contact = this.email*/
         console.log(JSON.stringify(this.myRepository));
+        var self = this;
         this.axios({
             method: 'post',
             url: this.service+'repository/v1_0/save',
             data: this.myRepository
-        }).then (
-            this.goToRepositories());
+        }).then ( function () {
+            self.goToRepositories()
+        });
       }
     }
 } 

@@ -1,3 +1,4 @@
+import '@fortawesome/fontawesome-free/css/all.css'
 import Vue from 'vue'
 import App from './App.vue'
 import VueRouter from "vue-router";
@@ -65,6 +66,9 @@ const router = new VueRouter({
         }
     ]
 })
+
+router.replace({ path: 'certifymyrepo', redirect: '/' })
+
 Vue.use(vuetify, {
     options: {
         customProperties: true

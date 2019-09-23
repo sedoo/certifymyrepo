@@ -5,13 +5,13 @@
       <v-form v-model="valid">
       
 
-            <v-text-field
+            <v-text-field v-if="!readOnly"
                 label="Version Number"
                 v-model="myReport.version"
                 :rules="versionRules"
                 required
-                :readonly="readOnly"
             ></v-text-field>
+            <p v-if="readOnly"><span class="font-weight-bold">Version:  </span><span>{{ myReport.version }} </span></p>
          
             <v-select v-if="!readOnly"
                 :items="status"
@@ -19,10 +19,7 @@
                 :rules="statusRules"
                 >
             </v-select>
-            <v-text-field v-else
-                v-model="myReport.status"
-                :readonly="readOnly"
-            ></v-text-field>
+            <p v-if="readOnly"><span class="font-weight-bold">Status:  </span><span>{{ myReport.status }} </span></p>
            
 
               <v-stepper v-model="e1" vertical >
@@ -35,28 +32,32 @@
                         <v-stepper-content :step="index+1">
                           <v-card
                               class="mb-12"
-                              color="grey lighten-4"
+                              color="grey lighten-3"
                               height="auto"
                           >
                             <div style="margin-top: 16px">
                               <!-- DO WE WANT TO ADD GUIDANCE ? <div v-html="item.guidance "></div>-->
-                              <v-textarea 
+                              <v-textarea v-if="!readOnly"
                                   outlined
                                   label="Edit the response"
                                   v-model="item.response"
-                                  :readonly="readOnly"
                               >
                               </v-textarea>
+                              <p v-else class="text-justify">{{ item.response }}</p>
                             </div>
 
-                            <v-select filled
+                            <v-select filled v-if="!readOnly"
                               :items="levelsTemplate.levels"
                               label="Compliance level"
                               v-model="item.level"
                               item-text="label"
                               return-object
-                              :readonly="readOnly"
                             ></v-select>
+                            <p v-else>
+                              <span class="font-weight-bold">Compliance level: </span>
+                              <span v-if="item.level != null">{{ item.level.label }}</span> 
+                            </p>
+
                           </v-card>
                           <v-btn text
                               color="primary"

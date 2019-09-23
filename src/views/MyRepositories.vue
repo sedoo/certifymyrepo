@@ -10,7 +10,7 @@
   <template>
   <div class="text-center">
 
-      <router-link tag="icon" color="grey" class="link-title" :to="{name: 'repository', query: {repository: JSON.stringify(emptyRepo)}}">
+      <router-link tag="span" color="grey" class="link-title" :to="{name: 'repository', query: {repository: JSON.stringify(emptyRepo)}}">
           <v-icon size='20px' left>fa-plus</v-icon>
           <span style="font-weight: bold;">Create a new repository</span>
       </router-link>
@@ -101,11 +101,7 @@
                     <v-list-item-title>Radar chart</v-list-item-title>
                   </v-list-item-content>
                 </template>
-                <v-list-item>
-                   <td >
-                     <apexchart v-show="item.health != null" type=radar :options="chartOptions(item.health)" :series="levelList(item.health)" />
-                    </td>
-                </v-list-item>
+                <apexchart v-show="item.health != null" type=radar :options="chartOptions(item.health)" :series="levelList(item.health)" />
               </v-list-group>
               </v-list>
             </v-card>

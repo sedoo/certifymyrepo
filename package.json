@@ -18,6 +18,7 @@
     "vuetify": "^2.0.17"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.11.1",
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-eslint": "^3.11.0",
     "@vue/cli-service": "^3.11.0",
@@ -27,9 +28,9 @@
     "sass": "^1.17.4",
     "sass-loader": "^7.1.0",
     "vue-cli-plugin-vuetify": "^0.6.3",
+    "vue-router": "^3.0.7",
     "vue-template-compiler": "^2.6.10",
-    "vuetify-loader": "^1.2.2",
-    "vue-router": "^3.0.7"
+    "vuetify-loader": "^1.2.2"
   },
   "eslintConfig": {
     "root": true,
