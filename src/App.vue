@@ -47,16 +47,70 @@ export default {
   components: {
   },
   data: () => ({
+    service: "http://localhost:8485/",
     profile: null,
     errored: false,
     drawer : false,
     link: null,
-    links : [{label:"My repositories", route: '/repositories', icon: 'fa-archive'},{label:"My Profile", route: "/profile", icon: 'fa-user'}]
+    links : [{label:"My repositories", route: '/repositories', icon: 'fa-archive'},{label:"My Profile", route: "/profile", icon: 'fa-user'}, {label:"Login", route: "/login", icon: 'fa-key'}]
   }),
+
+  computed: {
+    redirectUri: function() {
+      return window.location.origin + window.location.pathname;
+    },
+    isLogged: function()  {
+      return this.$store.getters.getLogged
+    }
+  },
+
+
+  created: function() {
+  console.log("App created logged: "+this.isLogged)
+   if (!this.isLogged) {
+     var code = this.getCodeParameter();
+     if (code) {
+        var self = this;
+        this.axios({
+            method: 'post',
+            url: this.service+"login/v1_0/orcid?code=" + code + "&redirect_uri=" + this.redirectUri
+        }).then( function (response) {
+            console.log(JSON.stringify(response.data))
+            self.$store.commit('setUser', response.data)
+            self.$store.commit('setLogged', true)
+            self.$router.push({path: '/repositories'})
+          })
+
+      } else {
+        this.logout();
+      }
+   }
+ },
     methods: {
-      toggleDrawer: function() {
-        this.drawer = !this.drawer
-        }
+
+    getCodeParameter: function (){
+      return this.getURLParameter("code");
+    },
+
+    getURLParameter: function (sParam){
+	    var sPageURL = window.location.search.substring(1);
+	    var sURLVariables = sPageURL.split('&');
+	    for (var i = 0; i < sURLVariables.length; i++){
+		    var sParameterName = sURLVariables[i].split('=');
+		    if (sParameterName[0] == sParam) {
+			    return decodeURIComponent(sParameterName[1]);
+		    }
+	    }
+      return null;
+    },
+
+    logout: function() {
+      this.$store.commit('setLogged', false)
+      this.$router.push("/login");
+    },
+    toggleDrawer: function() {
+      this.drawer = !this.drawer
+    }
   }
 };
 </script>

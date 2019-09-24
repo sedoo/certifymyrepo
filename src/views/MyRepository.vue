@@ -58,6 +58,7 @@
                                 :rules="orcIdRules"
                                 >
                     </v-combobox>
+                    <span class="font-italic font-weight-thin">You can add as many managers as you want. You will be manager by default. Your ORCID will be automatically added.</span>
                 </v-col>
             </v-row>
             </v-container>

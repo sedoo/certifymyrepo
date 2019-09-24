@@ -197,9 +197,11 @@ export default {
       this.errored = false;
       this.axios.get(this.service+'repository/v1_0/listAllFullRepository')
       .then(response => {
+        console.log('Response : '+JSON.stringify(response))
         this.resultMyRepo = response.data
       })
       .catch(error => {
+        console.log('Error : '+error)
         this.errorMessage = error.message;
         this.errored = true
       })
