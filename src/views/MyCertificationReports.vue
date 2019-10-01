@@ -1,16 +1,15 @@
 <template>
     <div>
     <div class="reports">
-    <h1 class="subheading grey--text">My {{ repositoryName }} certification reports</h1>
+    <h1 class="subheading grey--text">My certification reports</h1>
     <v-container class="my-3">
 
         <template>
         <div class="text-center">
 
-            <router-link tag="icon" color="grey" class="link-title" v-bind:to="{name: 'editMyReport', query: { report: JSON.stringify(myReportTemplate)} }">
-                <v-icon size='20px' left>fa-plus</v-icon>
-                <span style="font-weight: bold;">Create a new report</span>
-            </router-link>
+        <div v-if="!readOnly" class="text-right pa-3">
+            <v-btn color="primary" @click="createReport">Create a new report</v-btn>
+        </div>
 
         </div>
         </template>
@@ -30,18 +29,18 @@
             <span>{{ formatDate(item.updateDate) }}</span>
         </template> 
         <template v-slot:item.actions="{ item }">
-            <v-btn v-if="!isReleased(item)" icon class="mx-0" @click="editItem(item)">     
-                <v-icon size='20px'>fa-edit</v-icon>    
+            <v-btn v-if="!readOnly && !isReleased(item)" icon class="mx-0" @click="editItem(item)">     
+                <v-icon class="pa-5">fa-edit</v-icon>    
             </v-btn>
 
-            <v-btn v-if="isReleased(item)" icon class="mx-0" @click="editItem(item)">     
-                <v-icon size='20px'>fa-book-open</v-icon>    
+            <v-btn v-if="readOnly || isReleased(item)" icon class="mx-0 pa-3" @click="editItem(item)">     
+                <v-icon class="pa-5">fa-book-open</v-icon>    
             </v-btn>
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn v-if="isReleased(item)" icon v-on="on" class="mx-0" @click="copyItem(item)">     
-                        <v-icon size='20px'>fa-copy</v-icon>    
+                    <v-btn v-if="isReleased(item) && !readyOnly" icon v-on="on" class="mx-0" @click="copyItem(item)">     
+                        <v-icon class="pa-5">fa-copy</v-icon>    
                     </v-btn>
                 </template>
                 <span>Create a new report from a copy</span>
@@ -52,8 +51,8 @@
                 width="500"
                 >
             <template v-slot:activator="{ on }">
-                <v-btn v-if="!isReleased(item)" icon class="mx-0" v-on="on" @click="reportId=item.id">     
-                    <v-icon size='20px'>fa-trash-alt</v-icon>    
+                <v-btn v-if="!readOnly && !isReleased(item)" icon class="mx-0" v-on="on" @click="reportId=item.id">     
+                    <v-icon class="pa-5">fa-trash-alt</v-icon>    
                 </v-btn>  
             </template>
 
@@ -108,7 +107,6 @@
 
 <script>
 import moment from 'moment';
-import requirementTemplateJson from '../resources/requirements-template.json'
 
 export default {
 
@@ -121,98 +119,89 @@ export default {
             reports: [],
             dialog: false,
             reportId: null,
+            readOnly: false,
             repositoryId: this.$route.params.id,
-            repositoryName: this.$route.params.name,
             headers: [
                 { text: 'Version', value: 'version' },
                 { text: 'Update date', value: 'updateDate'},
                 { text: 'Satus', value: 'status' },
                 { text: 'Actions', value: 'actions', sortable: false }
                 ] ,
-            myReport: null,
-            myReportTemplate: {
-                'id': null, 
-                'repositoryId': this.$route.params.id, 
-                'repositoryName': this.$route.params.name, 
-                'items': requirementTemplateJson.requirements, 
-                'status': 'NEW',
-                'updateDate': null,
-                'version': null
-                }
+            myReport: null
         }
     },
     computed: {
 
     },
     methods: {
-    levelList (report) {
-        var serie = {name: 'certificationReport', data: []}
-        var array = [];
-        //console.log(JSON.stringify(report));
+        levelList (report) {
+            var serie = {name: 'certificationReport', data: []}
+            var array = [];
+            //console.log(JSON.stringify(report));
 
-        for (var j = 0; j < report.items.length; j++){
-            var r = report.items[j]
-            //console.log(JSON.stringify(r))
-            if(r.level) {
-                array.push(r.level.code)
+            for (var j = 0; j < report.items.length; j++){
+                var r = report.items[j]
+                //console.log(JSON.stringify(r))
+                if(r.level) {
+                    array.push(r.level.code)
+                } else {
+                    array.push(null)
+                }
+            }
+            serie.data = array
+            //console.log(JSON.stringify(serie))
+            return [serie];
+        },
+        chartOptions (report) {
+            var option = {labels: null, title: {text: 'Requirements Radar Chart'}}
+            var array = [];
+            for (var j = 0; j < report.items.length; j++){
+                var r = report.items[j]
+                //console.log(JSON.stringify(r))
+                if(r.code) {
+                    array.push('R'+r.code)
+                }
+            }
+            //console.log(JSON.stringify(array))
+            option.labels = array
+            //console.log('------------> chartOptions')
+            //console.log(JSON.stringify(option))
+            return option
+        },
+        deleteItem () {
+            this.axios.delete(this.service+'certificationReport/v1_0/delete/'+this.reportId)
+                .then( () =>
+                    this.axios
+                        .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
+                        .then(response => {
+                            this.reports = response.data
+                        })
+                )
+                .catch(error => {
+                    console.log(error)
+            })
+        },
+        createReport() {
+            this.$router.push({path: '/editMyReport', query: { repositoryId: this.repositoryId, reportId: null} })
+        },
+        editItem (item) {
+            this.$router.push({path: '/editMyReport', query: { repositoryId: this.repositoryId, reportId: item.id } });
+        }, 
+        copyItem (item) {
+            this.$router.push({path: '/editMyReport', query: { repositoryId: this.repositoryId, reportId: item.id, copy: true }  });
+        }, 
+        formatDate (timestamp) {
+            return moment(timestamp).format('DD MMM YYYY HH:mm')
+        },
+        isReleased: function (item) {
+            if(item.status == 'RELEASED') {
+                console.log('is released : true, readOnly : '+this.readOnly) 
+                return true
             } else {
-                array.push(null)
+                console.log('is released : false, readOnly : '+this.readOnly)
+                return false
             }
         }
-        serie.data = array
-        //console.log(JSON.stringify(serie))
-        return [serie];
-    },
-    chartOptions (report) {
-        var option = {labels: null, title: {text: 'Requirements Radar Chart'}}
-        var array = [];
-        for (var j = 0; j < report.items.length; j++){
-            var r = report.items[j]
-            //console.log(JSON.stringify(r))
-            if(r.code) {
-                array.push('R'+r.code)
-            }
-        }
-        //console.log(JSON.stringify(array))
-        option.labels = array
-        //console.log('------------> chartOptions')
-        //console.log(JSON.stringify(option))
-        return option
-    },
-    deleteItem () {
-        this.axios.delete(this.service+'certificationReport/v1_0/delete/'+this.reportId)
-            .then( () =>
-                this.axios
-                    .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
-                    .then(response => {
-                        this.reports = response.data
-                    })
-            )
-            .catch(error => {
-                console.log(error)
-        })
-    },
-    editItem (item) {
-        item.updateDate = new Date()
-        this.$router.push({name: 'editMyReport', query: { report: JSON.stringify(item)} });
-      }, 
-    copyItem (item) {
-          item.id = null
-          item.version = null
-          item.updateDate = new Date()
-          item.status = 'NEW'
-          this.$router.push({name: 'editMyReport', query: { report: JSON.stringify(item)} });
-      }, 
-    formatDate (timestamp) {
-        return moment(timestamp).format('DD MMM YYYY HH:mm')
-      },
-    isReleased: function (item) {
-        if(item.status == 'RELEASED') {
-            return true
-        } else {
-            return false
-        }
-    }
     },
 
     mounted: function() {
@@ -227,10 +216,9 @@ export default {
       this.axios
       .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.$route.params.id)
       .then(response => {
-        self.reports = response.data
-        console.log(self.reports)
-
-         console.log('-------> MyCertificationReports'+JSON.stringify(this.reports))
+        self.reports = response.data.reports
+        self.readOnly = response.data.readOnly
+         console.log('------->:response.data: '+JSON.stringify(response.data))
       })
       .catch(error => {
         console.log(error)

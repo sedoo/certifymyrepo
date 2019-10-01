@@ -16,7 +16,6 @@
        </div>
        <div v-else class="text-center">
          <p class="headline">Wellcome {{ userName }} </p>
-         <p>You are not {{userName }} please <v-btn class="mx-3 light-green lighten-5" @click="logout">Logout</v-btn></p>
          </div>
      </v-col>
    </v-row>
@@ -38,12 +37,8 @@ export default {
 
     methods: {
       openORCID: function(){
+        console.log('this.redirectUri ->'+this.redirectUri)
         window.open("https://orcid.org/oauth/authorize?client_id=APP-E0UG85537RVITGE5&response_type=code&scope=/authenticate&redirect_uri=" + this.redirectUri, "_self");
-      },
-      logout: function() {
-        this.$store.commit('setLogged', false)
-        this.$store.commit('setUser', null)
-        sessionStorage.removeItem('access_token');
       }
     },
     

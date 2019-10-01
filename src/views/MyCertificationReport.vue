@@ -16,7 +16,6 @@
             <v-select v-if="!readOnly"
                 :items="status"
                 v-model="myReport.status"
-                :rules="statusRules"
                 >
             </v-select>
             <p v-if="readOnly"><span class="font-weight-bold">Status:  </span><span>{{ myReport.status }} </span></p>
@@ -152,16 +151,18 @@
 
 <script>
 import levelsTemplateJson from '../resources/levels-template.json'
+import requirementTemplateJson from '../resources/requirements-template.json'
 export default {
     props: {
-    	service: null
+      service: null
   	},
     data() {
         return {
             valid: false,
             dialog: false,
+            readOnly: null,
+            myReport: null,
             index: 0,
-            myReport: JSON.parse(this.$route.query.report),
             levelsTemplate: levelsTemplateJson,
             headers: [
                 { text: 'Code', sortable: false, value: 'code' },
@@ -174,7 +175,15 @@ export default {
             steps: 17,
             versionRules: [
                 v => !!v || 'Version is required'
-            ]
+            ],
+            myReportTemplate: {
+                'id': null, 
+                'repositoryId': null,
+                'items': requirementTemplateJson.requirements, 
+                'status': 'NEW',
+                'updateDate': null,
+                'version': null
+                }
         }
     },
     computed: {
@@ -184,15 +193,7 @@ export default {
         } else {
           return false
         }
-      },
-      readOnly: function () {
-        if(this.myReport.status == 'RELEASED') {
-          return true
-        } else {
-          return false
-        }
-      },      
-
+      },    
     },
     watch: {
       steps (val) {
@@ -219,7 +220,6 @@ export default {
         }
       },
       save () {
-        console.log('-------> Save My report')
         console.log('-------> URL :'+this.service)
         this.myReport.updateDate = new Date()
         this.errored = false;
@@ -229,11 +229,11 @@ export default {
             url: this.service+'certificationReport/v1_0/save',
             data: this.myReport
         }).then( function (response) {
-          self.$router.push({ path: '/certificationReports/'+response.data.repositoryId+'/'+response.data.repositoryName  })
+          self.$router.push({ path: '/certificationReports/'+response.data.repositoryId  })
           })
       },
       goToMyCertificationReports() {
-        this.$router.push({ path: '/certificationReports/'+this.myReport.repositoryId+'/'+this.myReport.repositoryName  });
+        this.$router.push({ path: '/certificationReports/'+this.myReport.repositoryId });
       },
       releaseTheReport() {
         this.dialog = false
@@ -243,12 +243,35 @@ export default {
     },
     mounted: function() {
     	console.log("Monté")
-      console.log(this.myReport)
+      console.log(JSON.stringify(this.myReport))
     },
     
     created: function() {
-    	console.log("Créé")
-      console.log(this.myReport)
+      console.log("Créé")
+      this.errored = false
+      var id = this.$route.query.reportId
+      console.log('REPORT ID '+this.$route.query.reportId)
+      console.log('REPOSITORY ID '+this.$route.query.repositoryId)
+      console.log('PARAMS '+JSON.stringify(this.$route.query ))
+      if(id != null) {
+        var self = this
+        this.axios
+        .get(this.service+'certificationReport/v1_0/getReport/'+id)
+        .then(response => {
+          console.log(JSON.stringify(response))
+          self.myReport = response.data.reports[0]
+          console.log('My report saved '+JSON.stringify(self.myReport ))
+          self.readOnly = response.data.readOnly
+        })
+        .catch(error => {
+          console.log(error)
+          this.errored = true
+        })
+      } else {
+        this.myReport = this.myReportTemplate
+        this.myReport.repositoryId = this.$route.query.repositoryId
+      }
+
     }
 } 
 </script>

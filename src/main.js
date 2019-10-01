@@ -17,6 +17,7 @@ import MyCertificationReport from './views/MyCertificationReport.vue'
 import Login from './views/Login.vue'
 import VueApexCharts from 'vue-apexcharts'
 import Vuex from 'vuex'
+import createPersistedState from 'vuex-persistedstate'
 import 'es6-promise/auto'
 
 
@@ -62,14 +63,18 @@ export const store = new Vuex.Store(
           getLogged(state) {
             return state.logged;
           }
-        }
+        },
+
+        plugins: [
+          createPersistedState({ storage: window.sessionStorage })
+        ]
       }
 )
 
 //Enable request interceptor
 axios.interceptors.request.use(function (config) {
     if(store.getters.getUser != null ) {
-      console.log('Interceptor Token: '+store.getters.getUser.token)
+      //console.log('Interceptor Token: '+store.getters.getUser.token)
       config.headers = { Authorization: 'Bearer '+store.getters.getUser.token}
     }
     //
@@ -101,10 +106,11 @@ const router = new VueRouter({
             path: '/profile',
             name: "profile",
             component: MyProfile,
+            props: { service: service },
             meta: {requiresAuth: true}
         },
         {
-            path: '/certificationReports/:id/:name',
+            path: '/certificationReports/:id',
             name: "certificationReports",
             component: MyCertificationReports,
             props: { service: service },

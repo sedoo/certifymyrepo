@@ -6,20 +6,14 @@
     </div>
     
     <h1 class="subheading grey--text">My repositories</h1>
-
-  <template>
-  <div class="text-center">
-
-      <router-link tag="span" color="grey" class="link-title" :to="{name: 'repository', query: {repository: JSON.stringify(emptyRepo)}}">
-          <v-icon size='20px' left>fa-plus</v-icon>
-          <span style="font-weight: bold;">Create a new repository</span>
-      </router-link>
-
-  </div>
-  </template>    
     
 	<v-container fluid>
-	    <v-data-iterator
+
+
+      <div class="text-right">
+        <v-btn color="primary" @click="createRepository">Create a new repository</v-btn>
+      </div>  
+	    <v-data-iterator v-if="resultMyRepo != null && resultMyRepo.length > 0"
 	      :items=resultMyRepo
 	      disable-pagination: true
 	    >
@@ -35,18 +29,18 @@
           >
             <v-card>
               <v-card-title v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
-                <router-link tag="div" class="link-title" v-bind:to="'/certificationReports/' + item.repository.id + '/' + item.repository.name "><h4>{{ item.repository.name }}</h4></router-link>
+                <router-link tag="div" class="link-title" v-bind:to="'/certificationReports/' + item.repository.id "><h4>{{ item.repository.name }}</h4></router-link>
                 <div class="icon-edit-delete">
-                  <v-btn icon class="mx-0" @click="editRepository(item.repository)">     
+                  <v-btn v-if="!item.readonly" icon class="mx-0" @click="editRepository(item.repository)">     
                       <v-icon size='20px'>fa-edit</v-icon>    
                   </v-btn> 
 
-                  <v-dialog
+                  <v-dialog v-if="!item.readonly"
                       v-model="dialog"
                       width="500"
                       >
                   <template v-slot:activator="{ on }">
-                      <v-btn icon class="mx-0" v-on="on" @click="repositoryId = item.repository.id">     
+                      <v-btn icon class="mx-0" v-on="on" @click="repositoryId = item.repository.id" >     
                           <v-icon size='20px'>fa-trash-alt</v-icon>    
                       </v-btn>  
                   </template>
@@ -60,7 +54,7 @@
                       </v-card-title>
 
                       <v-card-text>
-                      Do you really want to delete these repository and all the related reports? This process cannot be undone.
+                      Do you really want to delete this repository and all the related reports? This process cannot be undone.
                       </v-card-text>
 
                       <v-divider></v-divider>
@@ -88,8 +82,10 @@
               <v-divider></v-divider>
               <v-list dense v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
                 <v-list-item>
-                  <v-list-item-content>Department:</v-list-item-content>
-                  <v-list-item-content class="align-end">{{ item.repository.pole}}</v-list-item-content>
+                  <v-list-item-content>Keywords:</v-list-item-content>
+                  <v-list-item-content class="align-end">
+                    <span v-for="(keyword, key) in item.repository.keywords" :key=key >{{ keyword }}</span>
+                  </v-list-item-content>
                 </v-list-item>
                 <v-list-item>
                   <v-list-item-content>Contact:</v-list-item-content>
@@ -108,7 +104,8 @@
           </v-col>
         </v-row>
       </template>
-    </v-data-iterator>
+    </v-data-iterator> 
+
   </v-container>
     
     </div>
@@ -129,7 +126,7 @@ export default {
           errorMessage: null,
           errored: false,
           loading: false,
-          emptyRepo: {id:null, name: null, pole: null, contact: null, managerIds: []},
+          emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
           dataLabels: {
               enabled: true,
               enabledOnSeries: undefined,
@@ -156,9 +153,12 @@ export default {
     },
 
     methods: {
+      createRepository() {
+          this.$router.push({name: 'repository', query: {repository: JSON.stringify(this.emptyRepo)}});
+      },
       deleteRepository () {
           this.axios.delete(this.service+'repository/v1_0/delete/'+this.repositoryId)
-            .then( () =>
+            .then( response =>
                 this.axios
                     .get(this.service+'repository/v1_0/listAllFullRepository')
                     .then(response => {
@@ -191,14 +191,9 @@ export default {
     },
     
     created: function() {
-    console.log('created MyRepositories.vue')
-    console.log("----->"+this.service)
-    
       this.errored = false;
       this.axios.get(this.service+'repository/v1_0/listAllFullRepository')
-      .then(response => {
-        console.log('Response : '+JSON.stringify(response))
-        this.resultMyRepo = response.data
+      .then(response => {        this.resultMyRepo = response.data
       })
       .catch(error => {
         console.log('Error : '+error)
