@@ -50,7 +50,7 @@
                       class="headline grey lighten-2"
                       primary-title
                       >
-                      Are you sure?
+                      Confirmation
                       </v-card-title>
 
                       <v-card-text>

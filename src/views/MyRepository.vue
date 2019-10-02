@@ -65,103 +65,46 @@
                         <td>{{ userItem.orcid }}</td>
                         <td>{{ userItem.role }}</td>
                         <td>
-                            <v-dialog
-                                v-model="dialogEdit"
-                                width="500"
-                                >
-                            <template v-slot:activator="{ on }">
-                                <v-btn icon class="mx-0" v-on="on" @click="displayEditUser(index)">     
-                                    <v-icon size='20px'>fa-edit</v-icon>    
-                                </v-btn>  
-                            </template>
-                            <v-card>
-                                <v-card-title class="headline grey lighten-2" primary-title>
-                                Edit
-                                </v-card-title>
-                                <div class="add-user">
-                                <v-text-field
-                                    v-model="user.orcid"
-                                    :counter="19"
-                                    :rules="orcIdRules"
-                                    label="ORCID"
-                                    required
-                                ></v-text-field>
-                                <v-combobox
-                                v-model="user.role"
-                                :items="roles"
-                                label="Select a role"
-                                ></v-combobox>
-                                </div>
-                                <v-divider></v-divider>
-                                <v-card-actions>
-                                <div class="flex-grow-1"></div>
-                                <v-btn
-                                    color="primary"
-                                    text
-                                    @click="dialogEdit = false"
-                                >
-                                    Cancel
-                                </v-btn>
-                                <v-btn
-                                    color="primary" :disabled="!valid"
-                                    @click="populateEditUser()"
-                                >
-                                    Confirm
-                                </v-btn>
-                                </v-card-actions>
-                            </v-card>
-                            </v-dialog>
-                            <v-dialog
-                                v-model="dialogRemove"
-                                width="500"
-                                >
-                            <template v-slot:activator="{ on }">
-                                <v-btn icon class="mx-0" v-on="on" @click="userIndex = index">     
-                                    <v-icon size='20px'>fa-trash-alt</v-icon>    
-                                </v-btn>  
-                            </template>
-                            <v-card>
-                                <v-card-title class="headline grey lighten-2" primary-title>
-                                Are you sure?
-                                </v-card-title>
-                                <v-card-text>Do you really want to delete this ORCID ?</v-card-text>
-                                <v-divider></v-divider>
-                                <v-card-actions>
-                                <div class="flex-grow-1"></div>
-                                <v-btn
-                                    color="primary"
-                                    text
-                                    @click="dialogRemove = false"
-                                >
-                                    Cancel
-                                </v-btn>
-                                <v-btn
-                                    color="primary"
-                                    @click="dialogRemove = false;removeUser()"
-                                >
-                                    Confirm
-                                </v-btn>
-                                </v-card-actions>
-                            </v-card>
-                            </v-dialog>
+                            <v-btn icon class="mx-0" @click="displayEditUser(index);">     
+                                <v-icon size='20px'>fa-edit</v-icon>    
+                            </v-btn>
+                            <v-btn icon class="mx-0" @click="userIndex = index;dialogRemove=true;">     
+                                <v-icon size='20px'>fa-trash-alt</v-icon>    
+                            </v-btn>
                         </td>
                         </tr>
                     </tbody>
                     </template>
                 </v-simple-table>
-
-                <v-dialog
-                    v-model="dialogCreate"
-                    width="500"
-                    >
-                <template v-slot:activator="{ on }">
-                <div class="text-right" >
-                <v-btn v-on="on" color="primary">ADD</v-btn>
+                <div class="text-right pa-1" >
+                    <v-btn color="primary" @click="dialogAddEdit=true;userIndex = -1">ADD</v-btn>
                 </div>
-                </template>
+                </v-col>
+            </v-row>
+            </v-container>
+            <div class="text-right">
+                     <v-btn text
+                        color="primary"
+                        @click="goToRepositories"
+                        >
+                        Cancel
+                    </v-btn>
+                     <v-btn
+                        color="primary"
+                        @click="save"
+                        :disabled="!valid"
+                        >
+                        Save
+                    </v-btn>
+            </div>
+
+            <v-dialog
+                v-model="dialogAddEdit"
+                width="500"
+                >
                 <v-card>
                     <v-card-title class="headline grey lighten-2" primary-title>
-                    Add an user
+                    {{ dialogTitle }}
                     </v-card-title>
                     <div class="add-user">
                     <v-text-field
@@ -183,37 +126,48 @@
                     <v-btn
                         color="primary"
                         text
-                        @click="dialogCreate = false"
+                        @click="dialogAddEdit = false;user={}"
                     >
                         Cancel
                     </v-btn>
                     <v-btn
                         color="primary" :disabled="!valid"
-                        @click="addUser()"
+                        @click="addUser"
                     >
                         Confirm
                     </v-btn>
                     </v-card-actions>
                 </v-card>
-                </v-dialog>
-                </v-col>
-            </v-row>
-            </v-container>
-            <div class="text-right">
-                     <v-btn text
-                        color="primary"
-                        @click="goToRepositories"
-                        >
-                        Cancel
-                    </v-btn>
-                     <v-btn
-                        color="primary"
-                        @click="save"
-                        :disabled="!valid"
-                        >
-                        Save
-                    </v-btn>
-            </div>
+            </v-dialog>
+
+            <v-dialog
+                v-model="dialogRemove"
+                width="500"
+                >
+            <v-card>
+                <v-card-title class="headline grey lighten-2" primary-title>
+                Confirmation
+                </v-card-title>
+                <v-card-text>Do you really want to remove this user ?</v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                <div class="flex-grow-1"></div>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="dialogRemove = false"
+                >
+                    Cancel
+                </v-btn>
+                <v-btn
+                    color="primary"
+                    @click="dialogRemove = false;removeUser()"
+                >
+                    Confirm
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+            </v-dialog>
 
         </v-form>
         </template>
@@ -230,12 +184,12 @@ export default {
     data() {
         return {
             dialogRemove: false,
-            dialogEdit: false,
-            dialogCreate: false,
+            dialogAddEdit: false,
             roles: ["MANAGER", "READER"],
             valid: false,
             searchKeywords: null,
-            userIndex: null,
+            userIndex: -1,
+            v: null,
             //userItem: {orcid: null, role: null},
             user: {},
             myRepository: JSON.parse(this.$route.query.repository),
@@ -269,6 +223,13 @@ export default {
         } else {
           return null;
         }
+      },
+      dialogTitle: function() {
+          if(this.userIndex == -1){
+              return 'Add'
+          } else {
+              return 'Edit'
+          }
       }
     },
     
@@ -278,7 +239,7 @@ export default {
     
     created: function() {
         console.log("MyRepository créé "+JSON.stringify(this.myRepository ))
-        // user creating a new repository (users list still empty) is manager by default
+        // If the user creating a new repository (users list still empty) he is manager by default
         // if the logged user is admin no need to add him. He has all the rights.
     	if(!this.userIsAdmin && (this.myRepository.users == null || this.myRepository.users.length == 0)) {
             console.log("users null")
@@ -289,17 +250,22 @@ export default {
 
     methods: {
         addUser() {
-            this.dialogCreate = false
-            let user = Object.assign(this.user)
-            console.log(JSON.stringify(user))
-            if(this.myRepository.users == null || this.myRepository.users.length == 0) {
-                let myUserList = [];
-                myUserList.push(user)
-                this.myRepository.users = myUserList;
+            this.dialogAddEdit = false
+            let user = JSON.parse(JSON.stringify(this.user))
+            if(this.userIndex < 0 ) {
+                if(this.myRepository.users == null || this.myRepository.users.length == 0) {
+                    let myUserList = [];
+                    myUserList.push(user)
+                    this.myRepository.users = myUserList;
+                } else {
+                    this.myRepository.users.push(user)
+                }
+                
             } else {
+                this.myRepository.users.splice(this.userIndex, 1)
                 this.myRepository.users.push(user)
             }
-            this.user = {};
+            this.user = {}
         },
         removeUser() {
             this.myRepository.users.splice(this.userIndex, 1)
@@ -307,11 +273,7 @@ export default {
         displayEditUser(index) {
             this.userIndex = index
             this.user = JSON.parse(JSON.stringify(this.myRepository.users[index]))
-        },
-        populateEditUser() {
-            this.dialogEdit = false
-            this.myRepository.users[this.userIndex] = JSON.parse(JSON.stringify(this.user))
-            this.user={orcid: null, role: null}
+            this.dialogAddEdit = true
         },
         goToRepositories() {
             this.$router.push({ path: '/repositories'});

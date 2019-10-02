@@ -61,11 +61,11 @@
                 class="headline grey lighten-2"
                 primary-title
                 >
-                Are you sure?
+                Confirmation
                 </v-card-title>
 
                 <v-card-text>
-                Do you really want to delete these report ? This process cannot be undone.
+                Do you really want to delete this report ? This process cannot be undone.
                 </v-card-text>
 
                 <v-divider></v-divider>
