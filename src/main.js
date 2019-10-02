@@ -15,6 +15,7 @@ import MyRepository from './views/MyRepository.vue'
 import MyCertificationReports from './views/MyCertificationReports.vue'
 import MyCertificationReport from './views/MyCertificationReport.vue'
 import Login from './views/Login.vue'
+import TokenRefresher from './components/CertifyMyRepo-token-refresher.vue'
 import VueApexCharts from 'vue-apexcharts'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
@@ -26,6 +27,7 @@ Vue.use(VueRouter);
 Vue.use(Vuex);
 
 Vue.component('apexchart', VueApexCharts)
+Vue.component('certifymyrepo-token-refresher', TokenRefresher)
 
 const service ="http://localhost:8485/"
 
@@ -34,15 +36,11 @@ App.service = service
 export const store = new Vuex.Store(
     {
         state: {
-          token: null,
           user: null,
           logged: false
         },
       
         mutations: {
-          setToken(state, token) {
-            state.token = token;
-          },
           setUser(state, user) {
             state.user = user;
           },
@@ -54,9 +52,6 @@ export const store = new Vuex.Store(
         actions: {},
       
         getters: {
-          getToken(state) {
-            return state.token;
-          },
           getUser(state) {
             return state.user;
           },

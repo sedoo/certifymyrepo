@@ -1,6 +1,6 @@
 <template>
  <v-app class="grey lighten-4">
- 
+  <certifymyrepo-token-refresher :service="service"></certifymyrepo-token-refresher>
   <v-app-bar  app  color="indigo" dark    >
        <v-app-bar-nav-icon @click.stop="toggleDrawer()"></v-app-bar-nav-icon>
 
@@ -75,7 +75,7 @@ export default {
             method: 'post',
             url: this.service+"login/v1_0/orcid?code=" + code + "&redirect_uri=" + this.redirectUri
         }).then( function (response) {
-            console.log(JSON.stringify(response.data))
+            console.log('LOGIN '+JSON.stringify(response.data))
             self.$store.commit('setUser', response.data)
             self.$store.commit('setLogged', true)
             self.$router.push({path: '/repositories'})
