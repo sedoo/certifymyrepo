@@ -262,6 +262,15 @@ export default {
           self.myReport = response.data.reports[0]
           console.log('My report saved '+JSON.stringify(self.myReport ))
           self.readOnly = response.data.readOnly
+          // if the report has been released and the user is not making a copy => READ ONLY
+          if(response.data.reports[0].status == 'RELEASED' && this.$route.query.copy == null) {
+            self.readOnly = true
+          }
+          // if the user is making a copy of a released report => status NEW and version null
+          if(this.$route.query.copy != null) {
+            self.myReport.status = 'NEW'
+            self.myReport.version = null
+          }
         })
         .catch(error => {
           console.log(error)

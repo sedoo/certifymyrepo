@@ -7,12 +7,11 @@
     
     <h1 class="subheading grey--text">My repositories</h1>
     
+<div class="text-right pa-2">
+  <v-btn color="primary" @click="createRepository">Create a new repository</v-btn>
+</div>  
+  <v-card class="mx-auto">
 	<v-container fluid>
-
-
-      <div class="text-right">
-        <v-btn color="primary" @click="createRepository">Create a new repository</v-btn>
-      </div>  
 	    <v-data-iterator v-if="resultMyRepo != null && resultMyRepo.length > 0"
 	      :items=resultMyRepo
 	      disable-pagination: true
@@ -107,7 +106,7 @@
     </v-data-iterator> 
 
   </v-container>
-    
+  </v-card>
     </div>
 </template>
 
@@ -154,7 +153,7 @@ export default {
 
     methods: {
       createRepository() {
-          this.$router.push({name: 'repository', query: {repository: JSON.stringify(this.emptyRepo)}});
+          this.$router.push({name: 'repository'});
       },
       deleteRepository () {
           this.axios.delete(this.service+'repository/v1_0/delete/'+this.repositoryId)
@@ -170,20 +169,21 @@ export default {
             })
       },
       editRepository (item) {
-          this.$router.push({name: 'repository', query: { repository: JSON.stringify(item)} });
+          this.$router.push({name: 'repository', query: {repositoryId: item.id}});
       },
       levelList (health) {
             var serie = {name: 'certificationReport', data: []}
             if(health != null) {
               serie.data = health.requirementLevelList
+              console.log('Level list: '+JSON.stringify(serie.data))
             }
-            
             return [serie];
         },
       chartOptions (health) {
-          var option = {labels: null, title: {text: 'Requirements Radar Chart'}}  
+          var option = {labels: null, title: {text: 'Requirements Radar Chart'}}
           if(health != null) {
             option.labels = health.requirementCodeList
+            console.log('Code list: '+JSON.stringify(option.labels))
           }
           option.dataLabels = this.dataLabels
           return option

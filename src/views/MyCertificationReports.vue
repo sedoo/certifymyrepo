@@ -30,17 +30,17 @@
         </template> 
         <template v-slot:item.actions="{ item }">
             <v-btn v-if="!readOnly && !isReleased(item)" icon class="mx-0" @click="editItem(item)">     
-                <v-icon class="pa-5">fa-edit</v-icon>    
+                <v-icon size="20px">fa-edit</v-icon>    
             </v-btn>
 
             <v-btn v-if="readOnly || isReleased(item)" icon class="mx-0 pa-3" @click="editItem(item)">     
-                <v-icon class="pa-5">fa-book-open</v-icon>    
+                <v-icon size="20px">fa-book-open</v-icon>    
             </v-btn>
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                     <v-btn v-if="isReleased(item) && !readyOnly" icon v-on="on" class="mx-0" @click="copyItem(item)">     
-                        <v-icon class="pa-5">fa-copy</v-icon>    
+                        <v-icon size="20px">fa-copy</v-icon>    
                     </v-btn>
                 </template>
                 <span>Create a new report from a copy</span>
@@ -52,7 +52,7 @@
                 >
             <template v-slot:activator="{ on }">
                 <v-btn v-if="!readOnly && !isReleased(item)" icon class="mx-0" v-on="on" @click="reportId=item.id">     
-                    <v-icon class="pa-5">fa-trash-alt</v-icon>    
+                    <v-icon size="20px">fa-trash-alt</v-icon>    
                 </v-btn>  
             </template>
 
@@ -149,7 +149,7 @@ export default {
                 }
             }
             serie.data = array
-            //console.log(JSON.stringify(serie))
+            //console.log('level list report'+JSON.stringify(serie.data))
             return [serie];
         },
         chartOptions (report) {
@@ -165,7 +165,7 @@ export default {
             //console.log(JSON.stringify(array))
             option.labels = array
             //console.log('------------> chartOptions')
-            //console.log(JSON.stringify(option))
+            //console.log('code report'+JSON.stringify(option.labels))
             return option
         },
         deleteItem () {

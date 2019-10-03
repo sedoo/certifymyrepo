@@ -4,28 +4,13 @@
     <div style="background:red" v-if="errored">Error: {{ errorMessage }}</div>
     <h1 class="subheading grey--text">My profile</h1>
     <v-form v-model="valid">
-    <v-container class="my-3">
-            <h3> Request repository access</h3>
-            <v-row>
-                <v-col
-                    cols="12"
-                    xs="10" sm="10"
-                    md="10"
-                    >
+        <v-card
+            class="mx-auto pa-5"
+        >
+            <v-card-title> Request repository access</v-card-title>
+            <v-card-text class="grey--text text--lighten-1">Search by repository name and/or keywords</v-card-text >
+            <v-card-actions>
                     <v-text-field v-model="keywords"></v-text-field>
-                  <!--  <v-combobox multiple
-                                v-model="keywords" 
-                                label="keywords"
-                                chips
-                                deletable-chips
-                                :search-input.sync="search"                                 >
-                    </v-combobox>-->
-                </v-col>
-                <v-col
-                    cols="12"
-                    xs="2" sm="2"
-                    md="2"
-                    >
                     <v-btn style="margin-top:20px;"
                         color="primary"
                         @click="lookup"
@@ -34,79 +19,69 @@
                         >
                         <v-icon size='20px'>fa-search</v-icon> 
                     </v-btn>
-                </v-col>
-            </v-row>
-            <v-row v-if="!isSearchResultNull">
-                <v-col
-                    cols="12"
-                    xs="12" sm="12"
-                    md="12"
-                    >
-                <v-simple-table>
-                    <template v-slot:default>
-                    <thead>
-                        <tr>
-                        <th class="text-left">Name</th>
-                        <th class="text-left">Keywords</th>
-                        <th class="text-left">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="item in repositories" :key="item.name">
-                        <td>{{ item.name }}</td>
-                        <td><span v-for="(keyword, index) in item.keywords" :key=index>{{ keyword }} </span></td>
-                        <td v-if="userIsAdmin">A/N</td>
-                        <td v-else-if="isAccessGranted(item.users)">Access granted</td>
-                        <td v-else> 
-                            <v-btn color="primary" icon @click="requestedRepository=item;dialog=true">
-                                <v-icon size='20px'>fa-unlock-alt</v-icon> 
-                            </v-btn>
-                            <v-dialog
-                            v-model="dialog"
-                            width="500"
+            </v-card-actions>
+            <v-simple-table v-if="repositories!=null && repositories.length > 0">
+                <template v-slot:default>
+                <thead>
+                    <tr>
+                    <th class="text-left">Name</th>
+                    <th class="text-left">Keywords</th>
+                    <th class="text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in repositories" :key="item.name">
+                    <td>{{ item.name }}</td>
+                    <td><span v-for="(keyword, index) in item.keywords" :key=index>{{ keyword }} </span></td>
+                    <td v-if="userIsAdmin">A/N</td>
+                    <td v-else-if="isAccessGranted(item.users)">Access granted</td>
+                    <td v-else> 
+                        <v-btn color="primary" icon @click="requestedRepository=item;dialog=true">
+                            <v-icon size='20px'>fa-unlock-alt</v-icon> 
+                        </v-btn>
+                        <v-dialog
+                        v-model="dialog"
+                        width="500"
+                        >
+                        <v-card>
+                            <v-card-title
+                            class="headline grey lighten-2"
+                            primary-title
                             >
+                            Request {{ requestedRepository.name }} access
+                            </v-card-title>
 
-                            <v-card>
-                                <v-card-title
-                                class="headline grey lighten-2"
-                                primary-title
-                                >
-                                Request {{ requestedRepository.name }} access
-                                </v-card-title>
+                            <v-card-text>
+                            <v-text-field
+                                label="Email"
+                                v-model="requestedRepository.email"
+                                :rules="emailRules"
+                                required
+                            ></v-text-field>
 
-                                <v-card-text>
-                                <v-text-field
-                                    label="Email"
-                                    v-model="requestedRepository.email"
-                                    :rules="emailRules"
-                                    required
-                                ></v-text-field>
+                            <v-textarea
+                                outlined
+                                label="Message"
+                                v-model="requestedRepository.text">
+                            </v-textarea>
+                            </v-card-text>
 
-                              <v-textarea
-                                  outlined
-                                  label="Message"
-                                  v-model="requestedRepository.text">
-                              </v-textarea>
-                                </v-card-text>
+                            <v-divider></v-divider>
 
-                                <v-divider></v-divider>
-
-                                <v-card-actions>
-                                <div class="flex-grow-1"></div>
-                                <v-btn color="primary" text @click="dialog = false">Cancel</v-btn>
-                                <v-btn color="primary" @click="dialog = false; sendRequest()" :disabled="!valid">Send</v-btn>
-                                </v-card-actions>
-                            </v-card>
-                            </v-dialog>
-                        </td>
-                        </tr>
-                    </tbody>
-                    </template>
-                </v-simple-table>
-                </v-col>
-            </v-row>
-        
-    </v-container>
+                            <v-card-actions>
+                            <div class="flex-grow-1"></div>
+                            <v-btn color="primary" text @click="dialog = false">Cancel</v-btn>
+                            <v-btn color="primary" @click="dialog = false; sendRequest()" :disabled="!valid">Send</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                        </v-dialog>
+                    </td>
+                    </tr>
+                </tbody>
+                </template>
+            </v-simple-table>
+            <v-card-text v-if="notDataFound">No data found</v-card-text>
+        </v-card>
     </v-form>
     </div>
     </div>
@@ -128,10 +103,11 @@ export default {
             keywords: [],
             search: null,
             repositories: [],
+            notDataFound: false,
             requestedRepository: {name: null, email: null, text: null},
             emailRules: [
                 v => !!v || 'E-mail is required',
-                v => /.+@.+/.test(v) || 'E-mail must be valid',
+                v => /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v) || 'E-mail must be valid',
             ]
         }
     },
@@ -160,6 +136,7 @@ export default {
 
     methods: {
         lookup(){
+            this.notDataFound = false
             this.axios.get(this.service+'repository/v1_0/search', {
                 params: {
                     keywords: this.keywords.split(" ")
@@ -171,6 +148,9 @@ export default {
             .then(response => {
                 console.log('Response : '+JSON.stringify(response))
                 this.repositories = response.data
+                if(this.repositories==null || this.repositories.length == 0) {
+                    this.notDataFound = true
+                }
             })
             .catch(error => {
                 this.errorMessage = error.message;

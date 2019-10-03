@@ -1,5 +1,10 @@
 <template>
     <div class="repository">
+
+    <div style="background:red" v-if="errored">
+    Error: {{ errorMessage }}
+    </div>
+
     <h1 class="subheading grey--text">My repository</h1>
 
         <template>
@@ -186,13 +191,14 @@ export default {
             dialogRemove: false,
             dialogAddEdit: false,
             roles: ["MANAGER", "READER"],
+            errored: false,
             valid: false,
             searchKeywords: null,
             userIndex: -1,
-            v: null,
-            //userItem: {orcid: null, role: null},
             user: {},
-            myRepository: JSON.parse(this.$route.query.repository),
+            myRepository: {},
+            emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
+            repositoryId: this.$route.query.repositoryId,
             nameRules: [
                 v => !!v || 'Name is required',
                 v => v.length <= 20 || 'Name must be less than 20 characters',
@@ -204,7 +210,7 @@ export default {
             ],
             emailRules: [
                 v => !!v || 'E-mail is required',
-                v => /.+@.+/.test(v) || 'E-mail must be valid',
+                v => /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || 'E-mail must be valid',
             ]
         }
     },
@@ -238,14 +244,28 @@ export default {
     },
     
     created: function() {
-        console.log("MyRepository créé "+JSON.stringify(this.myRepository ))
-        // If the user creating a new repository (users list still empty) he is manager by default
-        // if the logged user is admin no need to add him. He has all the rights.
-    	if(!this.userIsAdmin && (this.myRepository.users == null || this.myRepository.users.length == 0)) {
-            console.log("users null")
-            let localUser = {orcid: this.userOrcid, role: 'MANAGER'}
-            this.myRepository.users.push(localUser)
+        if(this.repositoryId != null) {
+            this.errored = false;
+            this.axios.get(this.service+'repository/v1_0/getRepository/'+this.repositoryId )
+                .then(response => {       
+                    this.myRepository = response.data
+                })
+                .catch(error => {
+                    console.log('Error : '+error)
+                    this.errorMessage = error.message;
+                    this.errored = true
+                })
+        } else {
+            this.myRepository = this.emptyRepo
+            // If the user creating a new repository he is manager by default
+            // if the logged user is admin no need to add him. He has all the rights.
+    	    if(!this.userIsAdmin && (this.myRepository.users == null || this.myRepository.users.length == 0)) {
+                let localUser = {orcid: this.userOrcid, role: 'MANAGER'}
+                this.myRepository.users.push(localUser)
+            }
         }
+        console.log("MyRepository créé "+JSON.stringify(this.myRepository ))
+
     },
 
     methods: {
@@ -287,7 +307,7 @@ export default {
             }).then ( function () {
                 self.goToRepositories()
             });
-        }
+        }       
     }
 } 
 </script>
