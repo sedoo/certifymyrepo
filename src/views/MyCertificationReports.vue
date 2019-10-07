@@ -182,13 +182,13 @@ export default {
             })
         },
         createReport() {
-            this.$router.push({path: '/editMyReport', query: { repositoryId: this.repositoryId, reportId: null} })
+            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null} })
         },
         editItem (item) {
-            this.$router.push({path: '/editMyReport', query: { repositoryId: this.repositoryId, reportId: item.id } });
+            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: item.id } });
         }, 
         copyItem (item) {
-            this.$router.push({path: '/editMyReport', query: { repositoryId: this.repositoryId, reportId: item.id, copy: true }  });
+            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: item.id, copy: true }  });
         }, 
         formatDate (timestamp) {
             return moment(timestamp).format('DD MMM YYYY HH:mm')

@@ -17,14 +17,13 @@ import MyCertificationReport from './views/MyCertificationReport.vue'
 import Login from './views/Login.vue'
 import TokenRefresher from './components/CertifyMyRepo-token-refresher.vue'
 import VueApexCharts from 'vue-apexcharts'
-import Vuex from 'vuex'
-import createPersistedState from 'vuex-persistedstate'
 import 'es6-promise/auto'
+import { store } from './store/store'
+
 
 
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
-Vue.use(Vuex);
 
 Vue.component('apexchart', VueApexCharts)
 Vue.component('certifymyrepo-token-refresher', TokenRefresher)
@@ -32,39 +31,6 @@ Vue.component('certifymyrepo-token-refresher', TokenRefresher)
 const service ="http://localhost:8485/"
 
 App.service = service
-
-export const store = new Vuex.Store(
-    {
-        state: {
-          user: null,
-          logged: false
-        },
-      
-        mutations: {
-          setUser(state, user) {
-            state.user = user;
-          },
-          setLogged(state, logged) {
-            state.logged = logged
-          }
-        },
-      
-        actions: {},
-      
-        getters: {
-          getUser(state) {
-            return state.user;
-          },
-          getLogged(state) {
-            return state.logged;
-          }
-        },
-
-        plugins: [
-          createPersistedState({ storage: window.sessionStorage })
-        ]
-      }
-)
 
 //Enable request interceptor
 axios.interceptors.request.use(function (config) {
@@ -112,11 +78,11 @@ const router = new VueRouter({
             meta: {requiresAuth: true}
         },
         {
-            path: '/editMyReport',
-            name: "editMyReport",
-            component: MyCertificationReport,
-            props: { service: service },
-            meta: {requiresAuth: true}
+          path: '/myReport',
+          name: "myReport",
+          component: MyCertificationReport,
+          props: { service: service },
+          meta: {requiresAuth: true}
         },
         {
             path: '/login',
