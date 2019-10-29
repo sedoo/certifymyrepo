@@ -16,6 +16,17 @@
        </div>
        <div v-else class="text-center">
          <p class="headline">Wellcome {{ userName }} </p>
+         <p> 
+         <v-btn class="mx-3 light-green lighten-5" @click="logoutFromORCID">
+           <img
+             style="vertical-align:middle;"
+             src="https://orcid.org/sites/default/files/images/orcid_24x24.png"
+             width="24"
+             height="24"
+           />
+           <span class="px-2">Logout</span>
+         </v-btn>
+         </p>
          </div>
      </v-col>
    </v-row>
@@ -39,6 +50,19 @@ export default {
       openORCID: function(){
         console.log('this.redirectUri ->'+this.redirectUri)
         window.open("https://orcid.org/oauth/authorize?client_id=APP-E0UG85537RVITGE5&response_type=code&scope=/authenticate&redirect_uri=" + this.redirectUri, "_self");
+      },
+      logoutFromORCID: function() {
+        var self = this;
+        const jsonp = require('jsonp');
+        jsonp('https://orcid.org/userStatus.json?logUserOut=true', null, (err, data) => {
+          if (err) {
+            console.error(err.message);
+          } else {
+            self.$store.commit('setUser', null)
+            self.$store.commit('setLogged', false)
+          }
+        })
+
       }
     },
     
