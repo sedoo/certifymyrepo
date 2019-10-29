@@ -33,28 +33,35 @@
                 <v-icon size="20px">fa-edit</v-icon>    
             </v-btn>
 
+            <v-btn v-if="!readOnly && !isReleased(item)" icon class="mx-0" @click="dialog=true;reportId=item.id">     
+                <v-icon size="20px">fa-trash-alt</v-icon>    
+            </v-btn>  
+
             <v-btn v-if="readOnly || isReleased(item)" icon class="mx-0 pa-3" @click="editItem(item)">     
                 <v-icon size="20px">fa-book-open</v-icon>    
             </v-btn>
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn v-if="isReleased(item) && !readyOnly" icon v-on="on" class="mx-0" @click="copyItem(item)">     
+                    <v-btn v-if="isReleased(item) && !readOnly" icon v-on="on" class="mx-0" @click="copyItem(item)">     
                         <v-icon size="20px">fa-copy</v-icon>    
                     </v-btn>
                 </template>
                 <span>Create a new report from a copy</span>
             </v-tooltip>
 
-            <v-dialog
+        </template>   
+
+        <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length"><apexchart type=radar height=350 :options="chartOptions(item)" :series="levelList(item)" /></td>
+        </template>      
+
+        </v-data-table>
+
+        <v-dialog
                 v-model="dialog"
                 width="500"
                 >
-            <template v-slot:activator="{ on }">
-                <v-btn v-if="!readOnly && !isReleased(item)" icon class="mx-0" v-on="on" @click="reportId=item.id">     
-                    <v-icon size="20px">fa-trash-alt</v-icon>    
-                </v-btn>  
-            </template>
 
             <v-card>
                 <v-card-title
@@ -89,19 +96,12 @@
             </v-card>
             </v-dialog>
 
-        </template>   
-
-        <template v-slot:expanded-item="{ headers, item }">
-            <td :colspan="headers.length"><apexchart type=radar height=350 :options="chartOptions(item)" :series="levelList(item)" /></td>
-        </template>      
-
-        </v-data-table>
-
         </template>
 
     </v-container>
     </div>
     </div>
+
 </template>
 
 
@@ -174,7 +174,8 @@ export default {
                     this.axios
                         .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
                         .then(response => {
-                            this.reports = response.data
+                            this.readOnly = response.data.readOnly
+                            this.reports = response.data.reports
                         })
                 )
                 .catch(error => {
@@ -195,22 +196,22 @@ export default {
         },
         isReleased: function (item) {
             if(item.status == 'RELEASED') {
-                console.log('is released : true, readOnly : '+this.readOnly) 
+                //console.log('is released : true, readOnly : '+this.readOnly) 
                 return true
             } else {
-                console.log('is released : false, readOnly : '+this.readOnly)
+                //console.log('is released : false, readOnly : '+this.readOnly)
                 return false
             }
         }
     },
 
     mounted: function() {
-    	console.log("-------> MyCertificationReports Monté")
+    	//console.log("-------> MyCertificationReports Monté")
     },
     
     created: function() {
-      console.log('-------> MyCertificationReports créé')
-      console.log('------->:repository id: '+this.$route.params.id)
+      //console.log('-------> MyCertificationReports créé')
+      //console.log('------->:repository id: '+this.$route.params.id)
       var self = this
       this.errored = false;
       this.axios
@@ -218,7 +219,7 @@ export default {
       .then(response => {
         self.reports = response.data.reports
         self.readOnly = response.data.readOnly
-         console.log('------->:response.data: '+JSON.stringify(response.data))
+        //console.log('------->:response.data: '+JSON.stringify(response.data))
       })
       .catch(error => {
         console.log(error)

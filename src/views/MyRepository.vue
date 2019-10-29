@@ -198,21 +198,21 @@ export default {
             searchKeywords: null,
             userIndex: -1,
             user: {},
-            myRepository: {},
-            emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
+            myRepository: {id:null, name: null, keywords:[], contact: null, users: []},
+            //emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
             repositoryId: this.$route.query.repositoryId,
             nameRules: [
                 v => !!v || 'Name is required',
-                v => v.length <= 20 || 'Name must be less than 20 characters',
+                v => !!v && v.length <= 20 || 'Name must be less than 20 characters',
             ],
             orcIdRules: [
                 v => !!v || 'ORCID is required',
                 v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{4,4})/.test(v) || 'E-mail must be valid',
-                v => v.length <= 19 || 'Name must be exactly 20 characters',
+                v => !!v && v.length <= 19 || 'Name must be exactly 20 characters',
             ],
             emailRules: [
                 v => !!v || 'E-mail is required',
-                v => /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || 'E-mail must be valid',
+                v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || 'E-mail must be valid',
             ]
         }
     },
@@ -258,7 +258,7 @@ export default {
                     this.errored = true
                 })
         } else {
-            this.myRepository = this.emptyRepo
+            //this.myRepository = this.emptyRepo
             // If the user creating a new repository he is manager by default
             // if the logged user is admin no need to add him. He has all the rights.
     	    if(!this.userIsAdmin && (this.myRepository.users == null || this.myRepository.users.length == 0)) {

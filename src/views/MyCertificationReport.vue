@@ -12,7 +12,6 @@
                 label="Version Number"
                 v-model="myReport.version"
                 :rules="versionRules"
-                required
             ></v-text-field>
             <p v-if="readOnly"><span class="font-weight-bold">Version:  </span><span>{{ myReport.version }} </span></p>
          
@@ -164,7 +163,14 @@ export default {
             valid: false,
             dialog: false,
             readOnly: null,
-            myReport: null,
+            myReport: {
+                'id': null, 
+                'repositoryId': null,
+                'items': requirementTemplateJson.requirements, 
+                'status': 'NEW',
+                'updateDate': null,
+                'version': null
+                },
             errorMessage: '',
             errored: false,
             index: 0,
@@ -181,14 +187,6 @@ export default {
             versionRules: [
                 v => !!v || 'Version is required'
             ],
-            myReportTemplate: {
-                'id': null, 
-                'repositoryId': null,
-                'items': requirementTemplateJson.requirements, 
-                'status': 'NEW',
-                'updateDate': null,
-                'version': null
-                }
         }
     },
     computed: {
@@ -248,24 +246,24 @@ export default {
     },
     mounted: function() {
     	console.log("Monté")
-      console.log(JSON.stringify(this.myReport))
+      //console.log(JSON.stringify(this.myReport))
     },
     
     created: function() {
-      console.log("Créé")
+      //console.log("Créé")
       this.errored = false
       var id = this.$route.query.reportId
-      console.log('REPORT ID '+this.$route.query.reportId)
-      console.log('REPOSITORY ID '+this.$route.query.repositoryId)
-      console.log('PARAMS '+JSON.stringify(this.$route.query ))
+      //console.log('REPORT ID '+this.$route.query.reportId)
+      //console.log('REPOSITORY ID '+this.$route.query.repositoryId)
+      //console.log('PARAMS '+JSON.stringify(this.$route.query ))
       if(id != null) {
         var self = this
         this.axios
         .get(this.service+'certificationReport/v1_0/getReport/'+id)
         .then(response => {
-          console.log(JSON.stringify(response))
+          //console.log(JSON.stringify(response))
           self.myReport = response.data.reports[0]
-          console.log('My report saved '+JSON.stringify(self.myReport ))
+          //console.log('My report saved '+JSON.stringify(self.myReport ))
           self.readOnly = response.data.readOnly
           // if the report has been released and the user is not making a copy => READ ONLY
           if(response.data.reports[0].status == 'RELEASED' && this.$route.query.copy == null) {
@@ -284,7 +282,7 @@ export default {
           this.errorMessage = error
         })
       } else {
-        this.myReport = this.myReportTemplate
+        //this.myReport = this.myReportTemplate
         this.myReport.repositoryId = this.$route.query.repositoryId
       }
 
