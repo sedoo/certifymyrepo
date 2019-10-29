@@ -36,7 +36,8 @@
     "vue-cli-plugin-vuetify": "^0.6.3",
     "vue-router": "^3.0.7",
     "vue-template-compiler": "^2.6.10",
-    "vuetify-loader": "^1.2.2"
+    "vuetify-loader": "^1.2.2",
+    "webpack-cdn-upload-plugin": "^2.0.2"
   },
   "eslintConfig": {
     "root": true,
