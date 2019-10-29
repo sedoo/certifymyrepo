@@ -8,7 +8,8 @@ export const store = new Vuex.Store(
     {
         state: {
           user: null,
-          logged: false
+          logged: false,
+          repository: null
         },
       
         mutations: {
@@ -17,6 +18,9 @@ export const store = new Vuex.Store(
           },
           setLogged(state, logged) {
             state.logged = logged
+          },
+          setRepository(state, repository) {
+            state.repository = repository
           }
         },
       
@@ -28,6 +32,9 @@ export const store = new Vuex.Store(
           },
           getLogged(state) {
             return state.logged;
+          },
+          getRepository(state) {
+            return state.repository;
           }
         },
 

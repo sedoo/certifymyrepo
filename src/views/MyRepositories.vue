@@ -28,7 +28,7 @@
           >
             <v-card>
               <v-card-title v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
-                <router-link tag="div" class="link-title" v-bind:to="'/certificationReports/' + item.repository.id "><h4>{{ item.repository.name }}</h4></router-link>
+                <v-btn text class="link-title pa-0" @click="routeToMyReports(item.repository)">{{ item.repository.name }}</v-btn>
                 <div class="icon-edit-delete">
                   <v-btn v-if="!item.readonly" icon class="mx-0" @click="editRepository(item.repository)">     
                       <v-icon size='20px'>fa-edit</v-icon>    
@@ -187,10 +187,16 @@ export default {
           }
           option.dataLabels = this.dataLabels
           return option
-      }     
+      },
+      routeToMyReports(repository) {
+        this.$store.commit('setRepository', repository)
+        this.$router.push({path: '/certificationReports/' + repository.id })
+      }
     },
     
     created: function() {
+      // reset repository in the store
+      this.$store.commit('setRepository', null)
       this.errored = false;
       this.axios.get(this.service+'repository/v1_0/listAllFullRepository')
       .then(response => {        this.resultMyRepo = response.data
@@ -208,7 +214,8 @@ export default {
 <style scoped>
 
 .link-title {
-	cursor: pointer
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .icon-edit-delete {

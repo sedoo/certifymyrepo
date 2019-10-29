@@ -1,7 +1,10 @@
 <template>
     <div>
     <div class="report">
-    <h1 class="subheading grey--text">My {{ myReport.repositoryName }} report</h1>
+    <div style="background:red" v-if="errored">
+    Error: {{ errorMessage }}
+    </div>
+    <h1 class="subheading grey--text">My {{ $store.getters.getRepository.name }} report</h1>
       <v-form v-model="valid">
       
 
@@ -162,6 +165,8 @@ export default {
             dialog: false,
             readOnly: null,
             myReport: null,
+            errorMessage: '',
+            errored: false,
             index: 0,
             levelsTemplate: levelsTemplateJson,
             headers: [
@@ -270,11 +275,13 @@ export default {
           if(this.$route.query.copy != null) {
             self.myReport.status = 'NEW'
             self.myReport.version = null
+            self.myReport.id = null
           }
         })
         .catch(error => {
           console.log(error)
           this.errored = true
+          this.errorMessage = error
         })
       } else {
         this.myReport = this.myReportTemplate

@@ -1,7 +1,7 @@
 <template>
     <div>
     <div class="reports">
-    <h1 class="subheading grey--text">My certification reports</h1>
+    <h1 class="subheading grey--text">My {{ $store.getters.getRepository.name }} certification reports</h1>
     <v-container class="my-3">
 
         <template>
@@ -170,7 +170,7 @@ export default {
         },
         deleteItem () {
             this.axios.delete(this.service+'certificationReport/v1_0/delete/'+this.reportId)
-                .then( () =>
+                .then( response =>
                     this.axios
                         .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
                         .then(response => {
