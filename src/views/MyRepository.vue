@@ -102,7 +102,8 @@
                         Save
                     </v-btn>
             </div>
-
+        </v-form>
+        <v-form v-model="validPopup">
             <v-dialog
                 v-model="dialogAddEdit"
                 width="500"
@@ -136,7 +137,7 @@
                         Cancel
                     </v-btn>
                     <v-btn
-                        color="primary" :disabled="!valid"
+                        color="primary" :disabled="!validPopup"
                         @click="addUser"
                     >
                         Confirm
@@ -193,6 +194,7 @@ export default {
             roles: ["MANAGER", "READER"],
             errored: false,
             valid: false,
+            validPopup: false,
             searchKeywords: null,
             userIndex: -1,
             user: {},
