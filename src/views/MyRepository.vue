@@ -247,15 +247,16 @@ export default {
     
     created: function() {
         if(this.repositoryId != null) {
+            var self = this;
             this.errored = false;
             this.axios.get(this.service+'repository/v1_0/getRepository/'+this.repositoryId )
                 .then(response => {       
-                    this.myRepository = response.data
+                    self.myRepository = response.data
                 })
                 .catch(error => {
                     console.log('Error : '+error)
-                    this.errorMessage = error.message;
-                    this.errored = true
+                    self.errorMessage = error.message;
+                    self.errored = true
                 })
         } else {
             //this.myRepository = this.emptyRepo
@@ -302,13 +303,18 @@ export default {
         },
         save () {
             var self = this;
+            this.errored = false;
             this.axios({
                 method: 'post',
                 url: this.service+'repository/v1_0/save',
                 data: this.myRepository
             }).then ( function () {
                 self.goToRepositories()
-            });
+            })
+            .catch(error => {
+                self.errorMessage = error.message;
+                self.errored = true
+                });
         }       
     }
 } 

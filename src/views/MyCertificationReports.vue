@@ -1,6 +1,7 @@
 <template>
     <div>
     <div class="reports">
+    <div style="background:red" v-if="errored">Error: {{ errorMessage }}</div>
     <h1 class="subheading grey--text">My {{ $store.getters.getRepository.name }} certification reports</h1>
     <v-container class="my-3">
 
@@ -169,18 +170,20 @@ export default {
             return option
         },
         deleteItem () {
+            var self = this;
             this.axios.delete(this.service+'certificationReport/v1_0/delete/'+this.reportId)
                 .then( response =>
                     this.axios
                         .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
                         .then(response => {
-                            this.readOnly = response.data.readOnly
-                            this.reports = response.data.reports
+                            self.readOnly = response.data.readOnly
+                            self.reports = response.data.reports
                         })
                 )
                 .catch(error => {
-                    console.log(error)
-            })
+                        self.errorMessage = error.message;
+                        self.errored = true
+                    })
         },
         createReport() {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null} })
@@ -222,8 +225,8 @@ export default {
         //console.log('------->:response.data: '+JSON.stringify(response.data))
       })
       .catch(error => {
-        console.log(error)
-        this.errored = true
+        self.errorMessage = error.message;
+        self.errored = true
       })
       .finally(() => this.loading = false)
     }

@@ -80,6 +80,10 @@ export default {
             self.$store.commit('setLogged', true)
             self.$router.push({path: '/repositories'})
           })
+        .catch(error => {
+          self.errorMessage = error.message;
+          self.errored = true
+        })
 
       } else {
         this.logout();

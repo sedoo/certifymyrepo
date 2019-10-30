@@ -29,12 +29,12 @@ export default {
             return;
         }
         this.timer = setInterval(() => {
-          console.log("Service "+this.service+"/login/v1_0/refreshToken")
-          console.log("User "+JSON.stringify(this.getUser))
-          console.log("JWT Token refresh "+this.getUser.token)
+          //console.log("Service "+this.service+"/login/v1_0/refreshToken")
+          //console.log("User "+JSON.stringify(this.getUser))
+          //console.log("JWT Token refresh "+this.getUser.token)
           this.axios.get(this.service+"/login/v1_0/refreshToken")
             .then((response) => {
-              console.log("JWT Token refreshed: "+response.data)
+              //console.log("JWT Token refreshed: "+response.data)
               let user = Object.assign(this.getUser)
               user.token = response.data
               this.$store.commit("setUser", user);

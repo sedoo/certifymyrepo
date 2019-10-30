@@ -234,6 +234,11 @@ export default {
         }).then( function (response) {
           self.$router.push({ path: '/certificationReports/'+response.data.repositoryId  })
           })
+        .catch(error => {
+          console.log(error)
+          self.errored = true
+          self.errorMessage = error
+        })
       },
       goToMyCertificationReports() {
         this.$router.push({ path: '/certificationReports/'+this.myReport.repositoryId });
@@ -277,9 +282,8 @@ export default {
           }
         })
         .catch(error => {
-          console.log(error)
-          this.errored = true
-          this.errorMessage = error
+          self.errored = true
+          self.errorMessage = error
         })
       } else {
         //this.myReport = this.myReportTemplate

@@ -156,16 +156,19 @@ export default {
           this.$router.push({name: 'repository'});
       },
       deleteRepository () {
+          this.errored = false
+          var self = this;
           this.axios.delete(this.service+'repository/v1_0/delete/'+this.repositoryId)
             .then( response =>
-                this.axios
-                    .get(this.service+'repository/v1_0/listAllFullRepository')
+                self.axios
+                    .get(self.service+'repository/v1_0/listAllFullRepository')
                     .then(response => {
-                        this.resultMyRepo = response.data
+                        self.resultMyRepo = response.data
                     })
             )
             .catch(error => {
-                console.log(error)
+              self.errorMessage = error.message;
+              self.errored = true
             })
       },
       editRepository (item) {
@@ -198,13 +201,15 @@ export default {
       // reset repository in the store
       this.$store.commit('setRepository', null)
       this.errored = false;
+      var self = this;
       this.axios.get(this.service+'repository/v1_0/listAllFullRepository')
-      .then(response => {        this.resultMyRepo = response.data
+      .then(response => {
+        self.resultMyRepo = response.data
       })
       .catch(error => {
         console.log('Error : '+error)
-        this.errorMessage = error.message;
-        this.errored = true
+        self.errorMessage = error.message;
+        self.errored = true
       })
       .finally(() => this.loading = false)
       }
