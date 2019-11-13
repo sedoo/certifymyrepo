@@ -4,11 +4,16 @@
   <v-app-bar  app  color="indigo" dark    >
        <v-app-bar-nav-icon @click.stop="toggleDrawer()"></v-app-bar-nav-icon>
 
-     <v-toolbar-title class="text-uppercase" >
-                <span class="font-weight-light">CertifMy</span>REPO
-            </v-toolbar-title>
+    <v-toolbar-title class="text-uppercase" >
+      <span class="font-weight-light">CertifMy</span>REPO
+    </v-toolbar-title>
             
-            <v-spacer></v-spacer>
+    <v-spacer></v-spacer>
+
+    <v-btn icon class="mx-0" to="/login">     
+      <v-icon v-if="!isLogged" size='20px'>fa-sign-in-alt</v-icon>
+      <v-icon v-else size='20px'>fa-sign-out-alt</v-icon>
+    </v-btn>
      
     </v-app-bar>
  
@@ -52,7 +57,7 @@ export default {
     errored: false,
     drawer : false,
     link: null,
-    links : [{label:"My repositories", route: '/repositories', icon: 'fa-archive'},{label:"My Profile", route: "/profile", icon: 'fa-user'}, {label:"Login", route: "/login", icon: 'fa-key'}]
+    links : [{label:"My repositories", route: '/repositories', icon: 'fa-archive'},{label:"My Profile", route: "/profile", icon: 'fa-user'}]
   }),
 
   computed: {
@@ -78,7 +83,12 @@ export default {
             console.log('LOGIN '+JSON.stringify(response.data))
             self.$store.commit('setUser', response.data)
             self.$store.commit('setLogged', true)
-            self.$router.push({path: '/repositories'})
+            if(response.data.profile.email != null) {
+              self.$router.push({path: '/repositories'})
+            } else {
+              self.$router.push({path: '/profile'})
+            }
+            
           })
         .catch(error => {
           self.errorMessage = error.message;
@@ -92,29 +102,26 @@ export default {
  },
     methods: {
 
-    getCodeParameter: function (){
-      return this.getURLParameter("code");
-    },
+      getCodeParameter: function (){
+        return this.getURLParameter("code");
+      },
 
-    getURLParameter: function (sParam){
-	    var sPageURL = window.location.search.substring(1);
-	    var sURLVariables = sPageURL.split('&');
-	    for (var i = 0; i < sURLVariables.length; i++){
-		    var sParameterName = sURLVariables[i].split('=');
-		    if (sParameterName[0] == sParam) {
-			    return decodeURIComponent(sParameterName[1]);
-		    }
-	    }
-      return null;
-    },
+      getURLParameter: function (sParam){
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++){
+          var sParameterName = sURLVariables[i].split('=');
+          if (sParameterName[0] == sParam) {
+            return decodeURIComponent(sParameterName[1]);
+          }
+        }
+        return null;
+      },
 
-    logout: function() {
-      this.$store.commit('setLogged', false)
-      this.$router.push("/login");
-    },
-    toggleDrawer: function() {
-      this.drawer = !this.drawer
-    }
+      toggleDrawer: function() {
+        this.drawer = !this.drawer
+      }
   }
 };
 </script>
+

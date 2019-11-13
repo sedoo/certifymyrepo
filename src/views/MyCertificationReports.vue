@@ -1,5 +1,4 @@
 <template>
-    <div>
     <div class="reports">
     <div style="background:red" v-if="errored">Error: {{ errorMessage }}</div>
     <h1 class="subheading grey--text">My {{ $store.getters.getRepository.name }} certification reports</h1>
@@ -101,7 +100,6 @@
 
     </v-container>
     </div>
-    </div>
 
 </template>
 
@@ -110,7 +108,6 @@
 import moment from 'moment';
 
 export default {
-
     props: {
     	service: null,
         item: null
@@ -158,15 +155,11 @@ export default {
             var array = [];
             for (var j = 0; j < report.items.length; j++){
                 var r = report.items[j]
-                //console.log(JSON.stringify(r))
                 if(r.code) {
                     array.push('R'+r.code)
                 }
             }
-            //console.log(JSON.stringify(array))
             option.labels = array
-            //console.log('------------> chartOptions')
-            //console.log('code report'+JSON.stringify(option.labels))
             return option
         },
         deleteItem () {

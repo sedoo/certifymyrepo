@@ -36,18 +36,16 @@
                               color="grey lighten-3"
                               height="auto"
                           >
-                            <div style="margin-top: 16px">
-                              <!-- DO WE WANT TO ADD GUIDANCE ? <div v-html="item.guidance "></div>-->
-                              <v-textarea v-if="!readOnly"
-                                  outlined
-                                  label="Edit the response"
-                                  v-model="item.response"
-                              >
-                              </v-textarea>
-                              <p v-else class="text-justify">{{ item.response }}</p>
-                            </div>
+                            <!-- DO WE WANT TO ADD GUIDANCE ? <div v-html="item.guidance "></div>-->
+                            <v-textarea v-if="!readOnly"
+                                outlined class="ma-3"
+                                label="Edit the response"
+                                v-model="item.response"
+                            >
+                            </v-textarea>
+                            <p v-else class="text-justify">{{ item.response }}</p>
 
-                            <v-select filled v-if="!readOnly"
+                            <v-select filled v-if="!readOnly" class="ma-3"
                               :items="levelsTemplate.levels"
                               label="Compliance level"
                               v-model="item.level"
@@ -59,19 +57,33 @@
                               <span v-if="item.level != null">{{ item.level.label }}</span> 
                             </p>
 
+                            <v-expansion-panels class="pa-3" v-if="!hideCommentBloc(item)">
+                            <v-expansion-panel>
+                                <v-expansion-panel-header>Comments  <span class="pl-3" v-if="item.requirementcomments != null && item.requirementcomments.comments.length > 0"><i class="fa fa-comment"></i> {{ item.requirementcomments.comments.length }}</span></v-expansion-panel-header>
+                                <v-expansion-panel-content>
+                                    <comments 
+                                        :comments_wrapper_classes="['custom-scrollbar', 'comments-wrapper']"
+                                        :comments="item.requirementcomments"
+                                        :item="item"
+                                        :current_user="userName"
+                                        :isreadonly="readOnly"
+                                        @submit-comment="submitItemComment"
+                                    ></comments>
+                                </v-expansion-panel-content>
+                            </v-expansion-panel>
+                            </v-expansion-panels>
+
+                            <v-card-actions>
+                              <v-btn text color="primary" @click="previousStep(index+1)">
+                                  Previous
+                              </v-btn>
+                              <v-btn color="primary" @click="nextStep(index+1)">
+                                  Continue
+                              </v-btn>
+                            </v-card-actions>
+
                           </v-card>
-                          <v-btn text
-                              color="primary"
-                              @click="previousStep(index+1)"
-                          >
-                              Previous
-                          </v-btn>
-                          <v-btn
-                              color="primary"
-                              @click="nextStep(index+1)"
-                          >
-                              Continue
-                          </v-btn>
+
                         </v-stepper-content>
 
                 </div>
@@ -154,12 +166,31 @@
 <script>
 import levelsTemplateJson from '../resources/levels-template.json'
 import requirementTemplateJson from '../resources/requirements-template.json'
+import Comments from '../components/Comments.vue'
 export default {
+    components: {
+        Comments
+    },
     props: {
       service: null
   	},
     data() {
         return {
+            //Some info about the current user
+            current_user: {
+                user: 'Tom Tom'
+            },
+            //Comments that are under the post
+            comments: [
+                {
+                    user: 'François André',
+                    text: 'lorem ipsum dolor lorem ipsum dolor lorem ipsum dolor',
+                },
+                {
+                    user: 'Jean Claude Van Damme',
+                    text: 'mais où et donc or ni car',
+                },
+            ],
             valid: false,
             dialog: false,
             readOnly: null,
@@ -197,6 +228,13 @@ export default {
           return false
         }
       },    
+      userName: function()  {
+        if(this.$store.getters.getUser != null) {
+          return this.$store.getters.getUser.profile.name
+        } else {
+          return '';
+        }
+      }
     },
     watch: {
       steps (val) {
@@ -206,6 +244,28 @@ export default {
       },
     },
     methods: {
+
+      // Display comment in chat box + save it in mongoDB
+      submitItemComment: function(item, reply) {
+        let self = this
+        item.requirementcomments.comments.push({
+            user: this.userName,
+            text: reply,
+            creationDate: new Date(),
+            id: item.requirementcomments.comments.length
+        });
+        this.axios({
+            method: 'post',
+            url: this.service+'certificationReport/v1_0/saveComments',
+            data: item.requirementcomments
+        })
+        .catch(function (error) {
+          console.log(error)
+          self.errored = true
+          self.errorMessage = error
+        })
+      },
+
       nextStep (n) {
         if (n === this.steps) {
           this.e1 = 1
@@ -222,6 +282,13 @@ export default {
           this.e1 = n - 1
         }
       },
+
+      // if ready only mode and no comment hide the comments bloc
+      hideCommentBloc(item) {
+        return this.readOnly && item.requirementcomments.comments.length == 0
+      },
+
+      // Save report
       save () {
         console.log('-------> URL :'+this.service)
         this.myReport.updateDate = new Date()
@@ -248,40 +315,66 @@ export default {
         this.myReport.status = 'RELEASED'
         this.save ()
       }
+
     },
+
     mounted: function() {
     	console.log("Monté")
       //console.log(JSON.stringify(this.myReport))
     },
     
-    created: function() {
-      //console.log("Créé")
+    created () {
+      console.log("Créé")
       this.errored = false
       var id = this.$route.query.reportId
-      //console.log('REPORT ID '+this.$route.query.reportId)
-      //console.log('REPOSITORY ID '+this.$route.query.repositoryId)
-      //console.log('PARAMS '+JSON.stringify(this.$route.query ))
       if(id != null) {
         var self = this
+        // getReport return as result the report, the comments by requirement and a boolean ISREADONLY
         this.axios
         .get(this.service+'certificationReport/v1_0/getReport/'+id)
-        .then(response => {
-          //console.log(JSON.stringify(response))
+        .then( function (response) {
           self.myReport = response.data.reports[0]
-          //console.log('My report saved '+JSON.stringify(self.myReport ))
           self.readOnly = response.data.readOnly
           // if the report has been released and the user is not making a copy => READ ONLY
-          if(response.data.reports[0].status == 'RELEASED' && this.$route.query.copy == null) {
+          if(response.data.reports[0].status == 'RELEASED' && self.$route.query.copy == null) {
             self.readOnly = true
           }
           // if the user is making a copy of a released report => status NEW and version null
-          if(this.$route.query.copy != null) {
+          if(self.$route.query.copy != null) {
             self.myReport.status = 'NEW'
             self.myReport.version = null
             self.myReport.id = null
           }
+          
+          // BEGINNING add comments into report object
+          let requirementComments = response.data.requirementComments
+
+          if(self.myReport.items != null && self.myReport.items.length > 0 ) {
+            for (var i = 0; i < self.myReport.items.length; i++) {
+              let itemCode = self.myReport.items[i].code
+              console.log('Search comments for requirement :'+itemCode)
+              let notFound = true
+              for (var j = 0; j < requirementComments.length; j++) {
+                // search saved comments 
+                if(itemCode == requirementComments[j].itemCode ) {
+                  console.log('Comments found:'+ JSON.stringify(requirementComments[j]))
+                  self.myReport.items[i].requirementcomments = requirementComments[j]
+                  notFound = false
+                }
+              }
+              // if no previous comment initialize an object with an empty array of comments
+              if(notFound) {
+                self.myReport.items[i].requirementcomments = {
+                  comments: [],
+                  reportId: self.myReport.id,
+                  itemCode: itemCode
+                }
+              }
+            }
+          }
+          // END add comments into report object
         })
-        .catch(error => {
+        .catch( function (error) {
           self.errored = true
           self.errorMessage = error
         })
@@ -290,7 +383,9 @@ export default {
         this.myReport.repositoryId = this.$route.query.repositoryId
       }
 
-    }
+    },
+
+
 } 
 </script>
 

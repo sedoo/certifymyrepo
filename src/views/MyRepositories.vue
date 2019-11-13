@@ -107,13 +107,19 @@
 
   </v-container>
   </v-card>
-    </div>
+  <requestRepositoryAccess class="pt-10" :service="service"></requestRepositoryAccess>
+
+  </div>
 </template>
 
 
 <script>
-export default {
+import requestRepositoryAccess from '../components/RequestRepositoryAccess.vue'
 
+export default {
+  components: {
+      requestRepositoryAccess
+  },
 	props: {
     	service: null
   	},

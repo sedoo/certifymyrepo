@@ -1,199 +1,233 @@
+
+
 <template>
-    <div>
-    <div class="profile">
-    <div style="background:red" v-if="errored">Error: {{ errorMessage }}</div>
-    <h1 class="subheading grey--text">My profile</h1>
-    <v-form v-model="valid">
-        <v-card
-            class="mx-auto pa-5"
-        >
-            <v-card-title> Request repository access</v-card-title>
-            <v-card-text class="grey--text text--lighten-1">Search by repository name and/or keywords</v-card-text >
-            <v-card-actions>
-                    <v-text-field v-model="keywords"></v-text-field>
-                    <v-btn style="margin-top:20px;"
-                        color="primary"
-                        @click="lookup"
-                        icon
-                        :disabled="isSearchButtonDisable"
-                        >
-                        <v-icon size='20px'>fa-search</v-icon> 
-                    </v-btn>
-            </v-card-actions>
-            <v-simple-table v-if="repositories!=null && repositories.length > 0">
-                <template v-slot:default>
-                <thead>
-                    <tr>
-                    <th class="text-left">Name</th>
-                    <th class="text-left">Keywords</th>
-                    <th class="text-left">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in repositories" :key="item.name">
-                    <td>{{ item.name }}</td>
-                    <td><span v-for="(keyword, index) in item.keywords" :key=index>{{ keyword }} </span></td>
-                    <td v-if="userIsAdmin">A/N</td>
-                    <td v-else-if="isAccessGranted(item.users)">Access granted</td>
-                    <td v-else> 
-                        <v-btn color="primary" icon @click="requestedRepository=item;dialog=true">
-                            <v-icon size='20px'>fa-unlock-alt</v-icon> 
-                        </v-btn>
-                    </td>
-                    </tr>
-                </tbody>
-                </template>
-            </v-simple-table>
-            <v-card-text v-if="notDataFound">No data found</v-card-text>
-        </v-card>
+  <v-layout>
 
-        <v-dialog
-        v-model="dialog"
-        width="500"
-        >
-        <v-card>
-            <v-card-title
-            class="headline grey lighten-2"
-            primary-title
-            >
-            Request {{ requestedRepository.name }} access
-            </v-card-title>
+    <v-flex xs12>
+      <h1 class="display-1">My Profile</h1>
+    <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
+    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
+      {{ notifierMessage }}
+      <v-btn dark text @click="notifier = false">Close</v-btn>
+    </v-snackbar>
 
-            <v-card-text>
-            <v-text-field
-                label="Enter your email"
-                v-model="email"
-                :rules="emailRules"
-                required
-            ></v-text-field>
+    <div v-if="!loading">
+    <v-form class="ma-5" ref="form" v-model="valid" lazy-validation>
+      <v-row>
+        <v-col cols="12">
+          <v-text-field v-model="username" prepend-inner-icon="mdi-account" label="Name" readonly filled></v-text-field>
+        </v-col>
+        <v-col cols="12">
+          <v-text-field v-model="orcid" prepend-inner-icon="mdi-identifier" label="ORCID" readonly filled></v-text-field>
+        </v-col>
+        <v-col cols="12">
+          <v-text-field v-model="profile.title"  label="Title" prepend-inner-icon="mdi-bookmark"></v-text-field>
+        </v-col>
+        <v-col cols="12">
+          <v-text-field v-model="profile.email"  label="Email" prepend-inner-icon="mdi-email"  :rules="emailRules" required></v-text-field>
+        </v-col>
 
-            <v-textarea
-                outlined
-                label="Message"
-                v-model="text">
-            </v-textarea>
-            </v-card-text>
+        <v-col cols="12" v-for="(phone, index) in profile.phones" :key="index">
+          <v-text-field  v-model="profile.phones[index]" label="Phone" prepend-inner-icon="mdi-phone" v-if="index==0" :rules="phoneRules" required></v-text-field>
+          <v-text-field  v-model="profile.phones[index]" label="Phone" prepend-inner-icon="mdi-phone" v-else append-icon="mdi-delete" @click:append="deletePhone(index)"></v-text-field>
+        </v-col>
+         <v-btn class="ml-3 " x-small title="Add a phone number" @click="profile.phones.push('')"  fab color="accent"> 
+          <v-icon >mdi-plus</v-icon> 
+        </v-btn>
 
-            <v-divider></v-divider>
-
-            <v-card-actions>
-            <div class="flex-grow-1"></div>
-            <v-btn color="primary" text @click="dialog = false">Cancel</v-btn>
-            <v-btn color="primary" @click="dialog = false; sendRequest()" :disabled="!valid">Send</v-btn>
-            </v-card-actions>
-        </v-card>
-        </v-dialog>
+        <v-col cols="12">
+          <v-text-field v-model="profile.fax"  label="Fax" prepend-inner-icon="mdi-fax" required></v-text-field>
+        </v-col>
+      </v-row>
     </v-form>
+
+    <v-btn
+      :disabled="!valid"
+      color="success"
+      class="mr-4"
+      :loading="saving"
+      @click="save"
+    >Save
+
+    </v-btn>
     </div>
-    </div>
+    </v-flex>
+  </v-layout>
+
 </template>
 
-
 <script>
-var qs = require('qs');
+
 export default {
-    props: {
+
+  created: function() {
+    this.loadProfile();
+  } ,
+
+  	props: {
     	service: null
   	},
-    data() {
-        return {
-            valid: false,
-            dialog: false,
-            errored: null,
-            errorMessage: null,
-            keywords: [],
-            search: null,
-            repositories: [],
-            notDataFound: false,
-            email: null,
-            text: null,
-            requestedRepository: {},
-            emailRules: [
-                v => !!v || 'E-mail is required',
-                v => /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v) || 'E-mail must be valid',
-            ]
-        }
-    },
-    computed: {
-        isSearchButtonDisable: function () {
-            return this.keywords==null || this.keywords.length == 0
-        },
-        isSearchResultNull: function () {
-            return this.repositories==null || this.repositories.length == 0
-        },
-        userOrcid: function()  {
-            if(this.$store.getters.getUser != null) {
-                return this.$store.getters.getUser.orcId
-            } else {
-                return '';
-            }
-        },
-        userIsAdmin: function()  {
-            if(this.$store.getters.getUser != null) {
-            return this.$store.getters.getUser.admin
-            } else {
-            return null;
-            }
-      }
+
+  computed: {
+    profileService: function() {
+      return this.service + "/login/v1_0/profile";
     },
 
-    methods: {
-        lookup(){
-            this.notDataFound = false
-            this.errored = false
-            var self = this;
-            this.axios.get(this.service+'repository/v1_0/search', {
-                params: {
-                    keywords: this.keywords.split(" ")
-                },
-                paramsSerializer: function (params) {
-                    return qs.stringify(params, {arrayFormat: 'repeat'})
-                }
-            })    
-            .then(response => {
-                console.log('Response : '+JSON.stringify(response))
-                self.repositories = response.data
-                if(self.repositories==null || self.repositories.length == 0) {
-                    self.notDataFound = true
-                }
-            })
-            .catch(error => {
-                self.errorMessage = error.message;
-                self.errored = true
-            })
-        },
-        isAccessGranted(users) {
-            if(JSON.stringify(users).includes(this.userOrcid)) {
-                return true
-            } else {
-                return false
-            }
-        },
-        sendRequest() {
-            var self = this;
-            this.errored = false
-            this.axios.post(this.service+'repository/v1_0/requestAccess?repositoryId='+this.requestedRepository.id+'&orcid='+this.userOrcid+'&text='+this.text+'&email='+this.email)    
-            .then(()=> {
-                self.requestedRepository = {}
-                self.email = null
-                self.text = null
-            })
-            .catch(error => {
-                self.requestedRepository = {}
-                self.email = null
-                self.text = null
-                self.errorMessage = error.message;
-                self.errored = true
-            })
+    username: function() {
+      let name = null
+      if(this.$store.getters.getUser != null) {
+        name = this.$store.getters.getUser.profile.name
+      }
+      return name
+    },
+
+    user: function() {
+      let user = null
+      if(this.$store.getters.getUser != null) {
+        user = this.$store.getters.getUser
+      }
+      return user
+    },
+
+    orcid: function() {
+      let orcid
+      if(this.$store.getters.getUser != null) {
+        orcid = this.$store.getters.getUser.profile.orcid
+      }
+      return orcid
+    },
+
+  },
+
+  methods: {
+    deletePhone: function(index) {
+      this.profile.phones.splice(index,1);
+    },
+
+    save: function() {
+      var self = this;
+      let aux = [];
+      for (let i = 0; i< this.profile.phones.length; i++) {
+        let phone = this.profile.phones[i];
+        if (phone.trim().length > 0) {
+          aux.push(phone)
         }
+      }
+      this.profile.phones = aux;
+      if (this.$refs.form.validate()) {
+        this.saving = true;
+        this.profile.name = this.username
+        this.profile.orcid = this.orcid
+        this.axios.post(this.service + "login/v1_0/saveProfile", this.profile).then(function(response) {
+          // save the profile in the store
+          let tmpuser = self.user
+          tmpuser.profile = response.data
+          self.$store.commit("setUser", tmpuser);
+          self.displaySuccess("Profile saved");
+        })
+        .catch(function(error) {
+          self.displayError("An error has occured:" + error);
+        })
+        .finally(function() {
+          self.saving = false;
+        });
+
+      }
+
     },
-    
-    mounted: function() {
-    	console.log("Monté")
+
+    loadProfile: function() {
+      var self = this;
+      this.loading = true;
+      console.log(this.profileService)
+      this.axios
+        .get(this.profileService)
+        .then(function(response) {
+          if(response.data != null && response.data != '') {
+            self.profile = response.data
+            if (!self.profile.phones) {
+              self.profile.phones = [''];
+            }
+          }
+          
+        })
+        .catch(function(error) {
+          self.displayError("An error has occured:" + error);
+        })
+        .finally(function() {
+          self.loading = false;
+          if(self.profile.email == null) {
+            self.displayError("Please enter your email");
+          }
+        });
+
     },
-    
-    created: function() {
-    	console.log("Créé")
+
+  displayError: function(message) {
+      this.notifierMessage = message;
+      this.notifierColor = "error";
+      this.timeout = 8000;
+      this.notifier = true;
+
+    },
+
+    displaySuccess: function(message) {
+      this.notifierMessage = message;
+      this.notifierColor = "success";
+      this.timeout = 4000;
+      this.notifier = true;
     }
-} 
+
+  },
+
+  data: () => ({
+    affiliations: ["Toto"],
+    affiliation: {
+    },
+    affiliationDialog: false,
+    savingAffiliation : false,
+    loading: false,
+    saving: false,
+    timeout: 2000,
+    notifier: false,
+    notifierMessage: "",
+    notifierColor: "success",
+    valid: null,
+    profile: {
+        title: null,
+        email: null,
+        phones: [''],
+        fax: null,
+        name: null,
+        orcid: null,
+    },
+
+    phoneRules: [
+        v => !!v || 'At least one phone number is required'
+      ],
+
+     affiliationRules: [
+        v => !!v || 'Affiliation is mandatory'
+      ],
+
+    emailRules: [
+        v => !!v || 'E-mail is required',
+        v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+      ],
+
+  })
+
+};
+
 </script>
+
+<style>
+
+.dense .col-12{
+
+  padding: 1px !important;
+
+}
+
+</style>
+

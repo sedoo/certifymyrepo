@@ -11,10 +11,7 @@
         <v-form v-model="valid">
             <v-container>
             <v-row>
-                <v-col
-                cols="12"
-                md="6"
-                >
+                <v-col cols="12">
                 <v-text-field
                     v-model="myRepository.name"
                     :rules="nameRules"
@@ -25,10 +22,7 @@
                 </v-col>
             </v-row>
             <v-row>
-                <v-col
-                    cols="12"
-                    md="6"
-                    >
+                <v-col cols="12" >
                     <v-text-field
                         v-model="myRepository.contact"
                         :rules="emailRules"
@@ -36,10 +30,9 @@
                         required
                     ></v-text-field>
                 </v-col>
-                <v-col
-                    cols="12"
-                    md="6"
-                    >
+            </v-row>
+            <v-row>
+                <v-col cols="12" >
                     <v-combobox multiple
                                 v-model="myRepository.keywords" 
                                 label="Keywords"
@@ -51,16 +44,13 @@
                 </v-col> 
             </v-row>
             <v-row>
-                <v-col
-                    cols="12"
-                    md="6"
-                    >
-                <p class="font-weight-thick">You can add repository users</p>
+                <v-col cols="12">
                 <v-simple-table v-if="myRepository.users != null && myRepository.users.length > 0">
                     <template v-slot:default>
                     <thead>
                         <tr>
                         <th class="text-left">ORCID</th>
+                        <th class="text-left">Name</th>
                         <th class="text-left">Role</th>
                         <th class="text-left">Actions</th>
                         </tr>
@@ -68,6 +58,7 @@
                     <tbody>
                         <tr v-for="(userItem, index) in myRepository.users" :key="index">
                         <td>{{ userItem.orcid }}</td>
+                        <td>{{ userItem.name }}</td>
                         <td>{{ userItem.role }}</td>
                         <td>
                             <v-btn icon class="mx-0" @click="displayEditUser(index);">     
@@ -81,9 +72,9 @@
                     </tbody>
                     </template>
                 </v-simple-table>
-                <div class="text-right pa-1" >
-                    <v-btn color="primary" @click="dialogAddEdit=true;userIndex = -1">ADD</v-btn>
-                </div>
+                <v-btn class="ml-3 " x-small title="Add" @click="dialogAddEdit=true;userIndex = -1"  fab color="accent"> 
+                    <v-icon >mdi-plus</v-icon> 
+                </v-btn>
                 </v-col>
             </v-row>
             </v-container>
@@ -112,27 +103,27 @@
                     <v-card-title class="headline grey lighten-2" primary-title>
                     {{ dialogTitle }}
                     </v-card-title>
-                    <div class="add-user">
-                    <v-text-field
-                        v-model="user.orcid"
-                        :counter="19"
-                        :rules="orcIdRules"
-                        label="ORCID"
-                        required
-                    ></v-text-field>
-                    <v-combobox
+                    <v-form v-model="validOrcid">
+                    <v-card-actions>
+                        <v-text-field class="pl-4" v-model="user.orcid" prepend-inner-icon="mdi-identifier" :counter="19" :rules="orcIdRules" label="ORCID" required></v-text-field>
+                        <v-btn class="ml-3" color="primary" @click="searchOnOrcid" :disabled="!validOrcid" :loading="loadingOrcid">Search</v-btn>
+                    </v-card-actions>
+                    </v-form>
+                    <v-card-text>
+                    <v-text-field :rules="userNameRules" v-model="user.name" prepend-inner-icon="mdi-account" label="Name" readonly filled></v-text-field>
+                    <v-combobox :rules="roleRules"
                     v-model="user.role"
                     :items="roles"
                     label="Select a role"
                     ></v-combobox>
-                    </div>
+                    </v-card-text>
                     <v-divider></v-divider>
                     <v-card-actions>
                     <div class="flex-grow-1"></div>
                     <v-btn
                         color="primary"
                         text
-                        @click="dialogAddEdit = false;user={}"
+                        @click="cancelAddUser"
                     >
                         Cancel
                     </v-btn>
@@ -145,6 +136,8 @@
                     </v-card-actions>
                 </v-card>
             </v-dialog>
+
+            </v-form>
 
             <v-dialog
                 v-model="dialogRemove"
@@ -174,8 +167,6 @@
                 </v-card-actions>
             </v-card>
             </v-dialog>
-
-        </v-form>
         </template>
     </div>
 </template>
@@ -195,12 +186,20 @@ export default {
             errored: false,
             valid: false,
             validPopup: false,
+            validOrcid: false,
             searchKeywords: null,
             userIndex: -1,
-            user: {},
+            user: {
+                role: null,
+                name: null,
+                orcid: null
+            },
+            loadingOrcid: false,
             myRepository: {id:null, name: null, keywords:[], contact: null, users: []},
             //emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
             repositoryId: this.$route.query.repositoryId,
+            userNameRules: [v => !!v || 'Name is required. Enter a valid orcid'],
+            roleRules: [v => !!v || 'Role is required'],
             nameRules: [
                 v => !!v || 'Name is required',
                 v => !!v && v.length <= 20 || 'Name must be less than 20 characters',
@@ -219,18 +218,25 @@ export default {
 
     computed: {
       userOrcid: function()  {
+        let orcid = null
         if(this.$store.getters.getUser != null) {
-          return this.$store.getters.getUser.orcId
-        } else {
-          return null;
+          orcid = this.$store.getters.getUser.profile.orcid
         }
+        return orcid;
+      },
+      userEmail: function()  {
+        let email = null
+        if(this.$store.getters.getUser != null) {
+          email = this.$store.getters.getUser.profile.email
+        }
+        return email;
       },
       userIsAdmin: function()  {
+        let isadmin
         if(this.$store.getters.getUser != null) {
-          return this.$store.getters.getUser.admin
-        } else {
-          return null;
-        }
+          isadmin = this.$store.getters.getUser.admin
+        } 
+        return isadmin;
       },
       dialogTitle: function() {
           if(this.userIndex == -1){
@@ -266,7 +272,9 @@ export default {
                 let localUser = {orcid: this.userOrcid, role: 'MANAGER'}
                 this.myRepository.users.push(localUser)
             }
+            this.myRepository.contact = this.userEmail
         }
+        
         console.log("MyRepository créé "+JSON.stringify(this.myRepository ))
 
     },
@@ -315,7 +323,29 @@ export default {
                 self.errorMessage = error.message;
                 self.errored = true
                 });
-        }       
+        },
+
+        searchOnOrcid() {
+            this.errored = false;
+            var self = this;
+            this.loadingOrcid = true
+            this.axios.get(this.service+'orcid/v1_0/getPersonNameByOrcid/'+this.user.orcid)
+            .then(function (response) {
+                console.log('Response '+JSON.stringify(response.data))
+                self.user.name = response.data
+            })
+            .catch(function (error){
+                console.log('Error : '+error)
+                self.errorMessage = error.message;
+                self.errored = true
+            }).finally(() => this.loadingOrcid = false)
+        },
+
+        cancelAddUser() {
+            this.dialogAddEdit = false
+            this.user={name: null, orcid:null, role: null}
+        }
+
     }
 } 
 </script>
