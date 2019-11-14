@@ -1,9 +1,9 @@
 <template>
     <div class="repository">
-
-    <div style="background:red" v-if="errored">
-    Error: {{ errorMessage }}
-    </div>
+    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
+      {{ notifierMessage }}
+      <v-btn dark text @click="notifier = false">Close</v-btn>
+    </v-snackbar>
 
     <h1 class="subheading grey--text">My repository</h1>
 
@@ -196,7 +196,6 @@ export default {
             },
             loadingOrcid: false,
             myRepository: {id:null, name: null, keywords:[], contact: null, users: []},
-            //emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
             repositoryId: this.$route.query.repositoryId,
             userNameRules: [v => !!v || 'Name is required. Enter a valid orcid'],
             roleRules: [v => !!v || 'Role is required'],
@@ -212,7 +211,11 @@ export default {
             emailRules: [
                 v => !!v || 'E-mail is required',
                 v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || 'E-mail must be valid',
-            ]
+            ],
+            timeout: 2000,
+            notifier: false,
+            notifierMessage: "",
+            notifierColor: "success",
         }
     },
 
@@ -223,6 +226,13 @@ export default {
           orcid = this.$store.getters.getUser.profile.orcid
         }
         return orcid;
+      },
+      userName: function()  {
+        let name = null
+        if(this.$store.getters.getUser != null) {
+          name = this.$store.getters.getUser.profile.name
+        }
+        return name;
       },
       userEmail: function()  {
         let email = null
@@ -258,18 +268,13 @@ export default {
             this.axios.get(this.service+'repository/v1_0/getRepository/'+this.repositoryId )
                 .then(response => {       
                     self.myRepository = response.data
-                })
-                .catch(error => {
-                    console.log('Error : '+error)
-                    self.errorMessage = error.message;
-                    self.errored = true
-                })
+                }).catch(function(error) {self.displayError("An error has occured:" + error)})
         } else {
             //this.myRepository = this.emptyRepo
             // If the user creating a new repository he is manager by default
             // if the logged user is admin no need to add him. He has all the rights.
     	    if(!this.userIsAdmin && (this.myRepository.users == null || this.myRepository.users.length == 0)) {
-                let localUser = {orcid: this.userOrcid, role: 'MANAGER'}
+                let localUser = {orcid: this.userOrcid, name: this.userName , role: 'MANAGER'}
                 this.myRepository.users.push(localUser)
             }
             this.myRepository.contact = this.userEmail
@@ -316,13 +321,8 @@ export default {
                 method: 'post',
                 url: this.service+'repository/v1_0/save',
                 data: this.myRepository
-            }).then ( function () {
-                self.goToRepositories()
-            })
-            .catch(error => {
-                self.errorMessage = error.message;
-                self.errored = true
-                });
+            }).then ( function () {self.goToRepositories()})
+            .catch(function(error) {self.displayError("An error has occured:" + error)})
         },
 
         searchOnOrcid() {
@@ -333,20 +333,32 @@ export default {
             .then(function (response) {
                 console.log('Response '+JSON.stringify(response.data))
                 self.user.name = response.data
-            })
-            .catch(function (error){
-                console.log('Error : '+error)
-                self.errorMessage = error.message;
-                self.errored = true
-            }).finally(() => this.loadingOrcid = false)
+            }).catch(function(error) {self.displayError("An error has occured:" + error)})
+            .finally(() => this.loadingOrcid = false)
         },
 
         cancelAddUser() {
             this.dialogAddEdit = false
             this.user={name: null, orcid:null, role: null}
+        },
+
+        displayError: function(message) {
+            this.notifierMessage = message;
+            this.notifierColor = "error";
+            this.timeout = 8000;
+            this.notifier = true;
+        },
+
+        displaySuccess: function(message) {
+        this.notifierMessage = message;
+        this.notifierColor = "success";
+        this.timeout = 4000;
+        this.notifier = true;
         }
 
-    }
+    },
+
+    
 } 
 </script>
 

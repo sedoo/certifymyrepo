@@ -149,16 +149,15 @@ export default {
               self.profile.phones = [''];
             }
           }
-          
+          if(self.profile.email == null) {
+            self.displayError("Please enter your email");
+          }
         })
         .catch(function(error) {
           self.displayError("An error has occured:" + error);
         })
         .finally(function() {
           self.loading = false;
-          if(self.profile.email == null) {
-            self.displayError("Please enter your email");
-          }
         });
 
     },
