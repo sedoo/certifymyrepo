@@ -1,6 +1,9 @@
 <template>
     <div class="accessRequest">
-    <div style="background:red" v-if="errored">Error: {{ errorMessage }}</div>
+    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
+      {{ notifierMessage }}
+      <v-btn dark text @click="notifier = false">Close</v-btn>
+    </v-snackbar>
         <v-card
             class="mx-auto pa-5"
         >
@@ -92,8 +95,12 @@ export default {
         return {
             valid: false,
             dialog: false,
-            errored: null,
-            errorMessage: null,
+            // error and success notification vars
+            timeout: 2000,
+            notifier: false,
+            notifierMessage: "",
+            notifierColor: "success",
+            //
             keywords: [],
             search: null,
             repositories: [],
@@ -150,11 +157,7 @@ export default {
                 if(self.repositories==null || self.repositories.length == 0) {
                     self.notDataFound = true
                 }
-            })
-            .catch(error => {
-                self.errorMessage = error.message;
-                self.errored = true
-            })
+            }).catch(function(error) {self.displayError("An error has occured:" + error)})
         },
         isAccessGranted(users) {
             if(JSON.stringify(users).includes(this.userOrcid)) {
@@ -181,14 +184,21 @@ export default {
                 self.requestedRepository = {}
                 self.email = null
                 self.text = null
-            })
-            .catch(error => {
-                self.requestedRepository = {}
-                self.email = null
-                self.text = null
-                self.errorMessage = error.message;
-                self.errored = true
-            })
+            }).catch(function(error) {self.displayError("An error has occured:" + error)})
+        },
+
+        displayError: function(message) {
+            this.notifierMessage = message;
+            this.notifierColor = "error";
+            this.timeout = 8000;
+            this.notifier = true;
+        },
+
+        displaySuccess: function(message) {
+            this.notifierMessage = message;
+            this.notifierColor = "success";
+            this.timeout = 4000;
+            this.notifier = true;
         }
     },
 } 

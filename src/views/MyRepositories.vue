@@ -1,9 +1,9 @@
 <template>
     <div class="repositories">
-    
-    <div style="background:red" v-if="errored">
-    Error: {{ errorMessage }}
-    </div>
+    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
+      {{ notifierMessage }}
+      <v-btn dark text @click="notifier = false">Close</v-btn>
+    </v-snackbar>
     
     <h1 class="grey--text">My repositories</h1>
     
@@ -130,8 +130,12 @@ export default {
           dialog: false,
           repositoryId: null,
           resultMyRepo: [],
-          errorMessage: null,
-          errored: false,
+          // error and success notification vars
+          timeout: 2000,
+          notifier: false,
+          notifierMessage: "",
+          notifierColor: "success",
+          //
           loading: false,
           emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
           dataLabels: {
@@ -164,7 +168,6 @@ export default {
           this.$router.push({name: 'repository'});
       },
       deleteRepository () {
-          this.errored = false
           var self = this;
           this.axios.delete(this.service+'repository/v1_0/delete/'+this.repositoryId)
             .then( response =>
@@ -173,11 +176,7 @@ export default {
                     .then(response => {
                         self.resultMyRepo = response.data
                     })
-            )
-            .catch(error => {
-              self.errorMessage = error.message;
-              self.errored = true
-            })
+            ).catch(function(error) {self.displayError("An error has occured:" + error)})
       },
       editRepository (item) {
           this.$router.push({name: 'repository', query: {repositoryId: item.id}});
@@ -186,7 +185,6 @@ export default {
             var serie = {name: 'certificationReport', data: []}
             if(health != null) {
               serie.data = health.requirementLevelList
-              console.log('Level list: '+JSON.stringify(serie.data))
             }
             return [serie];
         },
@@ -194,7 +192,6 @@ export default {
           var option = {labels: null, title: {text: 'Requirements Radar Chart'}}
           if(health != null) {
             option.labels = health.requirementCodeList
-            console.log('Code list: '+JSON.stringify(option.labels))
           }
           option.dataLabels = this.dataLabels
           return option
@@ -202,23 +199,31 @@ export default {
       routeToMyReports(repository) {
         this.$store.commit('setRepository', repository)
         this.$router.push({path: '/certificationReports/' + repository.id })
+      },
+      
+      displayError: function(message) {
+        this.notifierMessage = message;
+        this.notifierColor = "error";
+        this.timeout = 8000;
+        this.notifier = true;
+      },
+
+      displaySuccess: function(message) {
+        this.notifierMessage = message;
+        this.notifierColor = "success";
+        this.timeout = 4000;
+        this.notifier = true;
       }
     },
     
     created: function() {
       // reset repository in the store
       this.$store.commit('setRepository', null)
-      this.errored = false;
       var self = this;
       this.axios.get(this.service+'repository/v1_0/listAllFullRepository')
       .then(response => {
         self.resultMyRepo = response.data
-      })
-      .catch(error => {
-        console.log('Error : '+error)
-        self.errorMessage = error.message;
-        self.errored = true
-      })
+      }).catch(function(error) {self.displayError("An error has occured:" + error)})
       .finally(() => this.loading = false)
       }
 } 

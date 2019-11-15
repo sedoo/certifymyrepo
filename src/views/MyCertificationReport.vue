@@ -1,9 +1,10 @@
 <template>
     <div>
     <div class="report">
-    <div style="background:red" v-if="errored">
-    Error: {{ errorMessage }}
-    </div>
+    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
+      {{ notifierMessage }}
+      <v-btn dark text @click="notifier = false">Close</v-btn>
+    </v-snackbar>
     <h1 class="subheading grey--text">My {{ $store.getters.getRepository.name }} report</h1>
       <v-form v-model="valid">
       
@@ -202,8 +203,11 @@ export default {
                 'updateDate': null,
                 'version': null
                 },
-            errorMessage: '',
-            errored: false,
+            // error and success notification vars
+            timeout: 2000,
+            notifier: false,
+            notifierMessage: "",
+            notifierColor: "success",
             index: 0,
             levelsTemplate: levelsTemplateJson,
             headers: [
@@ -258,12 +262,7 @@ export default {
             method: 'post',
             url: this.service+'certificationReport/v1_0/saveComments',
             data: item.requirementcomments
-        })
-        .catch(function (error) {
-          console.log(error)
-          self.errored = true
-          self.errorMessage = error
-        })
+        }).catch(function(error) {self.displayError("An error has occured:" + error)})
       },
 
       nextStep (n) {
@@ -292,7 +291,6 @@ export default {
       save () {
         console.log('-------> URL :'+this.service)
         this.myReport.updateDate = new Date()
-        this.errored = false;
         var self = this;
         this.axios({
             method: 'post',
@@ -300,12 +298,7 @@ export default {
             data: this.myReport
         }).then( function (response) {
           self.$router.push({ path: '/certificationReports/'+response.data.repositoryId  })
-          })
-        .catch(error => {
-          console.log(error)
-          self.errored = true
-          self.errorMessage = error
-        })
+        }).catch(function(error) {self.displayError("An error has occured:" + error)})
       },
       goToMyCertificationReports() {
         this.$router.push({ path: '/certificationReports/'+this.myReport.repositoryId });
@@ -314,6 +307,20 @@ export default {
         this.dialog = false
         this.myReport.status = 'RELEASED'
         this.save ()
+      },
+
+      displayError: function(message) {
+          this.notifierMessage = message;
+          this.notifierColor = "error";
+          this.timeout = 8000;
+          this.notifier = true;
+      },
+
+      displaySuccess: function(message) {
+          this.notifierMessage = message;
+          this.notifierColor = "success";
+          this.timeout = 4000;
+          this.notifier = true;
       }
 
     },
@@ -325,7 +332,6 @@ export default {
     
     created () {
       console.log("Créé")
-      this.errored = false
       var id = this.$route.query.reportId
       if(id != null) {
         var self = this
@@ -373,11 +379,7 @@ export default {
             }
           }
           // END add comments into report object
-        })
-        .catch( function (error) {
-          self.errored = true
-          self.errorMessage = error
-        })
+        }).catch(function(error) {self.displayError("An error has occured:" + error)})
       } else {
         //this.myReport = this.myReportTemplate
         this.myReport.repositoryId = this.$route.query.repositoryId

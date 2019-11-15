@@ -1,6 +1,9 @@
 <template>
     <div class="reports">
-    <div style="background:red" v-if="errored">Error: {{ errorMessage }}</div>
+    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
+      {{ notifierMessage }}
+      <v-btn dark text @click="notifier = false">Close</v-btn>
+    </v-snackbar>
     <h1 class="subheading grey--text">My {{ $store.getters.getRepository.name }} certification reports</h1>
     <v-container class="my-3">
 
@@ -125,7 +128,12 @@ export default {
                 { text: 'Satus', value: 'status' },
                 { text: 'Actions', value: 'actions', sortable: false }
                 ] ,
-            myReport: null
+            myReport: null,
+            // error and success notification vars
+            timeout: 2000,
+            notifier: false,
+            notifierMessage: "",
+            notifierColor: "success",
         }
     },
     computed: {
@@ -135,11 +143,9 @@ export default {
         levelList (report) {
             var serie = {name: 'certificationReport', data: []}
             var array = [];
-            //console.log(JSON.stringify(report));
 
             for (var j = 0; j < report.items.length; j++){
                 var r = report.items[j]
-                //console.log(JSON.stringify(r))
                 if(r.level) {
                     array.push(r.level.code)
                 } else {
@@ -147,7 +153,6 @@ export default {
                 }
             }
             serie.data = array
-            //console.log('level list report'+JSON.stringify(serie.data))
             return [serie];
         },
         chartOptions (report) {
@@ -172,11 +177,7 @@ export default {
                             self.readOnly = response.data.readOnly
                             self.reports = response.data.reports
                         })
-                )
-                .catch(error => {
-                        self.errorMessage = error.message;
-                        self.errored = true
-                    })
+                ).catch(function(error) {self.displayError("An error has occured:" + error)})
         },
         createReport() {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null} })
@@ -192,12 +193,25 @@ export default {
         },
         isReleased: function (item) {
             if(item.status == 'RELEASED') {
-                //console.log('is released : true, readOnly : '+this.readOnly) 
+
                 return true
             } else {
-                //console.log('is released : false, readOnly : '+this.readOnly)
                 return false
             }
+        },
+
+        displayError: function(message) {
+            this.notifierMessage = message;
+            this.notifierColor = "error";
+            this.timeout = 8000;
+            this.notifier = true;
+        },
+
+        displaySuccess: function(message) {
+            this.notifierMessage = message;
+            this.notifierColor = "success";
+            this.timeout = 4000;
+            this.notifier = true;
         }
     },
 
@@ -206,21 +220,13 @@ export default {
     },
     
     created: function() {
-      //console.log('-------> MyCertificationReports créé')
-      //console.log('------->:repository id: '+this.$route.params.id)
       var self = this
-      this.errored = false;
       this.axios
       .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.$route.params.id)
       .then(response => {
         self.reports = response.data.reports
         self.readOnly = response.data.readOnly
-        //console.log('------->:response.data: '+JSON.stringify(response.data))
-      })
-      .catch(error => {
-        self.errorMessage = error.message;
-        self.errored = true
-      })
+      }).catch(function(error) {self.displayError("An error has occured:" + error)})
       .finally(() => this.loading = false)
     }
 } 

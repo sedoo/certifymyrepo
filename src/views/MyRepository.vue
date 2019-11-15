@@ -183,7 +183,6 @@ export default {
             dialogRemove: false,
             dialogAddEdit: false,
             roles: ["MANAGER", "READER"],
-            errored: false,
             valid: false,
             validPopup: false,
             validOrcid: false,
@@ -264,7 +263,6 @@ export default {
     created: function() {
         if(this.repositoryId != null) {
             var self = this;
-            this.errored = false;
             this.axios.get(this.service+'repository/v1_0/getRepository/'+this.repositoryId )
                 .then(response => {       
                     self.myRepository = response.data
@@ -316,7 +314,6 @@ export default {
         },
         save () {
             var self = this;
-            this.errored = false;
             this.axios({
                 method: 'post',
                 url: this.service+'repository/v1_0/save',
@@ -326,7 +323,6 @@ export default {
         },
 
         searchOnOrcid() {
-            this.errored = false;
             var self = this;
             this.loadingOrcid = true
             this.axios.get(this.service+'orcid/v1_0/getPersonNameByOrcid/'+this.user.orcid)
@@ -350,10 +346,10 @@ export default {
         },
 
         displaySuccess: function(message) {
-        this.notifierMessage = message;
-        this.notifierColor = "success";
-        this.timeout = 4000;
-        this.notifier = true;
+            this.notifierMessage = message;
+            this.notifierColor = "success";
+            this.timeout = 4000;
+            this.notifier = true;
         }
 
     },
