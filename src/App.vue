@@ -37,8 +37,10 @@ export default {
   name: 'App',
   components: {
   },
+    props: {
+    	service: null
+  	},
   data: () => ({
-    service: "http://localhost:8485/",
     profile: null,
     errored: false,
     drawer : false,

@@ -28,23 +28,22 @@ Vue.use(VueRouter);
 Vue.component('apexchart', VueApexCharts)
 Vue.component('certifymyrepo-token-refresher', TokenRefresher)
 
-const service ="http://localhost:8485/"
+//const service ="http://localhost:8485/"
 
-App.service = service
+var service = ''
+if(process.env.NODE_ENV == 'development') {
+  service = 'http://localhost:8485/'
+} else if (process.env.NODE_ENV == 'production') {
+  service = 'https://services.sedoo.fr/certifymyrepo/'
+}
+
 
 //Enable request interceptor
 axios.interceptors.request.use(function (config) {
     if(store.getters.getUser != null ) {
-      //console.log('Interceptor Token: '+store.getters.getUser.token)
       config.headers = { Authorization: 'Bearer '+store.getters.getUser.token}
     }
-    //
-    //config.headers = { Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJUaG9tYXMgUm9tdWFsZCIsImlzcyI6IlNlZG9vIiwiaWF0IjoxNTY5MzExOTgzLCJleHAiOjE1NjkzMTM3ODMsIm9yY2lkIjoiMDAwMC0wMDAxLTg5OTctODc2NiJ9.D0KdYyT6fDM3xz2qs3RW1yitRE_ynQXR1eK7rKSh2U4`};
-    // token orcid 123456789
-    //config.headers = { Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTRURPTyIsImlhdCI6MTU2ODM1NzQxNiwiZXhwIjoxOTE1NDI2MjE2LCJhdWQiOiJ3d3cuY2VydGlmeW15cmVwby5mciIsInN1YiI6ImJhbGJhbEBzZWRvby5mciIsIm9yY2lkIjoiMTIzNDU2Nzg5In0.tICn1mMZx76epOe6YGqU7yOccbmnGFaAV4OzBqZNX5k`};
-    // token Thomas
-    //config.headers = { Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTRURPTyIsImlhdCI6MTU2ODI5MjkxMywiZXhwIjoxOTE1MzYxNzE3LCJhdWQiOiJ3d3cuY2VydGlmeW15cmVwby5mciIsInN1YiI6IlRob21hcyAiLCJvcmNpZCI6IjAwMDAtMDAwMS04OTk3LTg3NjYifQ.qoJ5uxWu8vEmZzinDbssRP4I1GL1nGM-HhRRixTG2K0`};
-  return config;
+    return config;
 })
 
 const router = new VueRouter({
@@ -107,7 +106,7 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-//router.replace({ path: 'certifymyrepo', redirect: '/' })
+//router.replace({ path: '/', redirect: '/login' })
 
 Vue.use(vuetify, {
     options: {
@@ -133,5 +132,5 @@ new Vue({
   router,
   store,
   vuetify,
-  render: h => h(App)
+  render: h => h(App, {props: {service: service}})
 }).$mount('#app')

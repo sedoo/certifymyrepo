@@ -15,8 +15,8 @@
          </v-btn>to use the application.
        </div>
        <div v-else class="text-center">
-         <p class="headline">Wellcome {{ userName }} </p>
-         <p> 
+         <span class="headline">Wellcome {{ userName }} </span><br>
+         <span> 
          <v-btn class="mx-3 light-green lighten-5" @click="logoutFromORCID">
            <img
              style="vertical-align:middle;"
@@ -26,7 +26,7 @@
            />
            <span class="px-2">Logout</span>
          </v-btn>
-         </p>
+         </span>
          </div>
      </v-col>
    </v-row>
