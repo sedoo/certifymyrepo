@@ -83,7 +83,7 @@ export default {
       },
       userName: function()  {
         if(this.$store.getters.getUser != null) {
-          return this.$store.getters.getUser.name
+          return this.$store.getters.getUser.profile.name
         } else {
           return '';
         }

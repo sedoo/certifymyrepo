@@ -25,7 +25,7 @@ module.exports = {
                     if (pkgVersion.toLowerCase().endsWith("snapshot")) {
                         repo = "snapshot"
                     }
-                    let url = "https://services.aeris-data.fr/cdn/jsrepo/v1_0/webpackupload/sedoo/" + repo + "/" + pkgName + "/" + pkgVersion
+                    let url = "https://services.aeris-data.fr/cdn/jsrepo/v1_0/webpackupload/sandbox/" + repo + "/" + pkgName + "/" + pkgVersion
                     console.log(url)
 
                     await axios({

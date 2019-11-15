@@ -5,7 +5,7 @@
     Error: {{ errorMessage }}
     </div>
     
-    <h1 class="subheading grey--text">My repositories</h1>
+    <h1 class="grey--text">My repositories</h1>
     
 <div class="text-right pa-2">
   <v-btn color="primary" @click="createRepository">Create a new repository</v-btn>
@@ -79,10 +79,11 @@
                 </div>
               </v-card-title>
               <v-divider></v-divider>
-              <v-list dense v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
+              <v-card-text v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
+              <v-list>
                 <v-list-item>
                   <v-list-item-content>Keywords:</v-list-item-content>
-                  <v-list-item-content class="align-end">
+                  <v-list-item-content>
                     <span v-for="(keyword, key) in item.repository.keywords" :key=key >{{ keyword }}</span>
                   </v-list-item-content>
                 </v-list-item>
@@ -99,6 +100,7 @@
                 <apexchart v-show="item.health != null" type=radar :options="chartOptions(item.health)" :series="levelList(item.health)" />
               </v-list-group>
               </v-list>
+              </v-card-text>
             </v-card>
           </v-col>
         </v-row>
@@ -242,5 +244,9 @@ export default {
 }
 .light-red {
   background-color: #EF9A9A;
+}
+
+.theme--light.v-list {
+  background: transparent; 
 }
 </style>

@@ -48,7 +48,7 @@ axios.interceptors.request.use(function (config) {
 })
 
 const router = new VueRouter({
-    mode: 'history',
+    mode: 'hash',
     routes: [{
             path: '/repositories',
             name: "repositories",

@@ -1,46 +1,32 @@
 <template>
  <v-app class="grey lighten-4">
   <certifymyrepo-token-refresher :service="service"></certifymyrepo-token-refresher>
-  <v-app-bar  app  color="indigo" dark    >
-       <v-app-bar-nav-icon @click.stop="toggleDrawer()"></v-app-bar-nav-icon>
 
-    <v-toolbar-title class="text-uppercase" >
-      <span class="font-weight-light">CertifMy</span>REPO
-    </v-toolbar-title>
-            
-    <v-spacer></v-spacer>
+  <div>
+    <v-toolbar color="indigo" dark >
+      <v-toolbar-title class="text-uppercase" >
+        <span class="font-weight-light">CertifMy</span>REPO
+      </v-toolbar-title>
 
-    <v-btn icon class="mx-0" to="/login">     
-      <v-icon v-if="!isLogged" size='20px'>fa-sign-in-alt</v-icon>
-      <v-icon v-else size='20px'>fa-sign-out-alt</v-icon>
-    </v-btn>
-     
-    </v-app-bar>
- 
-        
-          <v-navigation-drawer app  v-model="drawer">
-     
-     
-      <v-list flat>
-      <v-list-item-group v-model="link" color="primary">
-        <v-list-item
-          v-for="(link, i) in links"
-          :key="i" router :to="link.route"
-        >
-          <v-list-item-icon>
-            <v-icon v-text="link.icon"></v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title v-text="link.label"></v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list-item-group>
-    </v-list>
-     </v-navigation-drawer>
-        
-        <v-content class="mx-4 mb-4 my-2">
-            <router-view></router-view>            
-        </v-content>
+      <v-spacer></v-spacer>
+      <v-toolbar-items  >
+        <v-btn v-for="(link, i) in links"
+            :key="i" router :to="link.route"
+            flat color="indigo" dark
+            >{{ link.label }}</v-btn>
+        <v-btn flat color="indigo" dark to="/login">     
+          <span v-if="!isLogged">LOGIN</span>
+          <span v-else>LOGOUT</span>
+        </v-btn>
+      </v-toolbar-items>
+
+    </v-toolbar>
+
+    <v-content class="mx-4 mb-4 my-2">
+        <router-view></router-view>            
+    </v-content>
+
+  </div>
 </v-app>
 </template>
 
@@ -74,6 +60,7 @@ export default {
   console.log("App created logged: "+this.isLogged)
    if (!this.isLogged) {
      var code = this.getCodeParameter();
+     //this.$router.push("/logging");
      if (code) {
         var self = this;
         this.axios({
