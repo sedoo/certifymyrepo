@@ -61,10 +61,10 @@
                         <td>{{ userItem.name }}</td>
                         <td>{{ userItem.role }}</td>
                         <td>
-                            <v-btn icon class="mx-0" @click="displayEditUser(index);">     
+                            <v-btn v-if="displayActionsOnUser(index)" icon class="mx-0" @click="displayEditUser(index);">     
                                 <v-icon size='20px'>fa-edit</v-icon>    
                             </v-btn>
-                            <v-btn icon class="mx-0" @click="userIndex = index;dialogRemove=true;">     
+                            <v-btn v-if="displayActionsOnUser(index)" icon class="mx-0" @click="userIndex = index;dialogRemove=true;">     
                                 <v-icon size='20px'>fa-trash-alt</v-icon>    
                             </v-btn>
                         </td>
@@ -253,6 +253,19 @@ export default {
           } else {
               return 'Edit'
           }
+      },
+      isLastManager: function() {
+        let managerCounter = 0
+        for (let i= 0; i < this.myRepository.users.length; i++) {
+            if(this.myRepository.users[i].role == 'MANAGER') {
+                managerCounter++
+            }
+        }
+        if(managerCounter > 1) {
+            return false
+        } else {
+            return true
+        }
       }
     },
     
@@ -350,6 +363,10 @@ export default {
             this.notifierColor = "success";
             this.timeout = 4000;
             this.notifier = true;
+        },
+
+        displayActionsOnUser: function(index) {
+            return !(this.isLastManager && this.myRepository.users[index].role == 'MANAGER')
         }
 
     },
