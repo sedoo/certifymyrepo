@@ -156,7 +156,7 @@ export default {
             return [serie];
         },
         chartOptions (report) {
-            var option = {labels: null, title: {text: 'Requirements Radar Chart'}}
+            var option = {labels: null, title: {text: 'Requirements Radar Chart'}, yaxis:{max: 4, forceNiceScale: true, tickAmount: 4} }
             var array = [];
             for (var j = 0; j < report.items.length; j++){
                 var r = report.items[j]

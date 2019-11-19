@@ -8,7 +8,7 @@
     <h1 class="grey--text">My repositories</h1>
     
 <div class="text-right pa-2">
-  <v-btn color="primary" @click="createRepository">Create a new repository</v-btn>
+  <v-btn class="primary" @click="createRepository">Create a new repository</v-btn>
 </div>  
   <v-card class="mx-auto">
 	<v-container fluid>
@@ -189,7 +189,7 @@ export default {
             return [serie];
         },
       chartOptions (health) {
-          var option = {labels: null, title: {text: 'Requirements Radar Chart'}}
+          var option = {labels: null, title: {text: 'Requirements Radar Chart'}, yaxis:{max: 4, forceNiceScale: true, tickAmount: 4} }
           if(health != null) {
             option.labels = health.requirementCodeList
           }
