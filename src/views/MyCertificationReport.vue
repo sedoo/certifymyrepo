@@ -284,7 +284,7 @@ export default {
 
       // if ready only mode and no comment hide the comments bloc
       hideCommentBloc(item) {
-        return this.readOnly && item.requirementcomments.comments.length == 0
+        return this.readOnly && item.requirementcomments.comments.length == 0 || this.myReport.id == null
       },
 
       // Save report
@@ -326,12 +326,10 @@ export default {
     },
 
     mounted: function() {
-    	console.log("Monté")
-      //console.log(JSON.stringify(this.myReport))
+
     },
     
     created () {
-      console.log("Créé")
       var id = this.$route.query.reportId
       if(id != null) {
         var self = this
