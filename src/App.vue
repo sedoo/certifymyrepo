@@ -2,8 +2,13 @@
  <v-app class="grey lighten-4">
   <certifymyrepo-token-refresher :service="service"></certifymyrepo-token-refresher>
 
+  <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
+      {{ notifierMessage }}
+    <v-btn dark text @click="notifier = false">Close</v-btn>
+   </v-snackbar>
+
   <div>
-    <v-toolbar color="indigo" dark >
+    <v-toolbar color="#f7941e" dark >
       <v-toolbar-title class="text-uppercase" >
         <span class="font-weight-light">CertifMy</span>REPO
       </v-toolbar-title>
@@ -12,9 +17,9 @@
       <v-toolbar-items  >
         <v-btn v-for="(link, i) in links"
             :key="i" router :to="link.route"
-            flat color="indigo" dark
+            flat color="#f7941e" dark
             >{{ link.label }}</v-btn>
-        <v-btn flat color="indigo" dark to="/login">     
+        <v-btn flat color="#f7941e" dark to="/login">     
           <span v-if="!isLogged">LOGIN</span>
           <span v-else>LOGOUT</span>
         </v-btn>
@@ -45,7 +50,12 @@ export default {
     errored: false,
     drawer : false,
     link: null,
-    links : [{label:"My repositories", route: '/repositories', icon: 'fa-archive'},{label:"My Profile", route: "/profile", icon: 'fa-user'}]
+    links : [{label:"My repositories", route: '/repositories', icon: 'fa-archive'},{label:"My Profile", route: "/profile", icon: 'fa-user'}],
+    // error and success notification vars
+    timeout: 2000,
+    notifier: false,
+    notifierMessage: "",
+    notifierColor: "success",
   }),
 
   computed: {
@@ -69,7 +79,6 @@ export default {
             method: 'post',
             url: this.service+"login/v1_0/orcid?code=" + code + "&redirect_uri=" + this.redirectUri
         }).then( function (response) {
-            console.log('LOGIN '+JSON.stringify(response.data))
             self.$store.commit('setUser', response.data)
             self.$store.commit('setLogged', true)
             if(response.data.profile.email != null) {
@@ -77,12 +86,7 @@ export default {
             } else {
               self.$router.push({path: '/profile'})
             }
-            
-          })
-        .catch(error => {
-          self.errorMessage = error.message;
-          self.errored = true
-        })
+          }).catch(function(error) {self.displayError("An error has occured:" + error)})
 
       } else {
         this.logout();
@@ -109,6 +113,20 @@ export default {
 
       toggleDrawer: function() {
         this.drawer = !this.drawer
+      },
+
+      displayError: function(message) {
+          this.notifierMessage = message;
+          this.notifierColor = "error";
+          this.timeout = 8000;
+          this.notifier = true;
+      },
+
+      displaySuccess: function(message) {
+          this.notifierMessage = message;
+          this.notifierColor = "success";
+          this.timeout = 4000;
+          this.notifier = true;
       }
   }
 };

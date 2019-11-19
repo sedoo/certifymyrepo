@@ -2,7 +2,7 @@ import '@fortawesome/fontawesome-free/css/all.css'
 import Vue from 'vue'
 import App from './App.vue'
 import VueRouter from "vue-router";
-import vuetify from './plugins/vuetify';
+import vuetify from './plugins/vuetify.js';
 import axios from "axios";
 import VueAxios from "vue-axios";
 
@@ -20,15 +20,11 @@ import VueApexCharts from 'vue-apexcharts'
 import 'es6-promise/auto'
 import { store } from './store/store'
 
-
-
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
 
 Vue.component('apexchart', VueApexCharts)
 Vue.component('certifymyrepo-token-refresher', TokenRefresher)
-
-//const service ="http://localhost:8485/"
 
 var service = ''
 if(process.env.NODE_ENV == 'development') {
@@ -36,7 +32,6 @@ if(process.env.NODE_ENV == 'development') {
 } else if (process.env.NODE_ENV == 'production') {
   service = 'https://services.sedoo.fr/certifymyrepo/'
 }
-
 
 //Enable request interceptor
 axios.interceptors.request.use(function (config) {
@@ -88,7 +83,8 @@ const router = new VueRouter({
             name: "login",
             component: Login,
             props: { service: service }
-        }
+        },
+        { path: '/', redirect: '/login' }
     ]
 })
 
@@ -105,28 +101,6 @@ router.beforeEach((to, from, next) => {
     next() // does not require auth, make sure to always call next()!
   }
 })
-
-//router.replace({ path: '/', redirect: '/login' })
-
-Vue.use(vuetify, {
-    options: {
-        customProperties: true
-    },
-    theme: {
-        primary: '#2196f3',
-        secondary: '#3f51b5',
-        accent: '#673ab7',
-        error: '#f44336',
-        warning: '#e91e63',
-        info: '#00bcd4',
-        success: '#009688'
-    },
-     icons: {
-       iconfont: 'fa',
-     }
-})
-
-
 
 new Vue({
   router,
