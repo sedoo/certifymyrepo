@@ -17,30 +17,29 @@ export default {
    }
  },
   created: function() {
-  this.refreshToken()
- },  mounted: function() {
- },  destroyed: function() {
+    console.log('certifymyrepo-token-refresher created')
+    this.refreshToken()
+ },  
+
+  destroyed: function() {
+    console.log('certifymyrepo-token-refresher DESTROYED')
     clearInterval(this.timer)
  },
    methods: {     
     refreshToken: function(){
-        if (this.getUser == null || this.getUser.token == null) {
-            console.log("No JWT token found")
-            return;
-        }
         this.timer = setInterval(() => {
-          //console.log("Service "+this.service+"/login/v1_0/refreshToken")
-          //console.log("User "+JSON.stringify(this.getUser))
-          //console.log("JWT Token refresh "+this.getUser.token)
-          this.axios.get(this.service+"/login/v1_0/refreshToken")
-            .then((response) => {
-              //console.log("JWT Token refreshed: "+response.data)
-              let user = Object.assign(this.getUser)
-              user.token = response.data
-              this.$store.commit("setUser", user);
-            });
-            
-        }, 300000)
+          if (this.getUser == null || this.getUser.token == null) {
+            console.log("No JWT token found")
+          } else {
+            console.log("Refresh JWT token")
+            this.axios.get(this.service+"/login/v1_0/refreshToken")
+              .then((response) => {
+                let user = Object.assign(this.getUser)
+                user.token = response.data
+                this.$store.commit("setUser", user);
+              });
+            } 
+        }, 900000) // 15 minutes
     }    }
 }
 </script>
