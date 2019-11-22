@@ -28,54 +28,17 @@
           >
             <v-card>
               <v-card-title v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
-                <v-btn text class="link-title pa-0" @click="routeToMyReports(item.repository)">{{ item.repository.name }}</v-btn>
+                <h3 class="repo-title">{{ item.repository.name }}</h3>
                 <div class="icon-edit-delete">
-                  <v-btn v-if="!item.readonly" icon class="mx-0" @click="editRepository(item.repository)">     
+                  <v-btn icon @click="routeToMyReports(item.repository)">
+                    <v-icon size='20px'>mdi-file-multiple</v-icon>
+                  </v-btn>
+                  <v-btn v-if="!item.readonly" icon @click="editRepository(item.repository)">     
                       <v-icon size='20px'>fa-edit</v-icon>    
                   </v-btn> 
-
-                  <v-dialog v-if="!item.readonly"
-                      v-model="dialog"
-                      width="500"
-                      >
-                  <template v-slot:activator="{ on }">
-                      <v-btn icon class="mx-0" v-on="on" @click="repositoryId = item.repository.id" >     
-                          <v-icon size='20px'>fa-trash-alt</v-icon>    
-                      </v-btn>  
-                  </template>
-
-                  <v-card>
-                      <v-card-title
-                      class="headline grey lighten-2"
-                      primary-title
-                      >
-                      Confirmation
-                      </v-card-title>
-
-                      <v-card-text>
-                      Do you really want to delete this repository and all the related reports? This process cannot be undone.
-                      </v-card-text>
-
-                      <v-divider></v-divider>
-
-                      <v-card-actions>
-                      <div class="flex-grow-1"></div>
-                      <v-btn
-                          color="primary"
-                          text
-                          @click="dialog = false"
-                      >
-                          Cancel
-                      </v-btn>
-                      <v-btn
-                          color="primary"
-                          @click="dialog = false; deleteRepository()"
-                      >
-                          Confirm
-                      </v-btn>
-                      </v-card-actions>
-                  </v-card>
-                  </v-dialog>
+                  <v-btn v-if="!item.readonly" icon @click="repositoryId = item.repository.id;dialog=true" >     
+                      <v-icon size='20px'>fa-trash-alt</v-icon>    
+                  </v-btn>
                 </div>
               </v-card-title>
               <v-divider></v-divider>
@@ -109,6 +72,28 @@
 
   </v-container>
   </v-card>
+
+  <v-dialog v-model="dialog" width="500">
+    <v-card>
+      <v-card-title class="headline grey lighten-2" primary-title>
+      Confirmation
+      </v-card-title>
+      <v-card-text>
+      Do you really want to delete this repository and all the related reports? This process cannot be undone.
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions>
+      <div class="flex-grow-1"></div>
+      <v-btn color="primary" text @click="dialog = false">
+        Cancel
+      </v-btn>
+      <v-btn color="primary" @click="dialog = false; deleteRepository()">
+        Confirm
+      </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <requestRepositoryAccess class="pt-10" :service="service"></requestRepositoryAccess>
 
   </div>
@@ -239,6 +224,12 @@ export default {
 .icon-edit-delete {
   position: absolute;
   right: 0;
+  margin-right: 5px
+}
+
+.repo-title {
+  color: rgba(0, 0, 0, 0.54);
+  margin-left: 13px;
 }
 
 .light-green {
