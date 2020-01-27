@@ -33,14 +33,20 @@
             </v-row>
             <v-row>
                 <v-col cols="12" >
-                    <v-combobox multiple
-                                v-model="myRepository.keywords" 
-                                label="Keywords"
-                                chips
-                                deletable-chips
-                                :search-input.sync="searchKeywords"
-                                >
-                    </v-combobox>
+                    <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <v-combobox multiple v-on="on"
+                                        v-model="myRepository.keywords" 
+                                        label="Keywords"
+                                        chips
+                                        deletable-chips
+                                        :search-input.sync="searchKeywords"
+                                        >
+                            </v-combobox>
+                    </template>
+                    <span>Type keywords one by one and press 'ENTER'</span>
+                    </v-tooltip>
+ 
                 </v-col> 
             </v-row>
             <v-row>
@@ -75,6 +81,15 @@
                 <v-btn class="ml-3 " x-small title="Add" @click="dialogAddEdit=true;userIndex = -1"  fab color="accent"> 
                     <v-icon >mdi-plus</v-icon> 
                 </v-btn>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col cols="12">
+                    <v-checkbox
+                        v-model="myRepository.isTest"
+                        label='Check this if your repository is for testing purposes'
+                        color="orange"
+                    ></v-checkbox>
                 </v-col>
             </v-row>
             </v-container>
@@ -194,7 +209,7 @@ export default {
                 orcid: null
             },
             loadingOrcid: false,
-            myRepository: {id:null, name: null, keywords:[], contact: null, users: []},
+            myRepository: {id:null, name: null, keywords:[], contact: null, users: [], isTest: false},
             repositoryId: this.$route.query.repositoryId,
             userNameRules: [v => !!v || 'Name is required. Enter a valid orcid'],
             roleRules: [v => !!v || 'Role is required'],

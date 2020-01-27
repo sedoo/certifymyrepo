@@ -8,12 +8,21 @@
     <h1 class="grey--text">My repositories</h1>
     
 <div class="text-right pa-2">
-  <v-btn class="primary" @click="createRepository">Create a new repository</v-btn>
+  <v-btn class="primary" :disabled="userEmail==null" @click="createRepository">Create a new repository</v-btn>
 </div>  
-  <v-card class="mx-auto">
+  <v-card class="mx-auto" v-if="resultMyRepo != null && resultMyRepo.length > 0">
 	<v-container fluid>
-	    <v-data-iterator v-if="resultMyRepo != null && resultMyRepo.length > 0"
-	      :items=resultMyRepo
+      <v-row>
+        <v-col cols="4">
+          <v-select
+            v-model="repoType"
+            :items="repoTypes"
+            label="Repositories type"
+          ></v-select>
+        </v-col>
+      </v-row>
+	    <v-data-iterator 
+	      :items=filtedRepoList
 	      disable-pagination: true
 	    >
       <template v-slot:default="props">
@@ -54,7 +63,7 @@
                   <v-list-item-content>Contact:</v-list-item-content>
                   <v-list-item-content class="align-end">{{ item.repository.contact }}</v-list-item-content>
                 </v-list-item>
-              <v-list-group sub-group no-action>
+              <v-list-group sub-group no-action class="secondary--text">
                 <template v-slot:activator>
                   <v-list-item-content>
                     <v-list-item-title>Radar chart</v-list-item-title>
@@ -69,7 +78,6 @@
         </v-row>
       </template>
     </v-data-iterator> 
-
   </v-container>
   </v-card>
 
@@ -121,6 +129,8 @@ export default {
           notifierMessage: "",
           notifierColor: "success",
           //
+          repoType: 'All',
+          repoTypes: ['All','Standard','Test'],
           loading: false,
           emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
           dataLabels: {
@@ -148,6 +158,39 @@ export default {
         }
     },
 
+    computed: {
+      userEmail: function()  {
+        let email = null
+        if(this.$store.getters.getUser != null) {
+          email = this.$store.getters.getUser.profile.email
+        }
+        return email;
+      },
+
+      filtedRepoList: function() {
+        let result = null
+        if(this.repoType == 'All') {
+          result = this.resultMyRepo
+        } else {
+          let repoStandard = []
+          let repoTest = []
+          for(var i=0; i<this.resultMyRepo.length; i++) {
+            if(this.resultMyRepo[i].repository.isTest) {
+              repoTest.push(this.resultMyRepo[i])
+            } else {
+              repoStandard.push(this.resultMyRepo[i])
+            }
+          }
+          if(this.repoType == 'Standard') {
+            result = repoStandard
+          } else if(this.repoType == 'Test') {
+            result = repoTest
+          }
+        }
+        return result
+      }
+    },
+
     methods: {
       createRepository() {
           this.$router.push({name: 'repository'});
@@ -164,7 +207,11 @@ export default {
             ).catch(function(error) {self.displayError("An error has occured:" + error)})
       },
       editRepository (item) {
+        if(this.userEmail==null) {
+          this.displayError('Please go to MY PROFILE to add your email before editing your repository')
+        } else {
           this.$router.push({name: 'repository', query: {repositoryId: item.id}});
+        }
       },
       levelList (health) {
             var serie = {name: 'certificationReport', data: []}
@@ -182,8 +229,12 @@ export default {
           return option
       },
       routeToMyReports(repository) {
-        this.$store.commit('setRepository', repository)
-        this.$router.push({path: '/certificationReports/' + repository.id })
+        if(this.userEmail==null) {
+          this.displayError('Please go to MY PROFILE to add your email before using your repository')
+        } else {
+          this.$store.commit('setRepository', repository)
+          this.$router.push({path: '/certificationReports/' + repository.id })
+        }
       },
       
       displayError: function(message) {
@@ -208,6 +259,9 @@ export default {
       this.axios.get(this.service+'repository/v1_0/listAllFullRepository')
       .then(response => {
         self.resultMyRepo = response.data
+        if(this.userEmail==null) {
+          this.displayError('Please go to MY PROFILE to add your email before creating a repository')
+        }
       }).catch(function(error) {self.displayError("An error has occured:" + error)})
       .finally(() => this.loading = false)
       }

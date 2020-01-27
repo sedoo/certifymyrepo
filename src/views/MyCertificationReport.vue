@@ -16,7 +16,7 @@
             ></v-text-field>
             <p v-if="readOnly"><span class="font-weight-bold">Version:  </span><span>{{ myReport.version }} </span></p>
          
-            <v-select v-if="!readOnly"
+            <v-select v-show="!readOnly"
                 :items="status"
                 v-model="myReport.status"
                 >
@@ -100,8 +100,6 @@
                      <v-btn v-show="!readOnly"
                         color="primary"
                         @click="save"
-                        :disabled="!valid"
-
                         >
                         Save
                     </v-btn>
@@ -109,19 +107,18 @@
 
             <div class="text-right save-button">
 
+              <v-btn v-show="!readOnly"
+                color="primary"
+                @click="displayReleaseConfirmation"
+                :disabled="!valid"
+                >
+                Release
+              </v-btn>
+
               <v-dialog
                   v-model="dialog"
                   width="500"
                   >
-              <template v-slot:activator="{ on }">
-                     <v-btn v-show="!readOnly"
-                        color="primary"
-                        v-on="on"
-                        :disabled="!valid || !isReleasable"
-                        >
-                        Release
-                    </v-btn>
-              </template>
 
               <v-card>
                   <v-card-title
@@ -132,7 +129,7 @@
                   </v-card-title>
 
                   <v-card-text>
-                  Do you really want to release this report version ? You will not be able to modify or delete the version report after this process.
+                  Do you really want to release this report version ? You will not be able to modify or delete this version of the report after this process.
                   </v-card-text>
 
                   <v-divider></v-divider>
@@ -289,20 +286,34 @@ export default {
 
       // Save report
       save () {
-        console.log('-------> URL :'+this.service)
-        this.myReport.updateDate = new Date()
-        var self = this;
-        this.axios({
-            method: 'post',
-            url: this.service+'certificationReport/v1_0/save',
-            data: this.myReport
-        }).then( function (response) {
-          self.$router.push({ path: '/certificationReports/'+response.data.repositoryId  })
-        }).catch(function(error) {self.displayError("An error has occured:" + error)})
+        if(!this.valid) {
+          this.displayError("Version is required")
+        } else {
+          this.myReport.updateDate = new Date()
+          var self = this;
+          this.axios({
+              method: 'post',
+              url: this.service+'certificationReport/v1_0/save',
+              data: this.myReport
+          }).then( function (response) {
+            self.$router.push({ path: '/certificationReports/'+response.data.repositoryId  })
+          }).catch(function(error) {self.displayError("An error has occured:" + error)})
+        }
+
       },
+
       goToMyCertificationReports() {
         this.$router.push({ path: '/certificationReports/'+this.myReport.repositoryId });
       },
+
+      displayReleaseConfirmation() {
+        if(this.myReport.status != 'READY') {
+          this.displayError("The report status must be 'READY' before been able to release a report")
+        } else {
+          this.dialog = true
+        }
+      },
+
       releaseTheReport() {
         this.dialog = false
         this.myReport.status = 'RELEASED'

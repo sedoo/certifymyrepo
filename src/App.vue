@@ -10,7 +10,7 @@
   <div>
     <v-toolbar color="#f7941e" dark >
       <v-toolbar-title class="text-uppercase" >
-        <span class="font-weight-light">CertifMy</span>REPO
+        <span class="font-weight-light">Crusöe</span>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -19,7 +19,7 @@
             :key="i" router :to="link.route"
             flat color="#f7941e" dark
             >{{ link.label }}</v-btn>
-        <v-btn flat color="#f7941e" dark to="/login">     
+        <v-btn color="#f7941e" dark to="/login">     
           <span v-if="!isLogged">LOGIN</span>
           <span v-else>LOGOUT</span>
         </v-btn>
@@ -72,7 +72,6 @@ export default {
   console.log("App created logged: "+this.isLogged)
    if (!this.isLogged) {
      var code = this.getCodeParameter();
-     //this.$router.push("/logging");
      if (code) {
         var self = this;
         this.axios({
@@ -87,9 +86,6 @@ export default {
               self.$router.push({path: '/profile'})
             }
           }).catch(function(error) {self.displayError("An error has occured:" + error)})
-
-      } else {
-        this.logout();
       }
    }
  },

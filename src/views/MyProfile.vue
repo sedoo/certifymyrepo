@@ -28,7 +28,7 @@
         </v-col>
 
         <v-col cols="12" v-for="(phone, index) in profile.phones" :key="index">
-          <v-text-field  v-model="profile.phones[index]" label="Phone" prepend-inner-icon="mdi-phone" v-if="index==0" :rules="phoneRules" required></v-text-field>
+          <v-text-field  v-model="profile.phones[index]" label="Phone" prepend-inner-icon="mdi-phone" v-if="index==0"></v-text-field>
           <v-text-field  v-model="profile.phones[index]" label="Phone" prepend-inner-icon="mdi-phone" v-else append-icon="mdi-delete" @click:append="deletePhone(index)"></v-text-field>
         </v-col>
          <v-btn class="ml-3 " x-small title="Add a phone number" @click="profile.phones.push('')"  fab color="accent"> 
@@ -106,7 +106,7 @@ export default {
 
     save: function() {
       var self = this;
-      let aux = [];
+      let aux = [''];
       for (let i = 0; i< this.profile.phones.length; i++) {
         let phone = this.profile.phones[i];
         if (phone.trim().length > 0) {
@@ -114,6 +114,7 @@ export default {
         }
       }
       this.profile.phones = aux;
+      console.log('this.$refs.form.validate()', this.$refs.form.validate())
       if (this.$refs.form.validate()) {
         this.saving = true;
         this.profile.name = this.username
@@ -191,7 +192,7 @@ export default {
     notifier: false,
     notifierMessage: "",
     notifierColor: "success",
-    valid: null,
+    valid: false,
     profile: {
         title: null,
         email: null,
