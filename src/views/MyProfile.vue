@@ -106,14 +106,19 @@ export default {
 
     save: function() {
       var self = this;
-      let aux = [''];
+      let aux = [];
       for (let i = 0; i< this.profile.phones.length; i++) {
         let phone = this.profile.phones[i];
         if (phone.trim().length > 0) {
           aux.push(phone)
         }
       }
-      this.profile.phones = aux;
+      if(aux.length > 0) {
+        this.profile.phones = aux;
+      } else {
+        this.profile.phones = [''];
+      }
+      
       console.log('this.$refs.form.validate()', this.$refs.form.validate())
       if (this.$refs.form.validate()) {
         this.saving = true;
@@ -125,6 +130,7 @@ export default {
           tmpuser.profile = response.data
           self.$store.commit("setUser", tmpuser);
           self.displaySuccess("Profile saved");
+          self.loadProfile();
         })
         .catch(function(error) {
           self.displayError("An error has occured:" + error);
@@ -194,6 +200,7 @@ export default {
     notifierColor: "success",
     valid: false,
     profile: {
+        id: null,
         title: null,
         email: null,
         phones: [''],
@@ -201,14 +208,6 @@ export default {
         name: null,
         orcid: null,
     },
-
-    phoneRules: [
-        v => !!v || 'At least one phone number is required'
-      ],
-
-     affiliationRules: [
-        v => !!v || 'Affiliation is mandatory'
-      ],
 
     emailRules: [
         v => !!v || 'E-mail is required',
