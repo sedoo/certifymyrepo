@@ -42,9 +42,9 @@
                                         deletable-chips
                                         :search-input.sync="searchKeywords"
                                         >
-                            </v-combobox>
+                        </v-combobox>
                     </template>
-                    <span>Type keywords one by one and press 'ENTER'</span>
+                    <span>Press <kbd>enter</kbd> to create a new keyword</span>
                     </v-tooltip>
  
                 </v-col> 
