@@ -67,7 +67,7 @@
                                         :comments="item.requirementcomments"
                                         :item="item"
                                         :current_user="userName"
-                                        :isreadonly="readOnly"
+                                        :isreadonly="isReadOnlyComment"
                                         @submit-comment="submitItemComment"
                                     ></comments>
                                 </v-expansion-panel-content>
@@ -235,6 +235,15 @@ export default {
         } else {
           return '';
         }
+      },
+      // USER_READER has a readOnly report however they can comment it.
+      // Request from Rorie Edmunds. November 2019.
+      isReadOnlyComment: function() {
+        if(this.myReport.status == 'RELEASED') {
+          return true
+        } else {
+          return false
+        }
       }
     },
     watch: {
@@ -281,7 +290,7 @@ export default {
 
       // if ready only mode and no comment hide the comments bloc
       hideCommentBloc(item) {
-        return this.readOnly && item.requirementcomments.comments.length == 0 || this.myReport.id == null
+        return this.isReadOnlyComment && item.requirementcomments.comments.length == 0 || this.myReport.id == null
       },
 
       // Save report
@@ -332,7 +341,7 @@ export default {
           this.notifierColor = "success";
           this.timeout = 4000;
           this.notifier = true;
-      }
+      },
 
     },
 
@@ -357,6 +366,7 @@ export default {
           // if the user is making a copy of a released report => status NEW and version null
           if(self.$route.query.copy != null) {
             self.myReport.status = 'NEW'
+            self.updateDate = new Date()
             self.myReport.version = null
             self.myReport.id = null
           }
