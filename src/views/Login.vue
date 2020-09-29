@@ -35,7 +35,7 @@
 
 
 <script>
-
+import {logOut} from '../utils.js'
 export default {
     data() {
         return {
@@ -52,17 +52,7 @@ export default {
         window.open("https://orcid.org/oauth/authorize?client_id=APP-E0UG85537RVITGE5&response_type=code&scope=/authenticate&redirect_uri=" + this.redirectUri, "_self");
       },
       logoutFromORCID: function() {
-        var self = this;
-        const jsonp = require('jsonp');
-        jsonp('https://orcid.org/userStatus.json?logUserOut=true', null, (err, data) => {
-          if (err) {
-            console.error(err.message);
-          } else {
-            self.$store.commit('setUser', null)
-            self.$store.commit('setLogged', false)
-          }
-        })
-
+        logOut(this.$store)
       }
     },
     

@@ -19,6 +19,7 @@ import TokenRefresher from './components/CertifyMyRepo-token-refresher.vue'
 import VueApexCharts from 'vue-apexcharts'
 import 'es6-promise/auto'
 import { store } from './store/store'
+import {logOut} from './utils.js'
 
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
@@ -40,6 +41,19 @@ axios.interceptors.request.use(function (config) {
     }
     return config;
 })
+
+// Add a response interceptor
+axios.interceptors.response.use(function (response) {
+  // Do not do anything
+  return response;
+}, function (error) {
+  if(error.response != null && error.response.status == '403') {
+    console.log(error.response)
+    logOut(store)
+    router.push({path: '/login' })
+  }
+  return Promise.reject(error);
+});
 
 const router = new VueRouter({
     mode: 'hash',
