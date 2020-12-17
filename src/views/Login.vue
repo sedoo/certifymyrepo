@@ -7,7 +7,7 @@
          <v-btn class="mx-3 light-green lighten-5" @click="openORCID">
            <img
              style="vertical-align:middle;"
-             src="https://orcid.org/sites/default/files/images/orcid_24x24.png"
+             src="https://orcid.org/assets/vectors/orcid.logo.icon.svg"
              width="24"
              height="24"
            />
@@ -20,7 +20,7 @@
          <v-btn class="mx-3 light-green lighten-5" @click="logoutFromORCID">
            <img
              style="vertical-align:middle;"
-             src="https://orcid.org/sites/default/files/images/orcid_24x24.png"
+             src="https://orcid.org/assets/vectors/orcid.logo.icon.svg"
              width="24"
              height="24"
            />
