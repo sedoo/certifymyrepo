@@ -219,7 +219,7 @@ export default {
             ],
             orcIdRules: [
                 v => !!v || 'ORCID is required',
-                v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{4,4})/.test(v) || 'E-mail must be valid',
+                v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{3,3}[0-9Xx])/.test(v) || 'ORCID must be valid',
                 v => !!v && v.length <= 19 || 'Name must be exactly 20 characters',
             ],
             emailRules: [
