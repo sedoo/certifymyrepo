@@ -291,7 +291,7 @@ export default {
     created: function() {
         if(this.repositoryId != null) {
             var self = this;
-            this.axios.get(this.service+'repository/v1_0/getRepository/'+this.repositoryId )
+            this.axios.get(this.service+'/repository/v1_0/getRepository/'+this.repositoryId )
                 .then(response => {       
                     self.myRepository = response.data
                 }).catch(function(error) {self.displayError("An error has occured:" + error)})
@@ -344,7 +344,7 @@ export default {
             var self = this;
             this.axios({
                 method: 'post',
-                url: this.service+'repository/v1_0/save',
+                url: this.service+'/repository/v1_0/save',
                 data: this.myRepository
             }).then ( function () {self.goToRepositories()})
             .catch(function(error) {self.displayError("An error has occured:" + error)})
@@ -353,7 +353,7 @@ export default {
         searchOnOrcid() {
             var self = this;
             this.loadingOrcid = true
-            this.axios.get(this.service+'orcid/v1_0/getPersonNameByOrcid/'+this.user.orcid)
+            this.axios.get(this.service+'/orcid/v1_0/getPersonNameByOrcid/'+this.user.orcid)
             .then(function (response) {
                 console.log('Response '+JSON.stringify(response.data))
                 self.user.name = response.data

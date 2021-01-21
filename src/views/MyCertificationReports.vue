@@ -169,10 +169,10 @@ export default {
         },
         deleteItem () {
             var self = this;
-            this.axios.delete(this.service+'certificationReport/v1_0/delete/'+this.reportId)
+            this.axios.delete(this.service+'/certificationReport/v1_0/delete/'+this.reportId)
                 .then( response =>
                     this.axios
-                        .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
+                        .get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
                         .then(response => {
                             self.readOnly = response.data.readOnly
                             self.reports = response.data.reports
@@ -222,7 +222,7 @@ export default {
     created: function() {
       var self = this
       this.axios
-      .get(this.service+'certificationReport/v1_0/listByRepositoryId/'+this.$route.params.id)
+      .get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.$route.params.id)
       .then(response => {
         self.reports = response.data.reports
         self.readOnly = response.data.readOnly

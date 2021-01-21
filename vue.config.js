@@ -4,11 +4,12 @@ const pkgName = require('./package.json').name;
 const axios = require("axios")
 
 module.exports = {
-
     css: {
         extract: false,
     },
+
     filenameHashing: false,
+
     configureWebpack: {
         optimization: {
             splitChunks: false
@@ -45,4 +46,13 @@ module.exports = {
         ]
 
     },
+
+    pluginOptions: {
+      i18n: {
+        locale: 'fr',
+        fallbackLocale: 'en',
+        localeDir: 'locales',
+        enableInSFC: true
+      }
+    }
 }

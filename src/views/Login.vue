@@ -1,9 +1,21 @@
+<i18n>
+{
+  "en": {
+    "login.message.beginning": "You need to login using",
+    "login.message.end": "to use the application."
+  },
+  "fr": {
+    "login.message.beginning": "Vous devez utiliser",
+    "login.message.end": "pour accéder à l'application."
+  }
+}
+</i18n>
 <template>
     <v-container class="fill-height" fluid>
    <v-row align="center" justify="center">
      <v-col cols="12" sm="12" md="12">
        <div v-if="!isLogged" class="headline text-center">
-         You need to login using
+         {{ $t('login.message.beginning') }}
          <v-btn class="mx-3 light-green lighten-5" @click="openORCID">
            <img
              style="vertical-align:middle;"
@@ -12,7 +24,7 @@
              height="24"
            />
            <span class="px-2">Orcid</span>
-         </v-btn>to use the application.
+         </v-btn>{{ $t('login.message.end') }}
        </div>
        <div v-else class="text-center">
          <span class="headline">Welcome {{ userName }} </span><br>
@@ -61,7 +73,7 @@ export default {
     },
     
     created: function() {
-    	console.log("Créé")
+    	this.$i18n.locale = this.$store.getters.getLanguage
     },
 
     computed: {

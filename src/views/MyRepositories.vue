@@ -197,10 +197,10 @@ export default {
       },
       deleteRepository () {
           var self = this;
-          this.axios.delete(this.service+'repository/v1_0/delete/'+this.repositoryId)
+          this.axios.delete(this.service+'/repository/v1_0/delete/'+this.repositoryId)
             .then( response =>
                 self.axios
-                    .get(self.service+'repository/v1_0/listAllFullRepository')
+                    .get(self.service+'/repository/v1_0/listAllFullRepository')
                     .then(response => {
                         self.resultMyRepo = response.data
                     })
@@ -256,7 +256,7 @@ export default {
       // reset repository in the store
       this.$store.commit('setRepository', null)
       var self = this;
-      this.axios.get(this.service+'repository/v1_0/listAllFullRepository')
+      this.axios.get(this.service+'/repository/v1_0/listAllFullRepository')
       .then(response => {
         self.resultMyRepo = response.data
         if(this.userEmail==null) {

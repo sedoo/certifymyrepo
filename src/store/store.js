@@ -9,7 +9,8 @@ export const store = new Vuex.Store(
         state: {
           user: null,
           logged: false,
-          repository: null
+          repository: null,
+          language: null,
         },
       
         mutations: {
@@ -21,6 +22,9 @@ export const store = new Vuex.Store(
           },
           setRepository(state, repository) {
             state.repository = repository
+          },
+          setLanguage(state, language) {
+            state.language = language
           }
         },
       
@@ -35,6 +39,9 @@ export const store = new Vuex.Store(
           },
           getRepository(state) {
             return state.repository;
+          },
+          getLanguage(state) {
+            return state.language;
           }
         },
 

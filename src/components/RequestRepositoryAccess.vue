@@ -143,7 +143,7 @@ export default {
             this.notDataFound = false
             this.errored = false
             var self = this;
-            this.axios.get(this.service+'repository/v1_0/search', {
+            this.axios.get(this.service+'/repository/v1_0/search', {
                 params: {
                     keywords: this.keywords.split(" ")
                 },
@@ -171,7 +171,7 @@ export default {
             this.errored = false
             this.axios({
                 method: 'post',
-                url: this.service+'repository/v1_0/requestAccess',
+                url: this.service+'/repository/v1_0/requestAccess',
                 data: {
 	                repositoryId: this.requestedRepository.id,
 	                orcid: this.userOrcid,

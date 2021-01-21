@@ -20,6 +20,7 @@ import VueApexCharts from 'vue-apexcharts'
 import 'es6-promise/auto'
 import { store } from './store/store'
 import {logOut} from './utils.js'
+import i18n from './i18n'
 
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
@@ -29,9 +30,9 @@ Vue.component('certifymyrepo-token-refresher', TokenRefresher)
 
 var service = ''
 if(process.env.NODE_ENV == 'development') {
-  service = 'http://localhost:8485/'
+  service = 'http://localhost:8485'
 } else if (process.env.NODE_ENV == 'production') {
-  service = 'https://services.sedoo.fr/certifymyrepo/'
+  service = 'https://services.sedoo.fr/certifymyrepo'
 }
 
 //Enable request interceptor
@@ -120,5 +121,6 @@ new Vue({
   router,
   store,
   vuetify,
+  i18n,
   render: h => h(App, {props: {service: service}})
 }).$mount('#app')

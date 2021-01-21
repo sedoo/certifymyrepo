@@ -266,7 +266,7 @@ export default {
         });
         this.axios({
             method: 'post',
-            url: this.service+'certificationReport/v1_0/saveComments',
+            url: this.service+'/certificationReport/v1_0/saveComments',
             data: item.requirementcomments
         }).catch(function(error) {self.displayError("An error has occured:" + error)})
       },
@@ -302,7 +302,7 @@ export default {
           var self = this;
           this.axios({
               method: 'post',
-              url: this.service+'certificationReport/v1_0/save',
+              url: this.service+'/certificationReport/v1_0/save',
               data: this.myReport
           }).then( function (response) {
             self.$router.push({ path: '/certificationReports/'+response.data.repositoryId  })
@@ -355,7 +355,7 @@ export default {
         var self = this
         // getReport return as result the report, the comments by requirement and a boolean ISREADONLY
         this.axios
-        .get(this.service+'certificationReport/v1_0/getReport/'+id)
+        .get(this.service+'/certificationReport/v1_0/getReport/'+id)
         .then( function (response) {
           self.myReport = response.data.reports[0]
           self.readOnly = response.data.readOnly
