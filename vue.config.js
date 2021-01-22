@@ -9,7 +9,14 @@ module.exports = {
     },
 
     filenameHashing: false,
-
+    chainWebpack: config => {
+        config.module.rules.delete('eslint')
+        if (process.env.NODE_ENV === "development") {
+          config.entry("app").clear().add("./src/main.js").end();
+        } else if (process.env.NODE_ENV === "production") {
+          config.entry("app").clear().add("./src/main.production.js").end();
+        }
+    },
     configureWebpack: {
         optimization: {
             splitChunks: false
