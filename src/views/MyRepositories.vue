@@ -1,3 +1,25 @@
+<i18n>
+{
+  "en": {
+    "page.repositories" : "Repositories",
+    "create.button" : "Create a new repository",
+    "repositories.type": "Repositories type",
+    "delete.confirmation": "Do you really want to delete this repository and all the related reports? This operation cannot be undone.",
+    "edit.repository.button": "",
+    "view.reports.button": "",
+    "repositories.type": "Repositories type"
+  },
+  "fr": {
+    "page.repositories" : "Entrepôts",
+    "create.button" : "Créer un nouvel entrepôt",
+    "repositories.type": "Type d'entrepôt",
+    "delete.confirmation": "Voulez vous vraiment supprimer cet entrepôt et toutes les fiches associées? Veuillez noter que cette opération est irréversible.",
+    "edit.repository.button": "",
+    "view.reports.button": "",
+    "repositories.type": "Type d'entrepôt"
+  }
+}
+</i18n>
 <template>
     <div class="repositories">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
@@ -5,10 +27,10 @@
       <v-btn dark text @click="notifier = false">Close</v-btn>
     </v-snackbar>
     
-    <h1 class="grey--text">My repositories</h1>
+    <h1 class="grey--text">{{ $t('page.repositories') }}</h1>
     
 <div class="text-right pa-2">
-  <v-btn class="primary" :disabled="userEmail==null" @click="createRepository">Create a new repository</v-btn>
+  <v-btn class="primary" :disabled="userEmail==null" @click="createRepository">{{ $t('create.button') }}</v-btn>
 </div>  
   <v-card class="mx-auto" v-if="resultMyRepo != null && resultMyRepo.length > 0">
 	<v-container fluid>
@@ -17,13 +39,16 @@
           <v-select
             v-model="repoType"
             :items="repoTypes"
-            label="Repositories type"
+            :label="$t('repositories.type')"
+            item-text="label"
+            item-value="value"
           ></v-select>
         </v-col>
       </v-row>
 	    <v-data-iterator 
 	      :items=filtedRepoList
 	      disable-pagination: true
+        hide-default-footer
 	    >
       <template v-slot:default="props">
         <v-row>
@@ -87,7 +112,7 @@
       Confirmation
       </v-card-title>
       <v-card-text>
-      Do you really want to delete this repository and all the related reports? This process cannot be undone.
+      {{ $t('delete.confirmation')}}
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
@@ -116,10 +141,12 @@ export default {
       requestRepositoryAccess
   },
 	props: {
-    	service: null
+
   	},
     data() {
         return {
+          items: {"en": [{"label":"All", "value": "All"}, {"label":"Standard", "value": "All"}, {"label":"Test", "value": "Test"}],
+                "fr": [{"label":"Tous", "value": "All"}, {"label":"Standard", "value": "Standard"}, {"label":"Test", "value": "Test"}]},
           dialog: false,
           repositoryId: null,
           resultMyRepo: [],
@@ -130,7 +157,6 @@ export default {
           notifierColor: "success",
           //
           repoType: 'All',
-          repoTypes: ['All','Standard','Test'],
           loading: false,
           emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
           dataLabels: {
@@ -159,6 +185,9 @@ export default {
     },
 
     computed: {
+      repoTypes: function() {
+        return this.items[this.$store.getters.getLanguage]
+      },
       userEmail: function()  {
         let email = null
         if(this.$store.getters.getUser != null) {
@@ -188,7 +217,10 @@ export default {
           }
         }
         return result
-      }
+      },
+      service: function()  {
+        return this.$store.getters.getService
+      },
     },
 
     methods: {

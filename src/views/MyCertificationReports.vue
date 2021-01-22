@@ -112,7 +112,6 @@ import moment from 'moment';
 
 export default {
     props: {
-    	service: null,
         item: null
   	},
     data() {
@@ -137,7 +136,9 @@ export default {
         }
     },
     computed: {
-
+        service: function()  {
+            return this.$store.getters.getService
+        },
     },
     methods: {
         levelList (report) {

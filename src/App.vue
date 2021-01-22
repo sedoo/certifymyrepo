@@ -1,6 +1,6 @@
 <template>
  <v-app class="grey lighten-4">
-   <crusoe-app language="fr"></crusoe-app>
+   <crusoe-app language="fr" :service="service"></crusoe-app>
 </v-app>
 </template>
 
@@ -14,7 +14,7 @@ export default {
   },
 
   data: () => ({
-
+    service: 'http://localhost:8485'
   }),
 
   computed: {

@@ -92,6 +92,7 @@ export default {
   created: function() {
   this.$i18n.locale = this.language;
   this.$store.commit('setLanguage', this.language)
+   this.$store.commit('setService', this.service)
   console.log("App created logged: "+this.isLogged)
    if (!this.isLogged) {
      var code = this.getCodeParameter();

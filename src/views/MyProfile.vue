@@ -1,35 +1,55 @@
-
-
+<i18n>
+{
+  "en": {
+    "title": "User profile",
+    "name.label": "Name",
+    "title.label": "Title",
+    "email.label": "Email",
+    "phone.label": "Phone",
+    "email.error": "Please enter your email",
+    "confirmation": "The profile has been saved"
+  },
+  "fr": {
+    "title": "Profile utilisateur",
+    "name.label": "Nom",
+    "title.label": "Titre",
+    "email.label": "Courriel",
+    "phone.label": "Téléphone",
+    "email.error": "Veuillez entrer voute courriel",
+    "confirmation": "Le profile a été sauvegardé"
+  }
+}
+</i18n>
 <template>
   <v-layout>
 
     <v-flex xs12>
-      <h1 class="display-1">My Profile</h1>
+      <h1 class="display-1">{{ $t('title')}}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">Close</v-btn>
+      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
     </v-snackbar>
 
     <div v-if="!loading">
     <v-form class="ma-5" ref="form" v-model="valid" lazy-validation>
       <v-row>
         <v-col cols="12">
-          <v-text-field v-model="username" prepend-inner-icon="mdi-account" label="Name" readonly filled></v-text-field>
+          <v-text-field v-model="username" prepend-inner-icon="mdi-account" :label="$t('name.label')" readonly filled></v-text-field>
         </v-col>
         <v-col cols="12">
           <v-text-field v-model="orcid" prepend-inner-icon="mdi-identifier" label="ORCID" readonly filled></v-text-field>
         </v-col>
         <v-col cols="12">
-          <v-text-field v-model="profile.title"  label="Title" prepend-inner-icon="mdi-bookmark"></v-text-field>
+          <v-text-field v-model="profile.title"  :label="$t('title.label')" prepend-inner-icon="mdi-bookmark"></v-text-field>
         </v-col>
         <v-col cols="12">
-          <v-text-field v-model="profile.email"  label="Email" prepend-inner-icon="mdi-email"  :rules="emailRules" required></v-text-field>
+          <v-text-field v-model="profile.email"  :label="$t('email.label')" prepend-inner-icon="mdi-email"  :rules="emailRules" required></v-text-field>
         </v-col>
 
         <v-col cols="12" v-for="(phone, index) in profile.phones" :key="index">
-          <v-text-field  v-model="profile.phones[index]" label="Phone" prepend-inner-icon="mdi-phone" v-if="index==0"></v-text-field>
-          <v-text-field  v-model="profile.phones[index]" label="Phone" prepend-inner-icon="mdi-phone" v-else append-icon="mdi-delete" @click:append="deletePhone(index)"></v-text-field>
+          <v-text-field  v-model="profile.phones[index]" :label="$t('phone.label')" prepend-inner-icon="mdi-phone" v-if="index==0"></v-text-field>
+          <v-text-field  v-model="profile.phones[index]" :label="$t('phone.label')" prepend-inner-icon="mdi-phone" v-else append-icon="mdi-delete" @click:append="deletePhone(index)"></v-text-field>
         </v-col>
          <v-btn class="ml-3 " x-small title="Add a phone number" @click="profile.phones.push('')"  fab color="accent"> 
           <v-icon >mdi-plus</v-icon> 
@@ -47,7 +67,7 @@
       class="mr-4"
       :loading="saving"
       @click="save"
-    >Save
+    >{{ $t('button.save') }}
 
     </v-btn>
     </div>
@@ -65,7 +85,7 @@ export default {
   } ,
 
   	props: {
-    	service: null
+
   	},
 
   computed: {
@@ -96,6 +116,9 @@ export default {
       }
       return orcid
     },
+    service: function()  {
+      return this.$store.getters.getService
+    },
 
   },
 
@@ -124,12 +147,12 @@ export default {
         this.saving = true;
         this.profile.name = this.username
         this.profile.orcid = this.orcid
-        this.axios.post(this.service + "login/v1_0/saveProfile", this.profile).then(function(response) {
+        this.axios.post(this.service + "/login/v1_0/saveProfile", this.profile).then(function(response) {
           // save the profile in the store
           let tmpuser = self.user
           tmpuser.profile = response.data
           self.$store.commit("setUser", tmpuser);
-          self.displaySuccess("Profile saved");
+          self.displaySuccess(self.$t('confirmation'));
           self.loadProfile();
         })
         .catch(function(error) {
@@ -157,7 +180,7 @@ export default {
             }
           }
           if(self.profile.email == null) {
-            self.displayError("Please enter your email");
+            self.displayError(self.$t('email.error'));
           }
         })
         .catch(function(error) {

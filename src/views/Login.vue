@@ -2,11 +2,15 @@
 {
   "en": {
     "login.message.beginning": "You need to login using",
-    "login.message.end": "to use the application."
+    "login.message.end": "to use the application.",
+    "wellcome.message": "Wellcome",
+    "logout": "LOGOUT"
   },
   "fr": {
     "login.message.beginning": "Vous devez utiliser",
-    "login.message.end": "pour accéder à l'application."
+    "login.message.end": "pour accéder à l'application.",
+    "wellcome.message": "Bienvenue",
+    "logout": "DESCONNEXION"
   }
 }
 </i18n>
@@ -27,7 +31,7 @@
          </v-btn>{{ $t('login.message.end') }}
        </div>
        <div v-else class="text-center">
-         <span class="headline">Welcome {{ userName }} </span><br>
+         <span class="headline">{{ $t('wellcome.message') }} {{ userName }} </span><br>
          <span> 
          <v-btn class="mx-3 light-green lighten-5" @click="logoutFromORCID">
            <img
@@ -36,7 +40,7 @@
              width="24"
              height="24"
            />
-           <span class="px-2">Logout</span>
+           <span class="px-2">{{ $t('logout') }}</span>
          </v-btn>
          </span>
          </div>
@@ -55,7 +59,6 @@ export default {
     },
 
     props: {
-    	service: null
   	},
 
     methods: {
@@ -89,7 +92,10 @@ export default {
         } else {
           return '';
         }
-      }
+      },
+      service: function()  {
+        return this.$store.getters.getService
+      },
     }
 
 } 

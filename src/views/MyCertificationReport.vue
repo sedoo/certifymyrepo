@@ -170,7 +170,7 @@ export default {
         Comments
     },
     props: {
-      service: null
+
   	},
     data() {
         return {
@@ -244,7 +244,10 @@ export default {
         } else {
           return false
         }
-      }
+      },
+      service: function()  {
+        return this.$store.getters.getService
+      },
     },
     watch: {
       steps (val) {

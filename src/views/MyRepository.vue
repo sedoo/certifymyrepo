@@ -191,7 +191,7 @@
 
 export default {
     props: {
-    	service: null
+
   	},
     data() {
         return {
@@ -281,7 +281,10 @@ export default {
         } else {
             return true
         }
-      }
+      },
+      service: function()  {
+        return this.$store.getters.getService
+      },
     },
     
     mounted: function() {

@@ -11,6 +11,7 @@ export const store = new Vuex.Store(
           logged: false,
           repository: null,
           language: null,
+          service: null,
         },
       
         mutations: {
@@ -25,6 +26,9 @@ export const store = new Vuex.Store(
           },
           setLanguage(state, language) {
             state.language = language
+          },
+          setService(state, service) {
+            state.service = service
           }
         },
       
@@ -42,6 +46,9 @@ export const store = new Vuex.Store(
           },
           getLanguage(state) {
             return state.language;
+          },
+          getService(state) {
+            return state.service;
           }
         },
 
