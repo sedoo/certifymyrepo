@@ -1,16 +1,29 @@
+<i18n>
+{
+  "en": {
+    "title" : "{msg} certification report",
+    "version.number": "Version number"
+  },
+  "fr": {
+    "title" : "Fiche {msg}",
+    "version.number": "Numéro de version"
+
+  }
+}
+</i18n>
 <template>
     <div>
     <div class="report">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">Close</v-btn>
+      <v-btn dark text @click="notifier = false">{{ $t('button.close' )}}</v-btn>
     </v-snackbar>
-    <h1 class="subheading grey--text">My {{ $store.getters.getRepository.name }} report</h1>
+    <h1 class="subheading grey--text">{{ $t('title', {'msg':$store.getters.getRepository.name } ) }}</h1>
       <v-form v-model="valid">
       
 
             <v-text-field v-if="!readOnly"
-                label="Version Number"
+                :label="$t('version.number')"
                 v-model="myReport.version"
                 :rules="versionRules"
             ></v-text-field>
@@ -207,12 +220,6 @@ export default {
             notifierColor: "success",
             index: 0,
             levelsTemplate: levelsTemplateJson,
-            headers: [
-                { text: 'Code', sortable: false, value: 'code' },
-                { text: 'Requirement', sortable: false, value: 'requirement' },
-                { text: 'Response', sortable: false, value: 'response' },
-                { text: 'Compliance level', sortable: false, value: 'level' }
-            ],
             status: ["NEW","IN_PROGRESS","READY"],
             e1: 0,
             steps: 17,
@@ -222,6 +229,9 @@ export default {
         }
     },
     computed: {
+      language: function() {
+        return this.$store.getters.getLanguage
+      },
       isReleasable: function () {
         if(this.myReport.status == 'READY') {
           return true

@@ -1,3 +1,25 @@
+<i18n>
+{
+  "en": {
+    "title" : "My repository",
+    "repo.name": "Repository name",
+    "email": "Email",
+    "keywords": "Keywords",
+    "name": "Name",
+    "role": "Role",
+    "message.test.repo": "Check this if your repository is for testing purposes"
+  },
+  "fr": {
+    "title" : "Mon entrepôt",
+    "repo.name": "Nom de l'entrepôt",
+    "email": "Courriel",
+    "keywords": "Mots clefs",
+    "name": "Nom",
+    "role": "Rôle",
+    "message.test.repo": "Cocher cette case si votre entrepôt pour des besoins de test"
+  }
+}
+</i18n>
 <template>
     <div class="repository">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
@@ -5,7 +27,7 @@
       <v-btn dark text @click="notifier = false">Close</v-btn>
     </v-snackbar>
 
-    <h1 class="subheading grey--text">My repository</h1>
+    <h1 class="subheading grey--text">{{$t('title')}}</h1>
 
         <template>
         <v-form v-model="valid">
@@ -16,7 +38,7 @@
                     v-model="myRepository.name"
                     :rules="nameRules"
                     :counter="20"
-                    label="Repository name"
+                    :label="$t('repo.name')"
                     required
                 ></v-text-field>
                 </v-col>
@@ -26,7 +48,7 @@
                     <v-text-field
                         v-model="myRepository.contact"
                         :rules="emailRules"
-                        label="E-mail"
+                        :label="$t('email')"
                         required
                     ></v-text-field>
                 </v-col>
@@ -37,14 +59,15 @@
                     <template v-slot:activator="{ on }">
                         <v-combobox multiple v-on="on"
                                         v-model="myRepository.keywords" 
-                                        label="Keywords"
+                                        :label="$t('keywords')"
                                         chips
                                         deletable-chips
                                         :search-input.sync="searchKeywords"
                                         >
                         </v-combobox>
                     </template>
-                    <span>Press <kbd>enter</kbd> to create a new keyword</span>
+                    <span v-if="language === 'fr'">Appuyer sur <kbd>entrée</kbd> pour créer un nouveau mot clef</span>
+                    <span v-else>Press <kbd>enter</kbd> to create a new keyword</span>
                     </v-tooltip>
  
                 </v-col> 
@@ -56,8 +79,8 @@
                     <thead>
                         <tr>
                         <th class="text-left">ORCID</th>
-                        <th class="text-left">Name</th>
-                        <th class="text-left">Role</th>
+                        <th class="text-left">{{$t('name')}}</th>
+                        <th class="text-left">{{$t('role')}}</th>
                         <th class="text-left">Actions</th>
                         </tr>
                     </thead>
@@ -87,7 +110,7 @@
                 <v-col cols="12">
                     <v-checkbox
                         v-model="myRepository.isTest"
-                        label='Check this if your repository is for testing purposes'
+                        :label="$t('message.test.repo')"
                         color="orange"
                     ></v-checkbox>
                 </v-col>
@@ -98,14 +121,14 @@
                         color="primary"
                         @click="goToRepositories"
                         >
-                        Cancel
+                        {{ $t('button.cancel') }}
                     </v-btn>
                      <v-btn
                         color="primary"
                         @click="save"
                         :disabled="!valid"
                         >
-                        Save
+                        {{ $t('button.save') }}
                     </v-btn>
             </div>
         </v-form>
@@ -234,6 +257,9 @@ export default {
     },
 
     computed: {
+      language: function() {
+        return this.$store.getters.getLanguage
+      },
       userOrcid: function()  {
         let orcid = null
         if(this.$store.getters.getUser != null) {

@@ -1,17 +1,45 @@
+<i18n>
+{
+  "en": {
+    "title" : "{msg} certification reports",
+    "create.new.report": "Create a new report",
+    "date": "Update date",
+    "status": "status",
+    "radar.chart.title": "Requirements Radar Chart",
+    "read.help.message": "Read this report",
+    "copy.help.message": "Create a new report from a copy",
+    "edit.help.message": "Edit this report",
+    "delete.confirm.message": "Do you really want to delete this report ? This operation cannot be undone.",
+    "delete": "Delete"
+  },
+  "fr": {
+    "title" : "Fiches {msg}",
+    "create.new.report": "Créer une nouvelle fiche",
+    "date": "Date mise à jour",
+    "status": "statut",
+    "radar.chart.title": "Graphique radar des critères",
+    "read.help.message": "Consulter cette fiche",
+    "copy.help.message": "Créer une nouvelle fiche à partir d'une copie",
+    "edit.help.message": "Modifier cette fiche",
+    "delete.confirm.message": "Voulez vous vraiment supprimer cette fiche? Veuillez noter que cette opération est irréversible.",
+    "delete": "Suppression"
+  }
+}
+</i18n>
 <template>
     <div class="reports">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
       <v-btn dark text @click="notifier = false">Close</v-btn>
     </v-snackbar>
-    <h1 class="subheading grey--text">My {{ $store.getters.getRepository.name }} certification reports</h1>
+    <h1 class="subheading grey--text">{{ $t('title', {'msg':$store.getters.getRepository.name } ) }}</h1>
     <v-container class="my-3">
 
         <template>
         <div class="text-center">
 
         <div v-if="!readOnly" class="text-right pa-3">
-            <v-btn color="primary" @click="createReport">Create a new report</v-btn>
+            <v-btn color="primary" @click="createReport">{{ $t('create.new.report')}}</v-btn>
         </div>
 
         </div>
@@ -32,17 +60,28 @@
             <span>{{ formatDate(item.updateDate) }}</span>
         </template> 
         <template v-slot:item.actions="{ item }">
-            <v-btn v-if="!readOnly && !isReleased(item)" icon class="mx-0" @click="editItem(item)">     
-                <v-icon size="20px">fa-edit</v-icon>    
-            </v-btn>
+
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                <v-btn v-if="!readOnly && !isReleased(item)" icon v-on="on" class="mx-0" @click="editItem(item)">     
+                    <v-icon size="20px">fa-edit</v-icon>    
+                </v-btn>
+                </template>
+                <span>{{ $t('edit.help.message') }}</span>
+            </v-tooltip>
 
             <v-btn v-if="!readOnly && !isReleased(item)" icon class="mx-0" @click="dialog=true;reportId=item.id">     
                 <v-icon size="20px">fa-trash-alt</v-icon>    
             </v-btn>  
 
-            <v-btn v-if="readOnly || isReleased(item)" icon class="mx-0 pa-3" @click="editItem(item)">     
-                <v-icon size="20px">fa-book-open</v-icon>    
-            </v-btn>
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                <v-btn v-if="readOnly || isReleased(item)" icon v-on="on" class="mx-0 pa-3" @click="editItem(item)">     
+                    <v-icon size="20px">fa-book-open</v-icon>    
+                </v-btn>
+                </template>
+                <span>{{ $t('read.help.message') }}</span>
+            </v-tooltip>
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
@@ -50,7 +89,7 @@
                         <v-icon size="20px">fa-copy</v-icon>    
                     </v-btn>
                 </template>
-                <span>Create a new report from a copy</span>
+                <span>{{ $t('copy.help.message') }}</span>
             </v-tooltip>
 
         </template>   
@@ -71,11 +110,11 @@
                 class="headline grey lighten-2"
                 primary-title
                 >
-                Confirmation
+                {{ $t('delete') }}
                 </v-card-title>
 
                 <v-card-text>
-                Do you really want to delete this report ? This process cannot be undone.
+                {{ $t('delete.confirm.message') }}
                 </v-card-text>
 
                 <v-divider></v-divider>
@@ -87,13 +126,13 @@
                     text
                     @click="dialog = false"
                 >
-                    Cancel
+                    {{ $t('button.cancel') }}
                 </v-btn>
                 <v-btn
                     color="primary"
                     @click="dialog = false; deleteItem()"
                 >
-                    Confirm
+                    {{ $t('button.confirm') }}
                 </v-btn>
                 </v-card-actions>
             </v-card>
@@ -123,8 +162,8 @@ export default {
             repositoryId: this.$route.params.id,
             headers: [
                 { text: 'Version', value: 'version' },
-                { text: 'Update date', value: 'updateDate'},
-                { text: 'Satus', value: 'status' },
+                { text: this.$t('date'), value: 'updateDate'},
+                { text: this.$t('status'), value: 'status' },
                 { text: 'Actions', value: 'actions', sortable: false }
                 ] ,
             myReport: null,
@@ -157,7 +196,7 @@ export default {
             return [serie];
         },
         chartOptions (report) {
-            var option = {labels: null, title: {text: 'Requirements Radar Chart'}, yaxis:{max: 4, forceNiceScale: true, tickAmount: 4} }
+            var option = {labels: null, title: {text: this.$t('radar.chart.title')}, yaxis:{max: 4, forceNiceScale: true, tickAmount: 4} }
             var array = [];
             for (var j = 0; j < report.items.length; j++){
                 var r = report.items[j]

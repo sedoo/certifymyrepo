@@ -1,3 +1,16 @@
+<i18n>
+{
+  "en": {
+    "title" : "Request repository access",
+    "search.message": "Search by repository name and/or keywords"
+  },
+  "fr": {
+    "title" : "Demande d'accès aux entrepôts",
+    "search.message": "Recherche par nom d'entrepôt et/ou mots clefs"
+
+  }
+}
+</i18n>
 <template>
     <div class="accessRequest">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
@@ -7,8 +20,8 @@
         <v-card
             class="mx-auto pa-5"
         >
-            <v-card-title> Request repository access</v-card-title>
-            <v-card-text class="grey--text text--lighten-1">Search by repository name and/or keywords</v-card-text >
+            <v-card-title>{{ $t('title') }}</v-card-title>
+            <v-card-text class="grey--text text--lighten-1">{{$t('search.message')}}</v-card-text >
             <v-card-actions>
                     <v-text-field v-model="keywords" @keyup.enter="lookup"></v-text-field>
                     <v-btn style="margin-top:20px;"

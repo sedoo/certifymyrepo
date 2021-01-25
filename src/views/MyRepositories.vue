@@ -5,18 +5,20 @@
     "create.button" : "Create a new repository",
     "repositories.type": "Repositories type",
     "delete.confirmation": "Do you really want to delete this repository and all the related reports? This operation cannot be undone.",
-    "edit.repository.button": "",
-    "view.reports.button": "",
-    "repositories.type": "Repositories type"
+    "edit.repository.button": "Edit this repository",
+    "view.reports.button": "View the reports",
+    "repositories.type": "Repositories type",
+    "radar.chart.title": "Requirements Radar Chart"
   },
   "fr": {
     "page.repositories" : "Entrepôts",
     "create.button" : "Créer un nouvel entrepôt",
     "repositories.type": "Type d'entrepôt",
     "delete.confirmation": "Voulez vous vraiment supprimer cet entrepôt et toutes les fiches associées? Veuillez noter que cette opération est irréversible.",
-    "edit.repository.button": "",
-    "view.reports.button": "",
-    "repositories.type": "Type d'entrepôt"
+    "edit.repository.button": "Editer cet entrepôt",
+    "view.reports.button": "Consulter les fiches",
+    "repositories.type": "Type d'entrepôt",
+    "radar.chart.title": "Graphique radar des critères"
   }
 }
 </i18n>
@@ -36,12 +38,13 @@
 	<v-container fluid>
       <v-row>
         <v-col cols="4">
-          <v-select
+          <v-select id="selectRepoType"
             v-model="repoType"
             :items="repoTypes"
             :label="$t('repositories.type')"
             item-text="label"
             item-value="value"
+            background-color="white"
           ></v-select>
         </v-col>
       </v-row>
@@ -64,20 +67,30 @@
               <v-card-title v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
                 <h3 class="repo-title">{{ item.repository.name }}</h3>
                 <div class="icon-edit-delete">
-                  <v-btn icon @click="routeToMyReports(item.repository)">
-                    <v-icon size='20px'>mdi-file-multiple</v-icon>
-                  </v-btn>
-                  <v-btn v-if="!item.readonly" icon @click="editRepository(item.repository)">     
-                      <v-icon size='20px'>fa-edit</v-icon>    
-                  </v-btn> 
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-btn v-on="on" icon @click="routeToMyReports(item.repository)">
+                        <v-icon size='20px'>mdi-file-multiple</v-icon>
+                      </v-btn>
+                     </template>
+                     <span>{{ $t('view.reports.button') }}</span>
+                  </v-tooltip>
+                  <v-tooltip bottom>
+                    <template v-if="!item.readonly" v-slot:activator="{ on }">
+                      <v-btn v-on="on" icon @click="editRepository(item.repository)">     
+                          <v-icon size='20px'>fa-edit</v-icon>    
+                      </v-btn>
+                      </template>
+                      <span>{{ $t('edit.repository.button') }}</span>
+                  </v-tooltip>              
                   <v-btn v-if="!item.readonly" icon @click="repositoryId = item.repository.id;dialog=true" >     
                       <v-icon size='20px'>fa-trash-alt</v-icon>    
                   </v-btn>
                 </div>
               </v-card-title>
               <v-divider></v-divider>
-              <v-card-text v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
-              <v-list>
+              <v-card-text v-bind:class="cssColorClass(item)">
+              <v-list v-bind:class="cssColorClass(item)">
                 <v-list-item>
                   <v-list-item-content>Keywords:</v-list-item-content>
                   <v-list-item-content>
@@ -91,7 +104,7 @@
               <v-list-group sub-group no-action class="secondary--text">
                 <template v-slot:activator>
                   <v-list-item-content>
-                    <v-list-item-title>Radar chart</v-list-item-title>
+                    <v-list-item-title>{{ $t('radar.chart.title')}}</v-list-item-title>
                   </v-list-item-content>
                 </template>
                 <apexchart v-show="item.health != null" type=radar :options="chartOptions(item.health)" :series="levelList(item.health)" />
@@ -159,28 +172,6 @@ export default {
           repoType: 'All',
           loading: false,
           emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
-          dataLabels: {
-              enabled: true,
-              enabledOnSeries: undefined,
-              formatter: function (val) {
-                  return val
-              },
-              textAnchor: 'middle',
-              offsetX: 0,
-              offsetY: 0,
-              style: {
-                  fontSize: '14px',
-                  fontFamily: 'Helvetica, Arial, sans-serif',
-                  colors: ['#000']
-              },
-              dropShadow: {
-                  enabled: false,
-                  top: 1,
-                  left: 1,
-                  blur: 1,
-                  opacity: 0.45
-              }
-    }
         }
     },
 
@@ -224,6 +215,17 @@ export default {
     },
 
     methods: {
+      cssColorClass(item) {
+        if(item.health.green) {
+          return 'light-green'
+        } else if(item.health.orange) {
+          return 'light-orange'
+        } else if(item.health.red) {
+          return 'light-red'
+        } else {
+          return ''
+        }
+      },
       createRepository() {
           this.$router.push({name: 'repository'});
       },
@@ -253,11 +255,10 @@ export default {
             return [serie];
         },
       chartOptions (health) {
-          var option = {labels: null, title: {text: 'Requirements Radar Chart'}, yaxis:{max: 4, forceNiceScale: true, tickAmount: 4} }
+          var option = {labels: null, title: {text: ''}, yaxis:{max: 4, forceNiceScale: true, tickAmount: 4}}
           if(health != null) {
             option.labels = health.requirementCodeList
           }
-          option.dataLabels = this.dataLabels
           return option
       },
       routeToMyReports(repository) {
@@ -328,7 +329,4 @@ export default {
   background-color: #EF9A9A;
 }
 
-.theme--light.v-list {
-  background: transparent; 
-}
 </style>
