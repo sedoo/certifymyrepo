@@ -8,7 +8,7 @@ import router from './router'
 
 Vue.config.productionTip = false
 
-import CrusoeApp from './views/crusoe-app.vue'
+import App from './App.vue'
 import TokenRefresher from './components/CertifyMyRepo-token-refresher.vue'
 import VueApexCharts from 'vue-apexcharts'
 import 'es6-promise/auto'
@@ -45,19 +45,13 @@ axios.interceptors.response.use(function (response) {
   return Promise.reject(error);
 });
 
-const VueComponent = [
-  CrusoeApp
-]
-VueComponent.forEach(comp => {
-  console.log("Start adding ", comp.name, " to custome element ...")
-  comp.vuetify = vuetify;
-  comp.i18n = i18n;
-  comp.store = store;
-  comp.router = router;
-  Vue.customElement(comp.name, comp)
-  console.log("Finish adding ", comp.name, " to custome element")
-  console.log("Finish adding ", comp, " to custome element")
-})
+App.vuetify = vuetify;
+App.i18n = i18n;
+App.store = store;
+App.router = router;
+
+Vue.customElement('crusoe-app', App)
+
 const urlCdnStyle = [
   "https://fonts.googleapis.com/css?family=Material+Icons",
   "https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css",

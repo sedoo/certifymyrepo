@@ -46,12 +46,12 @@
 
               <v-stepper v-model="e1" vertical >
                 <div v-for="(item, index) in myReport.items" :key=index>
-                        <v-stepper-step :complete="e1 > index + 1" :step="index+1" editable >
+                        <v-stepper-step :complete="e1 > index + 1" :step="index + 1" editable >
                         <h3>{{item.requirement}}</h3>
                         <small v-if="item.level != null">Level: {{item.level}}</small>
                         </v-stepper-step>
                       
-                        <v-stepper-content :step="index+1">
+                        <v-stepper-content :step="index + 1">
                           <v-card
                               class="mb-12"
                               color="grey lighten-3"
@@ -95,7 +95,7 @@
                             </v-expansion-panels>
 
                             <v-card-actions>
-                              <v-btn text color="primary" @click="previousStep(index+1)">
+                              <v-btn text color="primary" @click="previousStep(index1)">
                                   Previous
                               </v-btn>
                               <v-btn color="primary" @click="nextStep(index+1)">
@@ -173,8 +173,6 @@
               </v-card>
               </v-dialog>
             </div>
-{{ levelsTemplate }}
-        
       </v-form>
     </div>
     </div>
@@ -192,21 +190,6 @@ export default {
   	},
     data() {
         return {
-            //Some info about the current user
-            current_user: {
-                user: 'Tom Tom'
-            },
-            //Comments that are under the post
-            comments: [
-                {
-                    user: 'François André',
-                    text: 'lorem ipsum dolor lorem ipsum dolor lorem ipsum dolor',
-                },
-                {
-                    user: 'Jean Claude Van Damme',
-                    text: 'mais où et donc or ni car',
-                },
-            ],
             valid: false,
             dialog: false,
             readOnly: null,
@@ -225,7 +208,7 @@ export default {
             notifierMessage: "",
             notifierColor: "success",
             index: 0,
-            status: ["NEW","IN_PROGRESS","READY"],
+            status: ["NEW","IN_PROGRESS"],
             e1: 0,
             steps: 17,
             versionRules: [
@@ -238,7 +221,7 @@ export default {
         return this.$store.getters.getLanguage
       },
       isReleasable: function () {
-        if(this.myReport.status == 'READY') {
+        if(this.myReport.status == 'IN_PROGRESS') {
           return true
         } else {
           return false
@@ -334,8 +317,8 @@ export default {
       },
 
       displayReleaseConfirmation() {
-        if(this.myReport.status != 'READY') {
-          this.displayError("The report status must be 'READY' before been able to release a report")
+        if(this.myReport.status != 'IN_PROGRESS') {
+          this.displayError("The report status must be 'IN_PROGRESS' before been able to release a report")
         } else {
           this.dialog = true
         }
@@ -372,7 +355,6 @@ export default {
       // case 2 id != null AND copy == true => make a copy of the report
       // case 3 id == null AND template contains a templateName => create a new report with the requested template
       var id = this.$route.query.reportId
-      debugger
       if(id != null && !this.$route.query.copy) {
         var self = this
         // getReport return as result the report, the comments by requirement, a boolean ISREADONLY and the certification report template
@@ -381,50 +363,38 @@ export default {
         .then( function (response) {
           self.myReport = response.data.report
           self.readOnly = response.data.readOnly
-
-          // BEGINNING add comments into report object
-          let requirementComments = response.data.requirementComments
-
-          if(self.myReport.items != null && self.myReport.items.length > 0 ) {
-            for (var i = 0; i < self.myReport.items.length; i++) {
-              let itemCode = self.myReport.items[i].code
-              console.log('Search comments for requirement :'+itemCode)
-              let notFound = true
-              for (var j = 0; j < requirementComments.length; j++) {
-                // search saved comments 
-                if(itemCode == requirementComments[j].itemCode ) {
-                  console.log('Comments found:'+ JSON.stringify(requirementComments[j]))
-                  self.myReport.items[i].requirementcomments = requirementComments[j]
-                  notFound = false
-                }
-              }
-              // if no previous comment initialize an object with an empty array of comments
-              if(notFound) {
-                self.myReport.items[i].requirementcomments = {
-                  comments: [],
-                  reportId: self.myReport.id,
-                  itemCode: itemCode
-                }
-              }
-            }
-          }
-          // END add comments into report object
-
-          // BEGINNING add labels into report object from template
+          
+          let commentsCollection = response.data.requirementComments
           let requirementsTemplate = response.data.template.requirements
 
           if(self.myReport.items != null && self.myReport.items.length > 0 ) {
             for (var i = 0; i < self.myReport.items.length; i++) {
+
               let itemCode = self.myReport.items[i].code
+
+              // BEGINNING add comments into report object
+              self.myReport.items[i].requirementcomments = {
+                comments: [],
+                reportId: self.myReport.id,
+                itemCode: itemCode
+              }
+              for (let commentItem in commentsCollection) {
+                if(itemCode == commentsCollection[commentItem].itemCode ) {
+                  self.myReport.items[i].requirementcomments = commentsCollection[commentItem]
+                }
+              }
+              // END add comments into report object
+
+              // BEGINNING add labels into report object from template
               for (let requirementItemCode in requirementsTemplate) {
-                // search saved comments 
                 if(itemCode == requirementItemCode) {
                   self.myReport.items[i].requirement = requirementsTemplate[requirementItemCode].requirement[self.language]
                 }
               }
+              // END add labels into report object from template
+
             }
           }
-          // END add labels into report object from template
 
           // Add levels labels for user language into myReport object
           let levelsLocal = []
@@ -439,7 +409,6 @@ export default {
             levelsLocal.push(levelLocal)
           }
           self.levelsTemplate = levelsLocal
-
 
         }).catch(function(error) {self.displayError("An error has occured:" + error)})
 
