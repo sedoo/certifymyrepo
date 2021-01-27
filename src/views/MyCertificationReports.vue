@@ -10,7 +10,11 @@
     "copy.help.message": "Create a new report from a copy",
     "edit.help.message": "Edit this report",
     "delete.confirm.message": "Do you really want to delete this report ? This operation cannot be undone.",
-    "delete": "Delete"
+    "delete": "Delete",
+    "button.confirm": "Confirm",
+    "button.cancel": "Cancel",
+    "button.save": "Save",
+    "button.close": "Close"
   },
   "fr": {
     "title" : "Fiches {msg}",
@@ -22,7 +26,11 @@
     "copy.help.message": "Créer une nouvelle fiche à partir d'une copie",
     "edit.help.message": "Modifier cette fiche",
     "delete.confirm.message": "Voulez vous vraiment supprimer cette fiche? Veuillez noter que cette opération est irréversible.",
-    "delete": "Suppression"
+    "delete": "Suppression",
+    "button.confirm": "Confirmer",
+    "button.cancel": "Annuler",
+    "button.save": "Enregister",
+    "button.close": "Fermer"
   }
 }
 </i18n>
@@ -187,7 +195,7 @@ export default {
             for (var j = 0; j < report.items.length; j++){
                 var r = report.items[j]
                 if(r.level) {
-                    array.push(r.level.code)
+                    array.push(r.level)
                 } else {
                     array.push(null)
                 }
@@ -220,7 +228,7 @@ export default {
                 ).catch(function(error) {self.displayError("An error has occured:" + error)})
         },
         createReport() {
-            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null} })
+            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null, template: 'CTS-2020-2022'} })
         },
         editItem (item) {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: item.id } });

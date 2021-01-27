@@ -64,7 +64,7 @@
             lg="4"
           >
             <v-card>
-              <v-card-title v-bind:class="{ 'light-green': item.health != null && item.health.green, 'light-orange': item.health != null && item.health.orange, 'light-red': item.health != null && item.health.red }">
+              <v-card-title v-bind:class="cssColorClass(item)">
                 <h3 class="repo-title">{{ item.repository.name }}</h3>
                 <div class="icon-edit-delete">
                   <v-tooltip bottom>
@@ -216,15 +216,20 @@ export default {
 
     methods: {
       cssColorClass(item) {
-        if(item.health.green) {
-          return 'light-green'
-        } else if(item.health.orange) {
-          return 'light-orange'
-        } else if(item.health.red) {
-          return 'light-red'
+        if(item.health) {
+          if(item.health.green) {
+            return 'light-green'
+          } else if(item.health.orange) {
+            return 'light-orange'
+          } else if(item.health.red) {
+            return 'light-red'
+          } else {
+            return ''
+          }
         } else {
           return ''
         }
+
       },
       createRepository() {
           this.$router.push({name: 'repository'});

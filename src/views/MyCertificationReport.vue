@@ -2,12 +2,19 @@
 {
   "en": {
     "title" : "{msg} certification report",
-    "version.number": "Version number"
+    "version.number": "Version number",
+    "button.confirm": "Confirm",
+    "button.cancel": "Cancel",
+    "button.save": "Save",
+    "button.close": "Close"
   },
   "fr": {
     "title" : "Fiche {msg}",
-    "version.number": "Numéro de version"
-
+    "version.number": "Numéro de version",
+    "button.confirm": "Confirmer",
+    "button.cancel": "Annuler",
+    "button.save": "Enregister",
+    "button.close": "Fermer"
   }
 }
 </i18n>
@@ -41,7 +48,7 @@
                 <div v-for="(item, index) in myReport.items" :key=index>
                         <v-stepper-step :complete="e1 > index + 1" :step="index+1" editable >
                         <h3>{{item.requirement}}</h3>
-                        <small v-if="item.level != null">Level: {{item.level.code}}</small>
+                        <small v-if="item.level != null">Level: {{item.level}}</small>
                         </v-stepper-step>
                       
                         <v-stepper-content :step="index+1">
@@ -60,11 +67,11 @@
                             <p v-else class="text-justify">{{ item.response }}</p>
 
                             <v-select filled v-if="!readOnly" class="ma-3"
-                              :items="levelsTemplate.levels"
+                              :items="levelsTemplate"
                               label="Compliance level"
                               v-model="item.level"
                               item-text="label"
-                              return-object
+                              item-value="code"
                             ></v-select>
                             <p v-else>
                               <span class="font-weight-bold">Compliance level: </span>
@@ -166,7 +173,7 @@
               </v-card>
               </v-dialog>
             </div>
-
+{{ levelsTemplate }}
         
       </v-form>
     </div>
@@ -175,8 +182,6 @@
 
 
 <script>
-import levelsTemplateJson from '../resources/levels-template.json'
-import requirementTemplateJson from '../resources/requirements-template.json'
 import Comments from '../components/Comments.vue'
 export default {
     components: {
@@ -206,9 +211,10 @@ export default {
             dialog: false,
             readOnly: null,
             myReport: {
-                'id': null, 
+                'id': null,
+                'templateName': null,
                 'repositoryId': null,
-                'items': requirementTemplateJson.requirements, 
+                'items': null, 
                 'status': 'NEW',
                 'updateDate': null,
                 'version': null
@@ -219,7 +225,6 @@ export default {
             notifierMessage: "",
             notifierColor: "success",
             index: 0,
-            levelsTemplate: levelsTemplateJson,
             status: ["NEW","IN_PROGRESS","READY"],
             e1: 0,
             steps: 17,
@@ -363,27 +368,20 @@ export default {
     },
     
     created () {
+      // case 1 id != null AND copy undefined or false => update the report
+      // case 2 id != null AND copy == true => make a copy of the report
+      // case 3 id == null AND template contains a templateName => create a new report with the requested template
       var id = this.$route.query.reportId
-      if(id != null) {
+      debugger
+      if(id != null && !this.$route.query.copy) {
         var self = this
-        // getReport return as result the report, the comments by requirement and a boolean ISREADONLY
+        // getReport return as result the report, the comments by requirement, a boolean ISREADONLY and the certification report template
         this.axios
         .get(this.service+'/certificationReport/v1_0/getReport/'+id)
         .then( function (response) {
-          self.myReport = response.data.reports[0]
+          self.myReport = response.data.report
           self.readOnly = response.data.readOnly
-          // if the report has been released and the user is not making a copy => READ ONLY
-          if(response.data.reports[0].status == 'RELEASED' && self.$route.query.copy == null) {
-            self.readOnly = true
-          }
-          // if the user is making a copy of a released report => status NEW and version null
-          if(self.$route.query.copy != null) {
-            self.myReport.status = 'NEW'
-            self.updateDate = new Date()
-            self.myReport.version = null
-            self.myReport.id = null
-          }
-          
+
           // BEGINNING add comments into report object
           let requirementComments = response.data.requirementComments
 
@@ -411,10 +409,88 @@ export default {
             }
           }
           // END add comments into report object
+
+          // BEGINNING add labels into report object from template
+          let requirementsTemplate = response.data.template.requirements
+
+          if(self.myReport.items != null && self.myReport.items.length > 0 ) {
+            for (var i = 0; i < self.myReport.items.length; i++) {
+              let itemCode = self.myReport.items[i].code
+              for (let requirementItemCode in requirementsTemplate) {
+                // search saved comments 
+                if(itemCode == requirementItemCode) {
+                  self.myReport.items[i].requirement = requirementsTemplate[requirementItemCode].requirement[self.language]
+                }
+              }
+            }
+          }
+          // END add labels into report object from template
+
+          // Add levels labels for user language into myReport object
+          let levelsLocal = []
+          let lItem = null
+          for (lItem of response.data.template.levels) {
+            let levelLocal = {
+              code: null,
+              label: null
+            }
+            levelLocal.label = lItem.label[self.language]
+            levelLocal.code = lItem.code
+            levelsLocal.push(levelLocal)
+          }
+          self.levelsTemplate = levelsLocal
+
+
+        }).catch(function(error) {self.displayError("An error has occured:" + error)})
+
+      } else if(id != null && this.$route.query.copy) {
+        var self = this
+        // getACopy return copy ready to use
+        this.axios
+        .get(this.service+'/certificationReport/v1_0/getACopy/'+id)
+        .then( function (response) {
+          self.myReport = response.data.report
+          self.readOnly = response.data.readOnly
         }).catch(function(error) {self.displayError("An error has occured:" + error)})
       } else {
-        //this.myReport = this.myReportTemplate
-        this.myReport.repositoryId = this.$route.query.repositoryId
+        var self = this
+        this.axios
+        .get(this.service+'/certificationReport/v1_0/getCertificationReportTemplate?name='+this.$route.query.template)
+        .then( function (response) {
+
+          // Add requirements label for user language into myReport object
+          let requirementsLocal = []
+          let rItem = null
+          for (rItem of response.data.requirements) {
+            let requirementLocal = {
+              requirement: null,
+              code: null,
+              response: null,
+              level: null
+            }
+            requirementLocal.requirement = rItem.requirement[self.language]
+            requirementLocal.code = rItem.code
+            requirementsLocal.push(requirementLocal)
+          }
+          self.myReport.items = requirementsLocal
+
+          // Add levels label for user language into myReport object
+          let levelsLocal = []
+          let lItem = null
+          for (lItem of response.data.levels) {
+            let levelLocal = {
+              code: null,
+              label: null
+            }
+            levelLocal.label = lItem.label[self.language]
+            levelLocal.code = lItem.code
+            levelsLocal.push(levelLocal)
+          }
+          self.levelsTemplate = levelsLocal
+          self.myReport.templateName = self.$route.query.template
+          self.myReport.repositoryId = self.$route.query.repositoryId
+        })
+
       }
 
     },
