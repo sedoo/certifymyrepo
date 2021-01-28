@@ -3,19 +3,19 @@
   "en": {
     "title" : "My repository",
     "repo.name": "Repository name",
-    "email": "Email",
+    "email": "Contact email",
     "keywords": "Keywords",
-    "name": "Name",
-    "role": "Role",
+    "name.label": "Name",
+    "role.label": "Role",
     "message.test.repo": "Check this if your repository is for testing purposes"
   },
   "fr": {
     "title" : "Mon entrepôt",
     "repo.name": "Nom de l'entrepôt",
-    "email": "Courriel",
+    "email": "Courriel du contact",
     "keywords": "Mots clefs",
-    "name": "Nom",
-    "role": "Rôle",
+    "name.label": "Nom",
+    "role.label": "Rôle",
     "message.test.repo": "Cocher cette case si votre entrepôt pour des besoins de test"
   }
 }
@@ -73,14 +73,30 @@
                 </v-col> 
             </v-row>
             <v-row>
+                <v-col cols="12" >
+                    <v-text-field
+                        v-model="myRepository.url"
+                        label="URL"
+                    ></v-text-field>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col cols="12" >
+                    <v-textarea
+                        v-model="myRepository.description"
+                        label="Description"
+                    ></v-textarea>
+                </v-col>
+            </v-row>
+            <v-row>
                 <v-col cols="12">
                 <v-simple-table v-if="myRepository.users != null && myRepository.users.length > 0">
                     <template v-slot:default>
                     <thead>
                         <tr>
                         <th class="text-left">ORCID</th>
-                        <th class="text-left">{{$t('name')}}</th>
-                        <th class="text-left">{{$t('role')}}</th>
+                        <th class="text-left">{{$t('name.label')}}</th>
+                        <th class="text-left">{{$t('role.label')}}</th>
                         <th class="text-left">Actions</th>
                         </tr>
                     </thead>
@@ -88,7 +104,7 @@
                         <tr v-for="(userItem, index) in myRepository.users" :key="index">
                         <td>{{ userItem.orcid }}</td>
                         <td>{{ userItem.name }}</td>
-                        <td>{{ userItem.role }}</td>
+                        <td>{{ $t(userItem.role) }}</td>
                         <td>
                             <v-btn v-if="displayActionsOnUser(index)" icon class="mx-0" @click="displayEditUser(index);">     
                                 <v-icon size='20px'>fa-edit</v-icon>    
@@ -121,7 +137,7 @@
                         color="primary"
                         @click="goToRepositories"
                         >
-                        {{ $t('button.cancel') }}
+                        {{ $t("button.cancel") }}
                     </v-btn>
                      <v-btn
                         color="primary"
@@ -149,11 +165,19 @@
                     </v-form>
                     <v-card-text>
                     <v-text-field :rules="userNameRules" v-model="user.name" prepend-inner-icon="mdi-account" label="Name" readonly filled></v-text-field>
-                    <v-combobox :rules="roleRules"
+                    <v-select :rules="roleRules"
                     v-model="user.role"
                     :items="roles"
-                    label="Select a role"
-                    ></v-combobox>
+                    label="Select a role">
+                        <template slot="selection" slot-scope="data">
+                            <!-- HTML that describe how select should render selected items -->
+                            {{ $t(data.item) }} 
+                        </template>
+                        <template slot="item" slot-scope="data">
+                            <!-- HTML that describe how select should render items when the select is open -->
+                            {{ $t(data.item) }}
+                        </template>
+                    </v-select>
                     </v-card-text>
                     <v-divider></v-divider>
                     <v-card-actions>
@@ -163,13 +187,13 @@
                         text
                         @click="cancelAddUser"
                     >
-                        Cancel
+                        {{ $t("button.cancel") }}
                     </v-btn>
                     <v-btn
                         color="primary" :disabled="!validPopup"
                         @click="addUser"
                     >
-                        Confirm
+                        {{ $t("button.confirm") }}
                     </v-btn>
                     </v-card-actions>
                 </v-card>
@@ -220,7 +244,7 @@ export default {
         return {
             dialogRemove: false,
             dialogAddEdit: false,
-            roles: ["MANAGER", "READER"],
+            roles: ["EDITOR", "CONTRIBUTOR", "READER"],
             valid: false,
             validPopup: false,
             validOrcid: false,
@@ -298,7 +322,7 @@ export default {
       isLastManager: function() {
         let managerCounter = 0
         for (let i= 0; i < this.myRepository.users.length; i++) {
-            if(this.myRepository.users[i].role == 'MANAGER') {
+            if(this.myRepository.users[i].role == 'EDITOR') {
                 managerCounter++
             }
         }
@@ -329,13 +353,11 @@ export default {
             // If the user creating a new repository he is manager by default
             // if the logged user is admin no need to add him. He has all the rights.
     	    if(!this.userIsAdmin && (this.myRepository.users == null || this.myRepository.users.length == 0)) {
-                let localUser = {orcid: this.userOrcid, name: this.userName , role: 'MANAGER'}
+                let localUser = {orcid: this.userOrcid, name: this.userName , role: 'EDITOR'}
                 this.myRepository.users.push(localUser)
             }
             this.myRepository.contact = this.userEmail
         }
-        
-        console.log("MyRepository créé "+JSON.stringify(this.myRepository ))
 
     },
 
@@ -410,7 +432,7 @@ export default {
         },
 
         displayActionsOnUser: function(index) {
-            return !(this.isLastManager && this.myRepository.users[index].role == 'MANAGER')
+            return !(this.isLastManager && this.myRepository.users[index].role == 'EDITOR')
         }
 
     },

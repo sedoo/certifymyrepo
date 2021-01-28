@@ -1,3 +1,13 @@
+<i18n>
+{
+  "en": {
+    "comment.placeholder" : "Comments"
+  },
+  "fr": {
+    "comment.placeholder" : "Laissez un commentaire"
+  }
+}
+</i18n>
 <template>
     <div class="comments">
         <div :class="comments_wrapper_classes">
@@ -13,7 +23,7 @@
                 type="text" 
                 v-model.trim="reply" 
                 class="reply--text" 
-                placeholder="Leave a comment..."
+                :placeholder="$t('comment.placeholder')"
                 maxlength="250"
                 required
                 @keyup.enter="submitComment"

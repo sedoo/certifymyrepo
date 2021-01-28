@@ -2,23 +2,27 @@
 {
   "en": {
     "page.repositories" : "Repositories",
+    "url.repository.button": "Repository website link",
     "create.button" : "Create a new repository",
     "repositories.type": "Repositories type",
     "delete.confirmation": "Do you really want to delete this repository and all the related reports? This operation cannot be undone.",
     "edit.repository.button": "Edit this repository",
     "view.reports.button": "View the reports",
     "repositories.type": "Repositories type",
-    "radar.chart.title": "Requirements Radar Chart"
+    "radar.chart.title": "Requirements Radar Chart",
+    "keywords": "Keywords"
   },
   "fr": {
     "page.repositories" : "Entrepôts",
+    "url.repository.button": "Lien vers le site web de l'entrepôt",
     "create.button" : "Créer un nouvel entrepôt",
     "repositories.type": "Type d'entrepôt",
     "delete.confirmation": "Voulez vous vraiment supprimer cet entrepôt et toutes les fiches associées? Veuillez noter que cette opération est irréversible.",
     "edit.repository.button": "Editer cet entrepôt",
     "view.reports.button": "Consulter les fiches",
     "repositories.type": "Type d'entrepôt",
-    "radar.chart.title": "Graphique radar des critères"
+    "radar.chart.title": "Graphique radar des critères",
+    "keywords": "Mots clefs"
   }
 }
 </i18n>
@@ -65,6 +69,14 @@
           >
             <v-card>
               <v-card-title v-bind:class="cssColorClass(item)">
+                <v-tooltip bottom>
+                  <template v-if="item.repository.url" v-slot:activator="{ on }">
+                    <v-btn v-on="on" icon :href="checkedURL(item.repository.url)" target="_blank">
+                      <v-icon size='20px'>fa-link</v-icon>
+                    </v-btn>
+                    </template>
+                    <span>{{ $t('url.repository.button') }}</span>
+                </v-tooltip> 
                 <h3 class="repo-title">{{ item.repository.name }}</h3>
                 <div class="icon-edit-delete">
                   <v-tooltip bottom>
@@ -91,8 +103,8 @@
               <v-divider></v-divider>
               <v-card-text v-bind:class="cssColorClass(item)">
               <v-list v-bind:class="cssColorClass(item)">
-                <v-list-item>
-                  <v-list-item-content>Keywords:</v-list-item-content>
+                <v-list-item v-if="item.repository.keywords && item.repository.keywords.length > 0">
+                  <v-list-item-content>{{$t('keywords')}}:</v-list-item-content>
                   <v-list-item-content>
                     <span v-for="(keyword, key) in item.repository.keywords" :key=key >{{ keyword }}</span>
                   </v-list-item-content>
@@ -101,13 +113,17 @@
                   <v-list-item-content>Contact:</v-list-item-content>
                   <v-list-item-content class="align-end">{{ item.repository.contact }}</v-list-item-content>
                 </v-list-item>
-              <v-list-group sub-group no-action class="secondary--text">
+              <v-list-group v-if="item.repository.description != null" sub-group no-action class="secondary--text">
                 <template v-slot:activator>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ $t('radar.chart.title')}}</v-list-item-title>
-                  </v-list-item-content>
+                  <v-list-item-title>Description</v-list-item-title>
                 </template>
-                <apexchart v-show="item.health != null" type=radar :options="chartOptions(item.health)" :series="levelList(item.health)" />
+                <v-textarea readonly :value="item.repository.description"></v-textarea>
+              </v-list-group>
+              <v-list-group v-show="item.health != null" sub-group no-action class="secondary--text">
+                <template v-slot:activator>
+                <v-list-item-title>{{ $t('radar.chart.title')}}</v-list-item-title>
+                </template>
+                <apexchart type=radar :options="chartOptions(item.health)" :series="levelList(item.health)" />
               </v-list-group>
               </v-list>
               </v-card-text>
@@ -215,6 +231,13 @@ export default {
     },
 
     methods: {
+      checkedURL(url) {
+        if(url.startsWith('//') || url.startsWith('https://') || url.startsWith('http://') ) {
+          return url
+        } else {
+          return "//" + url
+        }
+      },
       cssColorClass(item) {
         if(item.health) {
           if(item.health.green) {

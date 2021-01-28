@@ -6,7 +6,16 @@
     "button.confirm": "Confirm",
     "button.cancel": "Cancel",
     "button.save": "Save",
-    "button.close": "Close"
+    "button.close": "Close",
+    "button.previous" :"Previous",
+    "button.continue" :"Continue",
+    "level.label" : "Level",
+    "edit.response": "Edit the response",
+    "comment.label" : "Comments",
+    "button.release": "Validate",
+    "release.popup.title": "Validation",
+    "release.popup.message": "Do you really want to validate this report ? You will not be able to modify or delete this version of the report after this operation.",
+    "release.erreor.message": "The report status must be 'IN_PROGRESS' before been able to validate a report"
   },
   "fr": {
     "title" : "Fiche {msg}",
@@ -14,7 +23,16 @@
     "button.confirm": "Confirmer",
     "button.cancel": "Annuler",
     "button.save": "Enregister",
-    "button.close": "Fermer"
+    "button.close": "Fermer",
+    "button.previous" :"Précédent",
+    "button.continue" :"Continuer",
+    "level.label" : "Niveau",
+    "edit.response": "Editer la réponse",
+    "comment.label" : "Commentaires",
+    "button.release": "Valider",
+    "release.popup.title": "Validation",
+    "release.popup.message": "Voulez-vous vraiment valider cette fiche ? Vous ne pourrez plus modifier ou supprimer cette version après cette opération",
+    "release.erreor.message": "Le statut doit être 'IN_PROGRESS' pour pouvoir valider une fiche"
   }
 }
 </i18n>
@@ -48,7 +66,7 @@
                 <div v-for="(item, index) in myReport.items" :key=index>
                         <v-stepper-step :complete="e1 > index + 1" :step="index + 1" editable >
                         <h3>{{item.requirement}}</h3>
-                        <small v-if="item.level != null">Level: {{item.level}}</small>
+                        <small v-if="item.level != null">{{ $t('level.label') }}: {{item.level}}</small>
                         </v-stepper-step>
                       
                         <v-stepper-content :step="index + 1">
@@ -60,7 +78,7 @@
                             <!-- DO WE WANT TO ADD GUIDANCE ? <div v-html="item.guidance "></div>-->
                             <v-textarea v-if="!readOnly"
                                 outlined class="ma-3"
-                                label="Edit the response"
+                                :label="$t('edit.response')"
                                 v-model="item.response"
                             >
                             </v-textarea>
@@ -68,19 +86,19 @@
 
                             <v-select filled v-if="!readOnly" class="ma-3"
                               :items="levelsTemplate"
-                              label="Compliance level"
+                              :label="$t('level.label')"
                               v-model="item.level"
                               item-text="label"
                               item-value="code"
                             ></v-select>
                             <p v-else>
-                              <span class="font-weight-bold">Compliance level: </span>
+                              <span class="font-weight-bold">{{ $t('level.label') }}: </span>
                               <span v-if="item.level != null">{{ item.level.label }}</span> 
                             </p>
 
                             <v-expansion-panels class="pa-3" v-if="!hideCommentBloc(item)">
                             <v-expansion-panel>
-                                <v-expansion-panel-header>Comments  <span class="pl-3" v-if="item.requirementcomments != null && item.requirementcomments.comments.length > 0"><i class="fa fa-comment"></i> {{ item.requirementcomments.comments.length }}</span></v-expansion-panel-header>
+                                <v-expansion-panel-header>{{ $t('comment.label')}}  <span class="pl-3" v-if="item.requirementcomments != null && item.requirementcomments.comments.length > 0"><i class="fa fa-comment"></i> {{ item.requirementcomments.comments.length }}</span></v-expansion-panel-header>
                                 <v-expansion-panel-content>
                                     <comments 
                                         :comments_wrapper_classes="['custom-scrollbar', 'comments-wrapper']"
@@ -96,10 +114,10 @@
 
                             <v-card-actions>
                               <v-btn text color="primary" @click="previousStep(index1)">
-                                  Previous
+                                  {{ $t('button.previous') }}
                               </v-btn>
                               <v-btn color="primary" @click="nextStep(index+1)">
-                                  Continue
+                                  {{ $t('button.continue') }}
                               </v-btn>
                             </v-card-actions>
 
@@ -115,13 +133,13 @@
                         color="primary"
                         @click="goToMyCertificationReports"
                         >
-                        Cancel
+                        {{ $t('button.cancel') }}
                     </v-btn>
                      <v-btn v-show="!readOnly"
                         color="primary"
                         @click="save"
                         >
-                        Save
+                        {{ $t('button.save') }}
                     </v-btn>
             </div>
 
@@ -132,7 +150,7 @@
                 @click="displayReleaseConfirmation"
                 :disabled="!valid"
                 >
-                Release
+                {{ $t('button.release') }}
               </v-btn>
 
               <v-dialog
@@ -145,11 +163,11 @@
                   class="headline grey lighten-2"
                   primary-title
                   >
-                  Release the report version
+                  {{ $t('release.popup.title')}}
                   </v-card-title>
 
                   <v-card-text>
-                  Do you really want to release this report version ? You will not be able to modify or delete this version of the report after this process.
+                  {{ $t('release.popup.message')}}
                   </v-card-text>
 
                   <v-divider></v-divider>
@@ -161,13 +179,13 @@
                       text
                       @click="dialog = false"
                   >
-                      Cancel
+                      {{ $t('button.cancel') }}
                   </v-btn>
                   <v-btn
                       color="primary"
                       @click="releaseTheReport"
                   >
-                      Confirm
+                      {{ $t('button.confirm') }}
                   </v-btn>
                   </v-card-actions>
               </v-card>
@@ -291,7 +309,7 @@ export default {
 
       // if ready only mode and no comment hide the comments bloc
       hideCommentBloc(item) {
-        return this.isReadOnlyComment && item.requirementcomments.comments.length == 0 || this.myReport.id == null
+        return this.isReadOnlyComment && item.requirementcomments != null && item.requirementcomments.comments.length == 0 || this.myReport.id == null
       },
 
       // Save report
@@ -318,7 +336,7 @@ export default {
 
       displayReleaseConfirmation() {
         if(this.myReport.status != 'IN_PROGRESS') {
-          this.displayError("The report status must be 'IN_PROGRESS' before been able to release a report")
+          this.displayError(this.$t('release.erreor.message'))
         } else {
           this.dialog = true
         }
@@ -355,7 +373,7 @@ export default {
       // case 2 id != null AND copy == true => make a copy of the report
       // case 3 id == null AND template contains a templateName => create a new report with the requested template
       var id = this.$route.query.reportId
-      if(id != null && !this.$route.query.copy) {
+      if(id != null) {
         var self = this
         // getReport return as result the report, the comments by requirement, a boolean ISREADONLY and the certification report template
         this.axios
@@ -372,18 +390,22 @@ export default {
 
               let itemCode = self.myReport.items[i].code
 
-              // BEGINNING add comments into report object
-              self.myReport.items[i].requirementcomments = {
-                comments: [],
-                reportId: self.myReport.id,
-                itemCode: itemCode
-              }
-              for (let commentItem in commentsCollection) {
-                if(itemCode == commentsCollection[commentItem].itemCode ) {
-                  self.myReport.items[i].requirementcomments = commentsCollection[commentItem]
+              if(!self.$route.query.copy) {
+                // BEGINNING add comments into report object
+                self.myReport.items[i].requirementcomments = {
+                  comments: [],
+                  reportId: self.myReport.id,
+                  itemCode: itemCode
                 }
+                for (let commentItem in commentsCollection) {
+                  if(itemCode == commentsCollection[commentItem].itemCode ) {
+                    self.myReport.items[i].requirementcomments = commentsCollection[commentItem]
+                  }
+                }
+                // END add comments into report object
+              } else {
+                self.myReport.items[i].requirementcomments = null
               }
-              // END add comments into report object
 
               // BEGINNING add labels into report object from template
               for (let requirementItemCode in requirementsTemplate) {
@@ -410,17 +432,16 @@ export default {
           }
           self.levelsTemplate = levelsLocal
 
+          // if the user is making a copy of a released report 
+          if(self.$route.query.copy) {
+            self.myReport.status = 'NEW'
+            self.updateDate = null
+            self.myReport.version = null
+            self.myReport.id = null
+          }
+
         }).catch(function(error) {self.displayError("An error has occured:" + error)})
 
-      } else if(id != null && this.$route.query.copy) {
-        var self = this
-        // getACopy return copy ready to use
-        this.axios
-        .get(this.service+'/certificationReport/v1_0/getACopy/'+id)
-        .then( function (response) {
-          self.myReport = response.data.report
-          self.readOnly = response.data.readOnly
-        }).catch(function(error) {self.displayError("An error has occured:" + error)})
       } else {
         var self = this
         this.axios
