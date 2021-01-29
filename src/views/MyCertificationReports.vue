@@ -1,3 +1,4 @@
+<i18n src="../locales.json"></i18n>
 <i18n>
 {
   "en": {
@@ -14,7 +15,8 @@
     "button.confirm": "Confirm",
     "button.cancel": "Cancel",
     "button.save": "Save",
-    "button.close": "Close"
+    "button.close": "Close",
+    "template.label": "Template"
   },
   "fr": {
     "title" : "Fiches {msg}",
@@ -30,7 +32,8 @@
     "button.confirm": "Confirmer",
     "button.cancel": "Annuler",
     "button.save": "Enregister",
-    "button.close": "Fermer"
+    "button.close": "Fermer",
+    "template.label": "Modèle"
   }
 }
 </i18n>
@@ -46,8 +49,12 @@
         <template>
         <div class="text-center">
 
-        <div v-if="!readOnly" class="text-right pa-3">
+        <div v-if="userRole === 'EDITOR'" class="text-right pa-3">
             <v-btn color="primary" @click="createReport">{{ $t('create.new.report')}}</v-btn>
+        </div>
+
+        <div v-if="userRole === 'EDITOR'" class="text-right pa-3">
+            <v-btn color="primary" @click="createReportTest">{{ $t('create.new.report')}} (template TEST)</v-btn>
         </div>
 
         </div>
@@ -67,24 +74,27 @@
          <template v-slot:item.updateDate="{ item }">  
             <span>{{ formatDate(item.updateDate) }}</span>
         </template> 
+         <template v-slot:item.status="{ item }">  
+            <span>{{ $t(item.status) }}</span>
+        </template> 
         <template v-slot:item.actions="{ item }">
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                <v-btn v-if="!readOnly && !isReleased(item)" icon v-on="on" class="mx-0" @click="editItem(item)">     
+                <v-btn v-if="userRole != 'READER' && !isReleased(item)" icon v-on="on" class="mx-0" @click="editItem(item)">     
                     <v-icon size="20px">fa-edit</v-icon>    
                 </v-btn>
                 </template>
                 <span>{{ $t('edit.help.message') }}</span>
             </v-tooltip>
 
-            <v-btn v-if="!readOnly && !isReleased(item)" icon class="mx-0" @click="dialog=true;reportId=item.id">     
+            <v-btn v-if="userRole === 'EDITOR' && !isReleased(item)" icon class="mx-0" @click="dialog=true;reportId=item.id">     
                 <v-icon size="20px">fa-trash-alt</v-icon>    
             </v-btn>  
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                <v-btn v-if="readOnly || isReleased(item)" icon v-on="on" class="mx-0 pa-3" @click="editItem(item)">     
+                <v-btn v-if="userRole === 'READER' || isReleased(item)" icon v-on="on" class="mx-0 pa-3" @click="editItem(item)">     
                     <v-icon size="20px">fa-book-open</v-icon>    
                 </v-btn>
                 </template>
@@ -93,7 +103,7 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn v-if="isReleased(item) && !readOnly" icon v-on="on" class="mx-0" @click="copyItem(item)">     
+                    <v-btn v-if="userRole === 'EDITOR' && isReleased(item)" icon v-on="on" class="mx-0" @click="copyItem(item)">     
                         <v-icon size="20px">fa-copy</v-icon>    
                     </v-btn>
                 </template>
@@ -166,10 +176,11 @@ export default {
             reports: [],
             dialog: false,
             reportId: null,
-            readOnly: false,
+            userRole: null,
             repositoryId: this.$route.params.id,
             headers: [
                 { text: 'Version', value: 'version' },
+                { text: this.$t('template.label'), value: 'templateName' },
                 { text: this.$t('date'), value: 'updateDate'},
                 { text: this.$t('status'), value: 'status' },
                 { text: 'Actions', value: 'actions', sortable: false }
@@ -230,6 +241,9 @@ export default {
         createReport() {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null, template: 'CTS-2020-2022'} })
         },
+        createReportTest() {
+            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null, template: 'TEST'} })
+        },
         editItem (item) {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: item.id } });
         }, 
@@ -268,12 +282,13 @@ export default {
     },
     
     created: function() {
+      this.$i18n.locale = this.$store.getters.getLanguage;
       var self = this
       this.axios
       .get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.$route.params.id)
       .then(response => {
         self.reports = response.data.reports
-        self.readOnly = response.data.readOnly
+        self.userRole = response.data.userRole
       }).catch(function(error) {self.displayError("An error has occured:" + error)})
       .finally(() => this.loading = false)
     }

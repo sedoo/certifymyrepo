@@ -1,9 +1,3 @@
 {
-  "button.confirm": "Confirmer",
-  "button.cancel": "Annuler",
-  "button.save": "Enregister",
-  "button.close": "Fermer",
-  "EDITOR": "Rédacteur",
-  "CONTRIBUTOR": "Contributeur",
-  "READER": "Lecteur"
+  "does.not.work.once.deployed": "why?"
 }

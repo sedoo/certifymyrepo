@@ -1,0 +1,26 @@
+{
+    "en": {
+        "button.confirm": "Confirm",
+        "button.cancel": "Cancel",
+        "button.save": "Save",
+        "button.close": "Close",
+        "EDITOR": "Editor",
+        "CONTRIBUTOR": "Contributor",
+        "READER": "Reader",
+        "NEW": "Creation",
+        "IN_PROGRESS": "Redaction in progress",
+        "RELEASED": "Validated"
+      },
+    "fr": {
+        "button.confirm": "Confirmer",
+        "button.cancel": "Annuler",
+        "button.save": "Enregister",
+        "button.close": "Fermer",
+        "EDITOR": "Rédacteur",
+        "CONTRIBUTOR": "Contributeur",
+        "READER": "Lecteur",
+        "NEW": "Création",
+        "IN_PROGRESS": "En cours de rédaction",
+        "RELEASED": "Validé"
+      }
+  }

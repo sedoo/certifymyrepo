@@ -1,3 +1,4 @@
+<i18n src="../locales.json"></i18n>
 <i18n>
 {
   "en": {
@@ -342,6 +343,7 @@ export default {
     },
     
     created: function() {
+        this.$i18n.locale = this.$store.getters.getLanguage;
         if(this.repositoryId != null) {
             var self = this;
             this.axios.get(this.service+'/repository/v1_0/getRepository/'+this.repositoryId )

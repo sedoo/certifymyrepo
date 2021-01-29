@@ -81,6 +81,7 @@
 export default {
 
   created: function() {
+    this.$i18n.locale = this.$store.getters.getLanguage;
     this.loadProfile();
   } ,
 

@@ -151,6 +151,10 @@ export default {
       }
     },
 
+    created() {
+        this.$i18n.locale = this.$store.getters.getLanguage;
+    },
+
     methods: {
         lookup(){
             this.notDataFound = false

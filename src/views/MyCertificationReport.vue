@@ -1,3 +1,4 @@
+<i18n src="../locales.json"></i18n>
 <i18n>
 {
   "en": {
@@ -44,9 +45,8 @@
       <v-btn dark text @click="notifier = false">{{ $t('button.close' )}}</v-btn>
     </v-snackbar>
     <h1 class="subheading grey--text">{{ $t('title', {'msg':$store.getters.getRepository.name } ) }}</h1>
+    <h4 class="subheading grey--text pt-5 pb-5">{{ templateName }}</h4>
       <v-form v-model="valid">
-      
-
             <v-text-field v-if="!readOnly"
                 :label="$t('version.number')"
                 v-model="myReport.version"
@@ -58,6 +58,14 @@
                 :items="status"
                 v-model="myReport.status"
                 >
+              <template slot="selection" slot-scope="data">
+                  <!-- HTML that describe how select should render selected items -->
+                  {{ $t(data.item) }} 
+              </template>
+              <template slot="item" slot-scope="data">
+                  <!-- HTML that describe how select should render items when the select is open -->
+                  {{ $t(data.item) }}
+              </template>
             </v-select>
             <p v-if="readOnly"><span class="font-weight-bold">Status:  </span><span>{{ myReport.status }} </span></p>
            
@@ -232,6 +240,7 @@ export default {
             versionRules: [
                 v => !!v || 'Version is required'
             ],
+            templateName: null,
         }
     },
     computed: {
@@ -369,6 +378,7 @@ export default {
     },
     
     created () {
+      this.$i18n.locale = this.$store.getters.getLanguage;
       // case 1 id != null AND copy undefined or false => update the report
       // case 2 id != null AND copy == true => make a copy of the report
       // case 3 id == null AND template contains a templateName => create a new report with the requested template
@@ -382,6 +392,11 @@ export default {
           self.myReport = response.data.report
           self.readOnly = response.data.readOnly
           
+          debugger
+          if(response.data.template.description && response.data.template.description[self.$store.getters.getLanguage]) {
+            self.templateName = response.data.template.description[self.$store.getters.getLanguage]
+          }
+
           let commentsCollection = response.data.requirementComments
           let requirementsTemplate = response.data.template.requirements
 

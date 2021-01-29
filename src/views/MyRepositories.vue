@@ -314,6 +314,7 @@ export default {
     },
     
     created: function() {
+      this.$i18n.locale = this.$store.getters.getLanguage;
       // reset repository in the store
       this.$store.commit('setRepository', null)
       var self = this;

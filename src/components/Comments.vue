@@ -53,6 +53,9 @@ import singleComment from './SingleComment'
                 }
             }
         },
+        created() {
+            this.$i18n.locale = this.$store.getters.getLanguage;
+        },
         props: ['comments', 'item', 'current_user', 'comments_wrapper_classes', 'isreadonly']
     }
 </script>
