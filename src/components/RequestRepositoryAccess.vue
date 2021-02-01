@@ -1,12 +1,23 @@
+<i18n src="../locales.json"></i18n>
 <i18n>
 {
   "en": {
     "title" : "Request repository access",
-    "search.message": "Search by repository name and/or keywords"
+    "search.message": "Search by repository name and/or keywords",
+    "no.data.message": "No data found",
+    "name.label": "Name",
+    "keywords.label": "Keywords",
+    "button.join": "Join",
+    "request.popup.title": "Request {msg} access"
   },
   "fr": {
     "title" : "Demande d'accès aux entrepôts",
-    "search.message": "Recherche par nom d'entrepôt et/ou mots clefs"
+    "search.message": "Recherche par nom d'entrepôt et/ou mots clefs",
+    "no.data.message": "Aucunes données trouvées",
+    "name.label": "Nom",
+    "keywords.label": "Mots cléfs",
+    "button.join": "Rejoindre",
+    "request.popup.title": "Demande d'accès à {msg}"
 
   }
 }
@@ -37,8 +48,8 @@
                 <template v-slot:default>
                 <thead>
                     <tr>
-                    <th class="text-left">Name</th>
-                    <th class="text-left">Keywords</th>
+                    <th class="text-left">{{ $t('name.label')}}</th>
+                    <th class="text-left">{{ $t('keywords.label')}}</th>
                     <th class="text-left pl-8">Actions</th>
                     </tr>
                 </thead>
@@ -49,14 +60,13 @@
                     <td v-if="userIsAdmin">A/N</td>
                     <td v-else-if="isAccessGranted(item.users)">Access granted</td>
                     <td v-else> 
-                        <v-btn color="primary" text @click="requestedRepository=item;dialog=true;role='MANAGER'">Join as manager</v-btn>
-                        <v-btn color="primary" text @click="requestedRepository=item;dialog=true;role='READER'">Join as reader</v-btn>
+                        <v-btn color="primary" text @click="requestedRepository=item;dialog=true">{{ $t('button.join') }}</v-btn>
                     </td>
                     </tr>
                 </tbody>
                 </template>
             </v-simple-table>
-            <v-card-text v-if="notDataFound">No data found</v-card-text>
+            <v-card-text v-if="notDataFound">{{ $t('no.data.message')}}</v-card-text>
         </v-card>
         <v-form v-model="valid">
         <v-dialog
@@ -68,7 +78,7 @@
             class="headline grey lighten-2"
             primary-title
             >
-            Request {{ requestedRepository.name }} access as {{ role }}
+             {{ $t('request.popup.title', {'msg':resquestPopupTitle(requestedRepository) } ) }}
             </v-card-title>
 
             <v-card-text>
@@ -78,7 +88,19 @@
                 :rules="emailRules"
                 required
             ></v-text-field>
-
+            <v-select :rules="roleRules"
+            v-model="role"
+            :items="roles"
+            label="Select a role">
+                <template slot="selection" slot-scope="data">
+                    <!-- HTML that describe how select should render selected items -->
+                    {{ $t(data.item) }} 
+                </template>
+                <template slot="item" slot-scope="data">
+                    <!-- HTML that describe how select should render items when the select is open -->
+                    {{ $t(data.item) }}
+                </template>
+            </v-select>
             <v-textarea
                 outlined
                 label="Message"
@@ -90,8 +112,8 @@
 
             <v-card-actions>
             <div class="flex-grow-1"></div>
-            <v-btn color="primary" text @click="dialog = false">Cancel</v-btn>
-            <v-btn color="primary" @click="dialog = false; sendRequest()" :disabled="!valid">Send</v-btn>
+            <v-btn color="primary" text @click="dialog = false">{{ $t('button.cancel') }}</v-btn>
+            <v-btn color="primary" @click="dialog = false; sendRequest()" :disabled="!valid">{{ $t('button.send') }}</v-btn>
             </v-card-actions>
         </v-card>
         </v-dialog>
@@ -121,11 +143,13 @@ export default {
             email: null,
             text: null,
             role: null,
+            roles: ["EDITOR", "CONTRIBUTOR", "READER"],
             requestedRepository: {},
             emailRules: [
                 v => !!v || 'E-mail is required',
-                v => /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v) || 'E-mail must be valid',
-            ]
+                v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || 'E-mail must be valid',
+            ],
+            roleRules: [v => !!v || 'Role is required'],
         }
     },
     computed: {
@@ -202,6 +226,14 @@ export default {
                 self.email = null
                 self.text = null
             }).catch(function(error) {self.displayError("An error has occured:" + error)})
+        },
+
+        resquestPopupTitle: function(requestedRepository) {
+            if(requestedRepository != null) {
+                return requestedRepository.name
+            } else {
+                return ''
+            }
         },
 
         displayError: function(message) {

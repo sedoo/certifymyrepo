@@ -1,3 +1,4 @@
+<i18n src="../locales.json"></i18n>
 <i18n>
 {
   "en": {
@@ -147,10 +148,10 @@
       <v-card-actions>
       <div class="flex-grow-1"></div>
       <v-btn color="primary" text @click="dialog = false">
-        Cancel
+        {{ $t('button.cancel')}}
       </v-btn>
       <v-btn color="primary" @click="dialog = false; deleteRepository()">
-        Confirm
+        {{ $t('button.confirm')}}
       </v-btn>
       </v-card-actions>
     </v-card>
