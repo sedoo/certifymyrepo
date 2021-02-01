@@ -12,10 +12,6 @@
     "edit.help.message": "Edit this report",
     "delete.confirm.message": "Do you really want to delete this report ? This operation cannot be undone.",
     "delete": "Delete",
-    "button.confirm": "Confirm",
-    "button.cancel": "Cancel",
-    "button.save": "Save",
-    "button.close": "Close",
     "template.label": "Template"
   },
   "fr": {
@@ -29,10 +25,6 @@
     "edit.help.message": "Modifier cette fiche",
     "delete.confirm.message": "Voulez vous vraiment supprimer cette fiche? Veuillez noter que cette opération est irréversible.",
     "delete": "Suppression",
-    "button.confirm": "Confirmer",
-    "button.cancel": "Annuler",
-    "button.save": "Enregister",
-    "button.close": "Fermer",
     "template.label": "Modèle"
   }
 }

@@ -4,10 +4,7 @@
   "en": {
     "title" : "{msg} certification report",
     "version.number": "Version number",
-    "button.confirm": "Confirm",
-    "button.cancel": "Cancel",
-    "button.save": "Save",
-    "button.close": "Close",
+    "status.label": "Status:",
     "button.previous" :"Previous",
     "button.continue" :"Continue",
     "level.label" : "Level",
@@ -21,10 +18,7 @@
   "fr": {
     "title" : "Fiche {msg}",
     "version.number": "Numéro de version",
-    "button.confirm": "Confirmer",
-    "button.cancel": "Annuler",
-    "button.save": "Enregister",
-    "button.close": "Fermer",
+    "status.label": "Statut:",
     "button.previous" :"Précédent",
     "button.continue" :"Continuer",
     "level.label" : "Niveau",
@@ -39,12 +33,13 @@
 </i18n>
 <template>
     <div>
-    <div class="report">
+    <h1 class="subheading grey--text">{{ $t('title', {'msg':$store.getters.getRepository.name } ) }}</h1>
+    <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
       <v-btn dark text @click="notifier = false">{{ $t('button.close' )}}</v-btn>
     </v-snackbar>
-    <h1 class="subheading grey--text">{{ $t('title', {'msg':$store.getters.getRepository.name } ) }}</h1>
+    <div v-if="!loading" class="report">
     <h4 class="subheading grey--text pt-5 pb-5">{{ templateName }}</h4>
       <v-form v-model="valid">
             <v-text-field v-if="!readOnly"
@@ -67,7 +62,7 @@
                   {{ $t(data.item) }}
               </template>
             </v-select>
-            <p v-if="readOnly"><span class="font-weight-bold">Status:  </span><span>{{ myReport.status }} </span></p>
+            <p v-if="readOnly"><span class="font-weight-bold">{{ $t('status.label') }} </span><span>{{ $t(myReport.status) }} </span></p>
            
 
               <v-stepper v-model="e1" vertical >
@@ -101,7 +96,7 @@
                             ></v-select>
                             <p v-else>
                               <span class="font-weight-bold">{{ $t('level.label') }}: </span>
-                              <span v-if="item.level != null">{{ item.level.label }}</span> 
+                              <span v-if="item.level != null">{{ getLevelLabel(item.level) }}</span> 
                             </p>
 
                             <v-expansion-panels class="pa-3" v-if="!hideCommentBloc(item)">
@@ -202,6 +197,7 @@
       </v-form>
     </div>
     </div>
+
 </template>
 
 
@@ -226,7 +222,7 @@ export default {
                 'items': null, 
                 'status': 'NEW',
                 'updateDate': null,
-                'version': null
+                'version': 0.1
                 },
             // error and success notification vars
             timeout: 2000,
@@ -238,9 +234,11 @@ export default {
             e1: 0,
             steps: 17,
             versionRules: [
-                v => !!v || 'Version is required'
+                v => !!v || 'Version is required',
+                v => /[0-99].[0-99]/.test(v) || 'Version number must be valid. Example 2.1',
             ],
             templateName: null,
+            loading: false,
         }
     },
     computed: {
@@ -282,6 +280,15 @@ export default {
       },
     },
     methods: {
+
+      getLevelLabel(levelCode) {
+        for(let i=0 ; i<this.levelsTemplate.length ; i++) {
+          if(levelCode === this.levelsTemplate[i].code) {
+            return this.levelsTemplate[i].label
+          }
+        }
+
+      },
 
       // Display comment in chat box + save it in mongoDB
       submitItemComment: function(item, reply) {
@@ -378,6 +385,7 @@ export default {
     },
     
     created () {
+      this.loading = true
       this.$i18n.locale = this.$store.getters.getLanguage;
       // case 1 id != null AND copy undefined or false => update the report
       // case 2 id != null AND copy == true => make a copy of the report
@@ -392,7 +400,6 @@ export default {
           self.myReport = response.data.report
           self.readOnly = response.data.readOnly
           
-          debugger
           if(response.data.template.description && response.data.template.description[self.$store.getters.getLanguage]) {
             self.templateName = response.data.template.description[self.$store.getters.getLanguage]
           }
@@ -451,11 +458,14 @@ export default {
           if(self.$route.query.copy) {
             self.myReport.status = 'NEW'
             self.updateDate = null
-            self.myReport.version = null
+            let versionArray = self.myReport.version.split('.')
+            self.myReport.version = (parseInt(versionArray[0])+1) + '.0'
             self.myReport.id = null
+            self.readOnly = false
           }
 
         }).catch(function(error) {self.displayError("An error has occured:" + error)})
+        .finally(function() { self.loading = false})
 
       } else {
         var self = this
@@ -494,7 +504,7 @@ export default {
           self.levelsTemplate = levelsLocal
           self.myReport.templateName = self.$route.query.template
           self.myReport.repositoryId = self.$route.query.repositoryId
-        })
+        }).finally(function() { self.loading = false})
 
       }
 
