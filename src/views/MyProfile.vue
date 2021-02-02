@@ -8,6 +8,7 @@
     "email.label": "Email",
     "phone.label": "Phone",
     "email.error": "Please enter your email",
+    "email.validation.error": "E-mail must be valid",
     "confirmation": "The profile has been saved"
   },
   "fr": {
@@ -17,6 +18,7 @@
     "email.label": "Courriel",
     "phone.label": "Téléphone",
     "email.error": "Veuillez entrer voute courriel",
+    "email.validation.error": "Le courriel doit être valide",
     "confirmation": "Le profile a été sauvegardé"
   }
 }
@@ -91,6 +93,14 @@ export default {
   	},
 
   computed: {
+
+    emailRules: function() {
+      const rules = []
+      rules.push(v => !!v || this.$t('email.error'))
+      rules.push(v => /.+@.+\..+/.test(v) || this.$t('email.validation.error'))
+      return rules
+    },
+    
     profileService: function() {
       return this.service + "/login/v1_0/profile";
     },
@@ -233,11 +243,6 @@ export default {
         name: null,
         orcid: null,
     },
-
-    emailRules: [
-        v => !!v || 'E-mail is required',
-        v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
-      ],
 
   })
 

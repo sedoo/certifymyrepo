@@ -8,6 +8,8 @@
     "keywords": "Keywords",
     "name.label": "Name",
     "role.label": "Role",
+    "email.error": "Please enter your email",
+    "email.validation.error": "E-mail must be valid",
     "message.test.repo": "Check this if your repository is for testing purposes"
   },
   "fr": {
@@ -17,6 +19,8 @@
     "keywords": "Mots clefs",
     "name.label": "Nom",
     "role.label": "Rôle",
+    "email.error": "Veuillez entrer voute courriel",
+    "email.validation.error": "Le courriel doit être valide",
     "message.test.repo": "Cocher cette case si votre entrepôt pour des besoins de test"
   }
 }
@@ -48,7 +52,7 @@
                 <v-col cols="12" >
                     <v-text-field
                         v-model="myRepository.contact"
-                        :rules="emailRules"
+                        :rules="rules.emailRules"
                         :label="$t('email')"
                         required
                     ></v-text-field>
@@ -160,7 +164,7 @@
                     </v-card-title>
                     <v-form v-model="validOrcid">
                     <v-card-actions>
-                        <v-text-field class="pl-4" v-model="user.orcid" prepend-inner-icon="mdi-identifier" :counter="19" :rules="orcIdRules" label="ORCID" required></v-text-field>
+                        <v-text-field class="pl-4" v-model="user.orcid" prepend-inner-icon="mdi-identifier" :counter="19" :rules="rules.orcIdRules" label="ORCID" required></v-text-field>
                         <v-btn class="ml-3" color="primary" @click="searchOnOrcid" :disabled="!validOrcid" :loading="loadingOrcid">Search</v-btn>
                     </v-card-actions>
                     </v-form>
@@ -265,15 +269,18 @@ export default {
                 v => !!v || 'Name is required',
                 v => !!v && v.length <= 20 || 'Name must be less than 20 characters',
             ],
-            orcIdRules: [
-                v => !!v || 'ORCID is required',
-                v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{3,3}[0-9Xx])/.test(v) || 'ORCID must be valid',
-                v => !!v && v.length <= 19 || 'Name must be exactly 20 characters',
-            ],
-            emailRules: [
-                v => !!v || 'E-mail is required',
-                v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || 'E-mail must be valid',
-            ],
+            rules: {
+                orcIdRules: [
+                    v => !!v || 'ORCID is required',
+                    v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{3,3}[0-9Xx])/.test(v) || 'ORCID must be valid',
+                    v => !!v && v.length <= 19 || 'ORCID length must be exactly 20 characters',
+                ],
+                emailRules: [
+                    v => !!v || this.$t('email.error'),
+                    v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || this.$t('email.validation.error'),
+                ],
+            },
+
             timeout: 2000,
             notifier: false,
             notifierMessage: "",

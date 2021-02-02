@@ -13,7 +13,10 @@
     "button.release": "Validate",
     "release.popup.title": "Validation",
     "release.popup.message": "Do you really want to validate this report ? You will not be able to modify or delete this version of the report after this operation.",
-    "release.erreor.message": "The report status must be 'IN_PROGRESS' before been able to validate a report"
+    "release.erreor.message": "The report status must be 'IN_PROGRESS' before been able to validate a report",
+    "upload.popup.title": "Upload",
+    "upload.popup.message": "",
+    "add.file.label": "Attachments"
   },
   "fr": {
     "title" : "Fiche {msg}",
@@ -27,7 +30,10 @@
     "button.release": "Valider",
     "release.popup.title": "Validation",
     "release.popup.message": "Voulez-vous vraiment valider cette fiche ? Vous ne pourrez plus modifier ou supprimer cette version après cette opération",
-    "release.erreor.message": "Le statut doit être 'IN_PROGRESS' pour pouvoir valider une fiche"
+    "release.erreor.message": "Le statut doit être 'IN_PROGRESS' pour pouvoir valider une fiche",
+    "upload.popup.title": "Ajouter des fichiers",
+    "upload.popup.message": "",
+    "add.file.label": "Pièces jointes"
   }
 }
 </i18n>
@@ -85,7 +91,17 @@
                                 v-model="item.response"
                             >
                             </v-textarea>
-                            <p v-else class="text-justify">{{ item.response }}</p>
+                              <v-list-item dense v-for="(file, i) in item.files" :key="i">
+                                {{ file }}
+                              </v-list-item>
+                            <v-card-actions>
+                              <div v-if="!readOnly" class="pa-2" >
+                                <v-btn color="primary" @click="dialogUploadFiles = true;itemRequirement=item;">
+                                    {{ $t('add.file.label') }}
+                                </v-btn>
+                              </div>
+                            </v-card-actions>
+                            <p v-if="readOnly" class="text-justify">{{ item.response }}</p>
 
                             <v-select filled v-if="!readOnly" class="ma-3"
                               :items="levelsTemplate"
@@ -193,6 +209,50 @@
                   </v-card-actions>
               </v-card>
               </v-dialog>
+
+               <v-dialog
+                  v-model="dialogUploadFiles"
+                  width="500"
+                  >
+
+              <v-card>
+                  <v-card-title
+                  class="headline grey lighten-2"
+                  primary-title
+                  >
+                  {{ $t('upload.popup.title')}}
+                  </v-card-title>
+
+                  <v-file-input
+                    class="px-3"
+                    v-model="itemFiles"
+                    chips
+                    multiple
+                    show-size
+                    truncate-length="20"
+                    :label="$t('add.file.label')"
+                  ></v-file-input>
+
+                  <v-divider></v-divider>
+
+                  <v-card-actions>
+                  <div class="flex-grow-1"></div>
+                  <v-btn
+                      color="primary"
+                      text
+                      @click="dialogUploadFiles = false"
+                  >
+                      {{ $t('button.cancel') }}
+                  </v-btn>
+                  <v-btn
+                      color="primary"
+                      @click="updateUploadedFiles(itemFiles)"
+                  >
+                      {{ $t('button.confirm') }}
+                  </v-btn>
+                  </v-card-actions>
+              </v-card>
+              </v-dialog>
             </div>
       </v-form>
     </div>
@@ -214,6 +274,7 @@ export default {
         return {
             valid: false,
             dialog: false,
+            dialogUploadFiles: false,
             readOnly: null,
             myReport: {
                 'id': null,
@@ -239,6 +300,7 @@ export default {
             ],
             templateName: null,
             loading: false,
+            itemFiles: null,
         }
     },
     computed: {
@@ -280,6 +342,16 @@ export default {
       },
     },
     methods: {
+
+      updateUploadedFiles(files) {
+        debugger
+        let fileNameArray = []
+        for(let i=0 ; i<files.length ; i++) {
+          fileNameArray.push(files[i].name)
+        }
+        this.myReport.items[this.index].files = fileNameArray;
+        this.dialogUploadFiles = false
+      },
 
       getLevelLabel(levelCode) {
         for(let i=0 ; i<this.levelsTemplate.length ; i++) {
