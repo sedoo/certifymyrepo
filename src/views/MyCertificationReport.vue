@@ -16,7 +16,10 @@
     "release.erreor.message": "The report status must be 'IN_PROGRESS' before been able to validate a report",
     "upload.popup.title": "Upload",
     "upload.popup.message": "",
-    "add.file.label": "Attachments"
+    "add.file.label": "Attachments",
+    "version.required.error": "Version is required",
+    "version.not.valid.error": "Version number must be valid. Example 2.1",
+    "files.size.error": "Attachments size must be less than 10MB"
   },
   "fr": {
     "title" : "Fiche {msg}",
@@ -33,7 +36,10 @@
     "release.erreor.message": "Le statut doit être 'IN_PROGRESS' pour pouvoir valider une fiche",
     "upload.popup.title": "Ajouter des fichiers",
     "upload.popup.message": "",
-    "add.file.label": "Pièces jointes"
+    "add.file.label": "Pièces jointes",
+    "version.required.error": "Le champ Version est obligatoire",
+    "version.not.valid.error": "Le numéro de version doit être valide. Exemple 2.1",
+    "files.size.error": "Les pièces jointes ne doivent pas dépasser 10Mo"
   }
 }
 </i18n>
@@ -51,7 +57,7 @@
             <v-text-field v-if="!readOnly"
                 :label="$t('version.number')"
                 v-model="myReport.version"
-                :rules="versionRules"
+                :rules="rules.versionRules"
             ></v-text-field>
             <p v-if="readOnly"><span class="font-weight-bold">Version:  </span><span>{{ myReport.version }} </span></p>
          
@@ -96,7 +102,7 @@
                               </v-list-item>
                             <v-card-actions>
                               <div v-if="!readOnly" class="pa-2" >
-                                <v-btn color="primary" @click="dialogUploadFiles = true;itemRequirement=item;">
+                                <v-btn color="primary" @click="openUploadFilesPopup(item.code)">
                                     {{ $t('add.file.label') }}
                                 </v-btn>
                               </div>
@@ -231,6 +237,7 @@
                     show-size
                     truncate-length="20"
                     :label="$t('add.file.label')"
+                    :rules="rules.filesRules"
                   ></v-file-input>
 
                   <v-divider></v-divider>
@@ -294,13 +301,19 @@ export default {
             status: ["NEW","IN_PROGRESS"],
             e1: 0,
             steps: 17,
-            versionRules: [
-                v => !!v || 'Version is required',
-                v => /[0-99].[0-99]/.test(v) || 'Version number must be valid. Example 2.1',
-            ],
+            rules: {
+              versionRules: [
+                  v => !!v || this.$t('version.required.error'),
+                  v => /[0-99].[0-99]/.test(v) || this.$t('version.not.valid.error'),
+              ],
+              filesRules: [
+                v => !v || v.size < 10000000 || this.$t('files.size.error'),
+              ]
+            },
             templateName: null,
             loading: false,
             itemFiles: null,
+            currentRequirementCode: null,
         }
     },
     computed: {
@@ -343,13 +356,42 @@ export default {
     },
     methods: {
 
+      openUploadFilesPopup(itemCode) {
+        this.dialogUploadFiles = true;
+        this.currentRequirementCode=itemCode;
+        this.itemFiles=[]
+      },
+
       updateUploadedFiles(files) {
         debugger
         let fileNameArray = []
+                let formData = new FormData();
         for(let i=0 ; i<files.length ; i++) {
           fileNameArray.push(files[i].name)
+          formData.append("files", files[i], files[i].name);
         }
-        this.myReport.items[this.index].files = fileNameArray;
+        if(this.myReport.items[this.currentRequirementCode].files && this.myReport.items[this.currentRequirementCode].files != null) {
+          this.myReport.items[this.currentRequirementCode].files.push(fileNameArray);
+        } else {
+          this.myReport.items[this.currentRequirementCode].files = fileNameArray;
+        }
+
+
+        this.axios({
+                method: 'post',
+                url: this.service+"/file/v1_0/upload?reportId="+ this.myReport.id+"&codeRequirement="+this.currentRequirementCode,
+                data: formData,
+                headers: {
+                    'content-type': 'multipart/form-data'
+                }
+            })
+            .then(response => {
+                console.log("Success!");
+                console.log({ response });
+            })
+            .catch(error => {
+                console.log({ error });
+            });
         this.dialogUploadFiles = false
       },
 
@@ -478,6 +520,7 @@ export default {
 
           let commentsCollection = response.data.requirementComments
           let requirementsTemplate = response.data.template.requirements
+          let requirementsAttachments = response.data.attachments
 
           if(self.myReport.items != null && self.myReport.items.length > 0 ) {
             for (var i = 0; i < self.myReport.items.length; i++) {
@@ -508,6 +551,10 @@ export default {
                 }
               }
               // END add labels into report object from template
+
+              // BEGINNING add attachments into report object
+              self.myReport.items[i].files = requirementsAttachments[itemCode]
+              // END add attachments into report object
 
             }
           }
