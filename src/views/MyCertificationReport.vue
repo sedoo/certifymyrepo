@@ -307,7 +307,7 @@ export default {
                   v => /[0-99].[0-99]/.test(v) || this.$t('version.not.valid.error'),
               ],
               filesRules: [
-                v => !v || v.size < 10000000 || this.$t('files.size.error'),
+                files => !files || !files.some(file => file.size > 10e6)|| this.$t('files.size.error'),
               ]
             },
             templateName: null,
@@ -363,19 +363,14 @@ export default {
       },
 
       updateUploadedFiles(files) {
-        debugger
-        let fileNameArray = []
-                let formData = new FormData();
+        if(!this.myReport.items[this.currentRequirementCode].files && this.myReport.items[this.currentRequirementCode].files === null) {
+          this.myReport.items[this.currentRequirementCode].files = [];
+        }
+        let formData = new FormData();
         for(let i=0 ; i<files.length ; i++) {
-          fileNameArray.push(files[i].name)
+          this.myReport.items[this.currentRequirementCode].files.push(files[i].name)
           formData.append("files", files[i], files[i].name);
         }
-        if(this.myReport.items[this.currentRequirementCode].files && this.myReport.items[this.currentRequirementCode].files != null) {
-          this.myReport.items[this.currentRequirementCode].files.push(fileNameArray);
-        } else {
-          this.myReport.items[this.currentRequirementCode].files = fileNameArray;
-        }
-
 
         this.axios({
                 method: 'post',
@@ -553,7 +548,9 @@ export default {
               // END add labels into report object from template
 
               // BEGINNING add attachments into report object
-              self.myReport.items[i].files = requirementsAttachments[itemCode]
+              if(requirementsAttachments && requirementsAttachments[itemCode]) {
+                self.myReport.items[i].files = requirementsAttachments[itemCode]
+              }
               // END add attachments into report object
 
             }

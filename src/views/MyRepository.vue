@@ -8,8 +8,14 @@
     "keywords": "Keywords",
     "name.label": "Name",
     "role.label": "Role",
+    "add.popup.title": "Add",
+    "editer.popup.title": "Edit",
     "email.error": "Please enter your email",
     "email.validation.error": "E-mail must be valid",
+    "name.required.error": "Name is required",
+    "name.validation.error": "Name must be less than 20 characters",
+    "role.required.error": "Role is required",
+    "userName.required.error": "Name is required. Enter a valid orcid",
     "message.test.repo": "Check this if your repository is for testing purposes"
   },
   "fr": {
@@ -19,8 +25,14 @@
     "keywords": "Mots clefs",
     "name.label": "Nom",
     "role.label": "Rôle",
+    "add.popup.title": "Ajouter",
+    "editer.popup.title": "Editer",
     "email.error": "Veuillez entrer voute courriel",
     "email.validation.error": "Le courriel doit être valide",
+    "name.required.error": "Le nom est obligatoire",
+    "name.validation.error": "Le nom doit faire moins de 20 caractères",
+    "role.required.error": "Role is required",
+    "userName.required.error": "Le nom est oblogatoire. Entrer un ORCID valid",
     "message.test.repo": "Cocher cette case si votre entrepôt pour des besoins de test"
   }
 }
@@ -29,7 +41,7 @@
     <div class="repository">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">Close</v-btn>
+      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
     </v-snackbar>
 
     <h1 class="subheading grey--text">{{$t('title')}}</h1>
@@ -41,7 +53,7 @@
                 <v-col cols="12">
                 <v-text-field
                     v-model="myRepository.name"
-                    :rules="nameRules"
+                    :rules="rules.nameRules"
                     :counter="20"
                     :label="$t('repo.name')"
                     required
@@ -122,7 +134,7 @@
                     </tbody>
                     </template>
                 </v-simple-table>
-                <v-btn class="ml-3 " x-small title="Add" @click="dialogAddEdit=true;userIndex = -1"  fab color="accent"> 
+                <v-btn class="ml-3 " x-small :title="$t('add.popup.title')" @click="dialogAddEdit=true;userIndex = -1"  fab color="accent"> 
                     <v-icon >mdi-plus</v-icon> 
                 </v-btn>
                 </v-col>
@@ -165,12 +177,12 @@
                     <v-form v-model="validOrcid">
                     <v-card-actions>
                         <v-text-field class="pl-4" v-model="user.orcid" prepend-inner-icon="mdi-identifier" :counter="19" :rules="rules.orcIdRules" label="ORCID" required></v-text-field>
-                        <v-btn class="ml-3" color="primary" @click="searchOnOrcid" :disabled="!validOrcid" :loading="loadingOrcid">Search</v-btn>
+                        <v-btn class="ml-3" color="primary" @click="searchOnOrcid" :disabled="!validOrcid" :loading="loadingOrcid">{{ $t('button.search') }}</v-btn>
                     </v-card-actions>
                     </v-form>
                     <v-card-text>
-                    <v-text-field :rules="userNameRules" v-model="user.name" prepend-inner-icon="mdi-account" label="Name" readonly filled></v-text-field>
-                    <v-select :rules="roleRules"
+                    <v-text-field :rules="rules.userNameRules" v-model="user.name" prepend-inner-icon="mdi-account" label="Name" readonly filled></v-text-field>
+                    <v-select :rules="rules.roleRules"
                     v-model="user.role"
                     :items="roles"
                     label="Select a role">
@@ -212,7 +224,7 @@
                 >
             <v-card>
                 <v-card-title class="headline grey lighten-2" primary-title>
-                Confirmation
+                {{ $t('button.confirmation') }}
                 </v-card-title>
                 <v-card-text>Do you really want to remove this user ?</v-card-text>
                 <v-divider></v-divider>
@@ -223,13 +235,13 @@
                     text
                     @click="dialogRemove = false"
                 >
-                    Cancel
+                    {{ $t('button.cancel') }}
                 </v-btn>
                 <v-btn
                     color="primary"
                     @click="dialogRemove = false;removeUser()"
                 >
-                    Confirm
+                    {{ $t('button.confirm') }}
                 </v-btn>
                 </v-card-actions>
             </v-card>
@@ -263,13 +275,13 @@ export default {
             loadingOrcid: false,
             myRepository: {id:null, name: null, keywords:[], contact: null, users: [], isTest: false},
             repositoryId: this.$route.query.repositoryId,
-            userNameRules: [v => !!v || 'Name is required. Enter a valid orcid'],
-            roleRules: [v => !!v || 'Role is required'],
-            nameRules: [
-                v => !!v || 'Name is required',
-                v => !!v && v.length <= 20 || 'Name must be less than 20 characters',
-            ],
             rules: {
+                userNameRules: [v => !!v || this.$t('userName.required.error')],
+                roleRules: [v => !!v || this.$t('role.required.error')],
+                nameRules: [
+                    v => !!v || this.$t('name.required.error'),
+                    v => !!v && v.length <= 20 || this.$t('name.validation.error'),
+                ],
                 orcIdRules: [
                     v => !!v || 'ORCID is required',
                     v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{3,3}[0-9Xx])/.test(v) || 'ORCID must be valid',
@@ -322,9 +334,9 @@ export default {
       },
       dialogTitle: function() {
           if(this.userIndex == -1){
-              return 'Add'
+              return this.$t('add.popup.title')
           } else {
-              return 'Edit'
+              return this.$t('editer.popup.title')
           }
       },
       isLastManager: function() {
