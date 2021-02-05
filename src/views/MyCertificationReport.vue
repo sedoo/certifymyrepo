@@ -15,7 +15,8 @@
     "release.popup.message": "Do you really want to validate this report ? You will not be able to modify or delete this version of the report after this operation.",
     "release.erreor.message": "The report status must be 'IN_PROGRESS' before been able to validate a report",
     "upload.popup.title": "Upload",
-    "upload.popup.message": "",
+    "delete.popup.title": "Delete",
+    "delete.popup.message": "Do you really want to delete {msg} file ? This operation cannot be undone.",
     "add.file.label": "Attachments",
     "version.required.error": "Version is required",
     "version.not.valid.error": "Version number must be valid. Example 2.1",
@@ -35,8 +36,9 @@
     "release.popup.message": "Voulez-vous vraiment valider cette fiche ? Vous ne pourrez plus modifier ou supprimer cette version après cette opération",
     "release.erreor.message": "Le statut doit être 'IN_PROGRESS' pour pouvoir valider une fiche",
     "upload.popup.title": "Ajouter des fichiers",
-    "upload.popup.message": "",
     "add.file.label": "Pièces jointes",
+    "delete.popup.title": "Suppression",
+    "delete.popup.message": "Voulez vous vraiment supprimer le fichier {msg}? Veuillez noter que cette opération est irréversible.",
     "version.required.error": "Le champ Version est obligatoire",
     "version.not.valid.error": "Le numéro de version doit être valide. Exemple 2.1",
     "files.size.error": "Les pièces jointes ne doivent pas dépasser 10Mo"
@@ -46,12 +48,12 @@
 <template>
     <div>
     <h1 class="subheading grey--text">{{ $t('title', {'msg':$store.getters.getRepository.name } ) }}</h1>
-    <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
+    <v-progress-linear indeterminate v-if="loadingReport" class="mt-3"></v-progress-linear>
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
       <v-btn dark text @click="notifier = false">{{ $t('button.close' )}}</v-btn>
     </v-snackbar>
-    <div v-if="!loading" class="report">
+    <div v-if="!loadingReport" class="report">
     <h4 class="subheading grey--text pt-5 pb-5">{{ templateName }}</h4>
       <v-form v-model="valid">
             <v-text-field v-if="!readOnly"
@@ -98,7 +100,11 @@
                             >
                             </v-textarea>
                               <v-list-item dense v-for="(file, i) in item.files" :key="i">
-                                {{ file }}
+                                <div class="pa-0" v-html="'<a href=\'#\'>'+file+'</a>'">
+                                </div>
+                                <v-btn v-if="!readOnly" icon class="mx-0" @click="openDeleteFilePopup(item.code, file)">     
+                                    <v-icon size="15px">fa-trash-alt</v-icon>    
+                                </v-btn>  
                               </v-list-item>
                             <v-card-actions>
                               <div v-if="!readOnly" class="pa-2" >
@@ -254,12 +260,48 @@
                   <v-btn
                       color="primary"
                       @click="updateUploadedFiles(itemFiles)"
+                      :loading="uploadInProgress"
                   >
                       {{ $t('button.confirm') }}
                   </v-btn>
                   </v-card-actions>
               </v-card>
               </v-dialog>
+
+              <v-dialog
+                  v-model="dialogDeleteFile"
+                  width="500">
+                <v-card>
+                    <v-card-title
+                    class="headline grey lighten-2"
+                    primary-title
+                    >
+                    {{ $t('delete.popup.title')}}
+                    </v-card-title>
+                  <v-card-text>
+                  {{ $t('delete.popup.message', {'msg':fileToDelete })}}
+                  </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions>
+                    <div class="flex-grow-1"></div>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="dialogDeleteFile = false"
+                    >
+                        {{ $t('button.cancel') }}
+                    </v-btn>
+                    <v-btn
+                        color="primary"
+                        @click="deleteFile()"
+                        :loading="deleteInProgress"
+                    >
+                        {{ $t('button.confirm') }}
+                    </v-btn>
+                    </v-card-actions>
+                </v-card>
+              </v-dialog>
+
             </div>
       </v-form>
     </div>
@@ -282,6 +324,7 @@ export default {
             valid: false,
             dialog: false,
             dialogUploadFiles: false,
+            dialogDeleteFile: false,
             readOnly: null,
             myReport: {
                 'id': null,
@@ -307,13 +350,16 @@ export default {
                   v => /[0-99].[0-99]/.test(v) || this.$t('version.not.valid.error'),
               ],
               filesRules: [
-                files => !files || !files.some(file => file.size > 10e6)|| this.$t('files.size.error'),
+                files => !files || !files.some(file => file.size > 10485760)|| this.$t('files.size.error'),
               ]
             },
             templateName: null,
-            loading: false,
+            loadingReport: false,
             itemFiles: null,
             currentRequirementCode: null,
+            fileToDelete: null,
+            deleteInProgress: false,
+            uploadInProgress: false,
         }
     },
     computed: {
@@ -357,21 +403,32 @@ export default {
     methods: {
 
       openUploadFilesPopup(itemCode) {
+        this.uploadInProgress = false
         this.dialogUploadFiles = true;
         this.currentRequirementCode=itemCode;
         this.itemFiles=[]
       },
 
+      openDeleteFilePopup(itemCode, file) {
+        this.deleteInProgress = false
+        this.dialogDeleteFile = true;
+        this.currentRequirementCode=itemCode;
+        this.fileToDelete=file;
+      },
+
       updateUploadedFiles(files) {
-        if(!this.myReport.items[this.currentRequirementCode].files && this.myReport.items[this.currentRequirementCode].files === null) {
+        debugger
+        if(!this.myReport.items[this.currentRequirementCode].files) {
           this.myReport.items[this.currentRequirementCode].files = [];
         }
         let formData = new FormData();
+        let filesToUpload = []
         for(let i=0 ; i<files.length ; i++) {
-          this.myReport.items[this.currentRequirementCode].files.push(files[i].name)
+          filesToUpload.push(files[i].name)
           formData.append("files", files[i], files[i].name);
         }
-
+        this.uploadInProgress = true
+        self = this
         this.axios({
                 method: 'post',
                 url: this.service+"/file/v1_0/upload?reportId="+ this.myReport.id+"&codeRequirement="+this.currentRequirementCode,
@@ -382,12 +439,35 @@ export default {
             })
             .then(response => {
                 console.log("Success!");
-                console.log({ response });
+                self.myReport.items[this.currentRequirementCode].files = filesToUpload
             })
             .catch(error => {
-                console.log({ error });
-            });
-        this.dialogUploadFiles = false
+                self.displayError("Your file could not be upload")
+            }).finally(function() {
+              self.uploadInProgress = false
+              self.dialogUploadFiles = false
+            })
+      },
+
+      deleteFile() {
+        this.deleteInProgress = true
+        let self = this
+        this.axios({
+                method: 'delete',
+                url: this.service+"/file/v1_0/delete?reportId="+this.myReport.id+
+                  "&codeRequirement="+this.currentRequirementCode+
+                  "&fileName="+this.fileToDelete,
+            })
+            .then(response => {
+                console.log("Success!");
+                this.myReport.items[this.currentRequirementCode].files = this.myReport.items[this.currentRequirementCode].files.filter(item => item !== self.fileToDelete)
+            })
+            .catch(error => {
+                self.displayError(self.fileToDelete + "could not be deleted")
+            }).finally(function() {
+              self.deleteInProgress = true
+              self.dialogDeleteFile = false
+            })
       },
 
       getLevelLabel(levelCode) {
@@ -494,7 +574,7 @@ export default {
     },
     
     created () {
-      this.loading = true
+      this.loadingReport = true
       this.$i18n.locale = this.$store.getters.getLanguage;
       // case 1 id != null AND copy undefined or false => update the report
       // case 2 id != null AND copy == true => make a copy of the report
@@ -581,7 +661,7 @@ export default {
           }
 
         }).catch(function(error) {self.displayError("An error has occured:" + error)})
-        .finally(function() { self.loading = false})
+        .finally(function() { self.loadingReport = false})
 
       } else {
         var self = this
@@ -620,7 +700,7 @@ export default {
           self.levelsTemplate = levelsLocal
           self.myReport.templateName = self.$route.query.template
           self.myReport.repositoryId = self.$route.query.repositoryId
-        }).finally(function() { self.loading = false})
+        }).finally(function() { self.loadingReport = false})
 
       }
 

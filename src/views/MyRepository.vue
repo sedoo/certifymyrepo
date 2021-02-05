@@ -270,7 +270,8 @@ export default {
             user: {
                 role: null,
                 name: null,
-                orcid: null
+                orcid: null,
+                id: null
             },
             loadingOrcid: false,
             myRepository: {id:null, name: null, keywords:[], contact: null, users: [], isTest: false},
@@ -304,26 +305,12 @@ export default {
       language: function() {
         return this.$store.getters.getLanguage
       },
-      userOrcid: function()  {
-        let orcid = null
+      userProfile: function()  {
+        let profile = null
         if(this.$store.getters.getUser != null) {
-          orcid = this.$store.getters.getUser.profile.orcid
+          profile = this.$store.getters.getUser.profile
         }
-        return orcid;
-      },
-      userName: function()  {
-        let name = null
-        if(this.$store.getters.getUser != null) {
-          name = this.$store.getters.getUser.profile.name
-        }
-        return name;
-      },
-      userEmail: function()  {
-        let email = null
-        if(this.$store.getters.getUser != null) {
-          email = this.$store.getters.getUser.profile.email
-        }
-        return email;
+        return profile;
       },
       userIsAdmin: function()  {
         let isadmin
@@ -374,10 +361,10 @@ export default {
             // If the user creating a new repository he is manager by default
             // if the logged user is admin no need to add him. He has all the rights.
     	    if(!this.userIsAdmin && (this.myRepository.users == null || this.myRepository.users.length == 0)) {
-                let localUser = {orcid: this.userOrcid, name: this.userName , role: 'EDITOR'}
+                let localUser = {id: this.userProfile.id , orcid: this.userProfile.orcid, name: this.userProfile.name , role: 'EDITOR'}
                 this.myRepository.users.push(localUser)
             }
-            this.myRepository.contact = this.userEmail
+            this.myRepository.contact = this.userProfile.email
         }
 
     },

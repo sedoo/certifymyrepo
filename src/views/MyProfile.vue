@@ -113,6 +113,14 @@ export default {
       return name
     },
 
+    userId: function() {
+      let id = null
+      if(this.$store.getters.getUser != null) {
+        id = this.$store.getters.getUser.profile.id
+      }
+      return id
+    },
+
     user: function() {
       let user = null
       if(this.$store.getters.getUser != null) {
@@ -159,6 +167,7 @@ export default {
         this.saving = true;
         this.profile.name = this.username
         this.profile.orcid = this.orcid
+        this.profile.id = this.userId
         this.axios.post(this.service + "/login/v1_0/saveProfile", this.profile).then(function(response) {
           // save the profile in the store
           let tmpuser = self.user

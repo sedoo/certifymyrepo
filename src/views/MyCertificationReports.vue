@@ -4,6 +4,7 @@
   "en": {
     "title" : "{msg} certification reports",
     "create.new.report": "Create a new report",
+    "create.confirm.message": "Select the type of report.",
     "date": "Update date",
     "status": "status",
     "radar.chart.title": "Requirements Radar Chart",
@@ -17,6 +18,7 @@
   "fr": {
     "title" : "Fiches {msg}",
     "create.new.report": "Créer une nouvelle fiche",
+    "create.confirm.message": "Veuillez sélectionner le type de fiche.",
     "date": "Date mise à jour",
     "status": "statut",
     "radar.chart.title": "Graphique radar des critères",
@@ -42,11 +44,7 @@
         <div class="text-center">
 
         <div v-if="userRole === 'EDITOR'" class="text-right pa-3">
-            <v-btn color="primary" @click="createReport">{{ $t('create.new.report')}}</v-btn>
-        </div>
-
-        <div v-if="userRole === 'EDITOR'" class="text-right pa-3">
-            <v-btn color="primary" @click="createReportTest">{{ $t('create.new.report')}} (template TEST)</v-btn>
+            <v-btn color="primary" @click="dialogCreate = true">{{ $t('create.new.report')}}</v-btn>
         </div>
 
         </div>
@@ -63,13 +61,13 @@
             class="elevation-1"
         >
  
-         <template v-slot:item.updateDate="{ item }">  
-            <span>{{ formatDate(item.updateDate) }}</span>
-        </template> 
-         <template v-slot:item.status="{ item }">  
-            <span>{{ $t(item.status) }}</span>
-        </template> 
-        <template v-slot:item.actions="{ item }">
+            <template v-slot:item.updateDate="{ item }">  
+                <span>{{ formatDate(item.updateDate) }}</span>
+            </template> 
+            <template v-slot:item.status="{ item }">  
+                <span>{{ $t(item.status) }}</span>
+            </template> 
+            <template v-slot:item.actions="{ item }">
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
@@ -80,7 +78,7 @@
                 <span>{{ $t('edit.help.message') }}</span>
             </v-tooltip>
 
-            <v-btn v-if="userRole === 'EDITOR' && !isReleased(item)" icon class="mx-0" @click="dialog=true;reportId=item.id">     
+            <v-btn v-if="userRole === 'EDITOR' && !isReleased(item)" icon class="mx-0" @click="dialogDelete=true;reportId=item.id">     
                 <v-icon size="20px">fa-trash-alt</v-icon>    
             </v-btn>  
 
@@ -111,10 +109,9 @@
         </v-data-table>
 
         <v-dialog
-                v-model="dialog"
+                v-model="dialogDelete"
                 width="500"
                 >
-
             <v-card>
                 <v-card-title
                 class="headline grey lighten-2"
@@ -122,28 +119,57 @@
                 >
                 {{ $t('delete') }}
                 </v-card-title>
-
                 <v-card-text>
                 {{ $t('delete.confirm.message') }}
                 </v-card-text>
-
                 <v-divider></v-divider>
-
                 <v-card-actions>
                 <div class="flex-grow-1"></div>
-                <v-btn
-                    color="primary"
-                    text
-                    @click="dialog = false"
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="dialogDelete = false">
+                        {{ $t('button.cancel') }}
+                    </v-btn>
+                    <v-btn
+                        color="primary"
+                        @click="dialogDelete = false; deleteItem()">
+                        {{ $t('button.confirm') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+            </v-dialog>
+
+        <v-dialog
+                v-model="dialogCreate"
+                width="500"
                 >
-                    {{ $t('button.cancel') }}
-                </v-btn>
-                <v-btn
-                    color="primary"
-                    @click="dialog = false; deleteItem()"
+            <v-card>
+                <v-card-title
+                class="headline grey lighten-2"
+                primary-title
                 >
-                    {{ $t('button.confirm') }}
-                </v-btn>
+                {{ $t('create.new.report') }}
+                </v-card-title>
+                <v-card-text>
+                {{ $t('create.confirm.message') }}
+                <v-select :items="templateNames" v-model="templateName">
+                </v-select>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                <div class="flex-grow-1"></div>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="dialogCreate = false">
+                        {{ $t('button.cancel') }}
+                    </v-btn>
+                    <v-btn
+                        color="primary"
+                        @click="dialogCreate = false;createReport();">
+                        {{ $t('button.confirm') }}
+                    </v-btn>
                 </v-card-actions>
             </v-card>
             </v-dialog>
@@ -166,7 +192,8 @@ export default {
     data() {
         return {
             reports: [],
-            dialog: false,
+            dialogDelete: false,
+            dialogCreate: false,
             reportId: null,
             userRole: null,
             repositoryId: this.$route.params.id,
@@ -178,6 +205,8 @@ export default {
                 { text: 'Actions', value: 'actions', sortable: false }
                 ] ,
             myReport: null,
+            templateNames: ['CTS-2020-2022', 'TEST'],
+            templateName: 'CTS-2020-2022',
             // error and success notification vars
             timeout: 2000,
             notifier: false,
@@ -231,10 +260,7 @@ export default {
                 ).catch(function(error) {self.displayError("An error has occured:" + error)})
         },
         createReport() {
-            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null, template: 'CTS-2020-2022'} })
-        },
-        createReportTest() {
-            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null, template: 'TEST'} })
+            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null, template: this.templateName} })
         },
         editItem (item) {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: item.id } });
