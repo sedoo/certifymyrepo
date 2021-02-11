@@ -12,7 +12,7 @@
     <div class="comments">
         <div :class="comments_wrapper_classes">
             <single-comment 
-                v-for="comment in comments.comments"
+                v-for="comment in comments"
                 :comment="comment"
                 :key="comment.id"
             ></single-comment>
@@ -34,6 +34,7 @@
 </template>
 
 <script>
+// https://github.com/tsanak/comments
 import singleComment from './SingleComment'
     export default {
         name: 'comments',
@@ -48,7 +49,7 @@ import singleComment from './SingleComment'
         methods: {
             submitComment() {
                 if(this.reply != '') {
-                    this.$emit('submit-comment', this.requirementCode, this.reply);
+                    this.$emit('submit-comment', this.requirementCode, this.comments, this.reply);
                     this.reply = '';
                 }
             }
@@ -56,7 +57,7 @@ import singleComment from './SingleComment'
         created() {
             this.$i18n.locale = this.$store.getters.getLanguage;
         },
-        props: ['comments', 'requirementCode', 'current_user', 'comments_wrapper_classes', 'isreadonly']
+        props: ['comments', 'requirementCode', 'comments_wrapper_classes', 'isreadonly']
     }
 </script>
 
@@ -120,7 +121,7 @@ import singleComment from './SingleComment'
 
 .reply .reply--text {
     min-height: 40px;
-    padding: 10px 10px 10px 55px;
+    padding: 10px 10px 10px 10px;
     margin-right: 10px;
     border: 0;
     color: #333;

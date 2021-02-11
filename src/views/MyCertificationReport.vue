@@ -529,19 +529,18 @@ export default {
       },
 
       // Display comment in chat box + save it in mongoDB
-      submitItemComment: function(item, reply) {
-        debugger
+      submitItemComment: function(requirementCode, comments, reply) {
         let self = this
-        item.comments.push({
+        comments.push({
             user: this.userName,
             text: reply,
             creationDate: new Date(),
-            id: item.comments.length
+            id: comments.length
         });
         this.axios({
             method: 'post',
-            url: this.service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&requirementCode='+item.code,
-            data: item.comments
+            url: this.service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&requirementCode='+requirementCode,
+            data: comments
         }).catch(function(error) {self.displayError("An error has occured:" + error)})
       },
 
