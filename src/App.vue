@@ -42,9 +42,9 @@
       </v-toolbar-items>
     </v-toolbar>
 
-    <v-content class="mx-4 mb-4 my-2">
+    <v-main class="mx-4 mb-4 my-2">
         <router-view></router-view>            
-    </v-content>
+    </v-main>
 
   </div>
 </v-app>
