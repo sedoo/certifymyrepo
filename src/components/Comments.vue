@@ -48,7 +48,7 @@ import singleComment from './SingleComment'
         methods: {
             submitComment() {
                 if(this.reply != '') {
-                    this.$emit('submit-comment', this.item, this.reply);
+                    this.$emit('submit-comment', this.requirementCode, this.reply);
                     this.reply = '';
                 }
             }
@@ -56,7 +56,7 @@ import singleComment from './SingleComment'
         created() {
             this.$i18n.locale = this.$store.getters.getLanguage;
         },
-        props: ['comments', 'item', 'current_user', 'comments_wrapper_classes', 'isreadonly']
+        props: ['comments', 'requirementCode', 'current_user', 'comments_wrapper_classes', 'isreadonly']
     }
 </script>
 

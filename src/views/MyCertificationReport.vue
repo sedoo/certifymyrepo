@@ -20,7 +20,9 @@
     "add.file.label": "Attachments",
     "version.required.error": "Version is required",
     "version.not.valid.error": "Version number must be valid. Example 2.1",
-    "files.size.error": "Attachments size must be less than 10MB"
+    "files.size.error": "Attachments size must be less than 10MB",
+    "clipboard.toolpit.button": "Copy the link",
+    "attachments.toolpit.button": "Please, save your report once before adding attachments"
   },
   "fr": {
     "title" : "Fiche {msg}",
@@ -41,7 +43,9 @@
     "delete.popup.message": "Voulez vous vraiment supprimer le fichier {msg}? Veuillez noter que cette opération est irréversible.",
     "version.required.error": "Le champ Version est obligatoire",
     "version.not.valid.error": "Le numéro de version doit être valide. Exemple 2.1",
-    "files.size.error": "Les pièces jointes ne doivent pas dépasser 10Mo"
+    "files.size.error": "Les pièces jointes ne doivent pas dépasser 10Mo",
+    "clipboard.toolpit.button": "Copier le lien",
+    "attachments.toolpit.button": "Veuillez enregistrer votre rapport avant de pouvoir ajouter des pièces jointes"
   }
 }
 </i18n>
@@ -92,28 +96,42 @@
                               color="grey lighten-3"
                               height="auto"
                           >
-                            <!-- DO WE WANT TO ADD GUIDANCE ? <div v-html="item.guidance "></div>-->
+                            <!-- start user detailed response -->
                             <v-textarea v-if="!readOnly"
                                 outlined class="ma-3"
                                 :label="$t('edit.response')"
                                 v-model="item.response"
                             >
                             </v-textarea>
-                              <v-list-item dense v-for="(file, i) in item.files" :key="i">
-                                <div class="pa-0" v-html="'<a href=\'#\'>'+file+'</a>'">
-                                </div>
-                                <v-btn v-if="!readOnly" icon class="mx-0" @click="openDeleteFilePopup(item.code, file)">     
-                                    <v-icon size="15px">fa-trash-alt</v-icon>    
-                                </v-btn>  
-                              </v-list-item>
-                            <v-card-actions>
-                              <div v-if="!readOnly" class="pa-2" >
-                                <v-btn color="primary" @click="openUploadFilesPopup(item.code)">
-                                    {{ $t('add.file.label') }}
-                                </v-btn>
-                              </div>
-                            </v-card-actions>
                             <p v-if="readOnly" class="text-justify">{{ item.response }}</p>
+
+                            <v-list-item dense v-for="(file, i) in item.files" :key="i">
+                              <div class="pa-0 link-file" v-html="getHtmlHRefLink(myReport.id, item.code, file)">
+                              </div>
+                              <v-btn v-if="!readOnly" icon class="mx-0" @click="openDeleteFilePopup(item.code, file)">     
+                                  <v-icon size="15px">fa-trash-alt</v-icon>    
+                              </v-btn>  
+                              <v-tooltip bottom>
+                                <template v-if="!item.readonly" v-slot:activator="{ on }">
+                                <v-btn v-on="on" icon class="mx-0" @click="copyText(myReport.id, item.code, file)">     
+                                    <v-icon size="15px">fa-clipboard</v-icon>    
+                                </v-btn>
+                                  </template>
+                                  <span>{{ $t('clipboard.toolpit.button') }}</span>
+                              </v-tooltip> 
+                            </v-list-item>
+                            <v-card-actions>
+                               <v-tooltip :disabled="!reportNotSavedYet" bottom>
+                                <template v-if="!item.readonly" v-slot:activator="{ on }">
+                                  <div v-on="on" class="pa-2">
+                                    <v-btn color="primary" :disabled="reportNotSavedYet" @click="openUploadFilesPopup(item.code)">
+                                        {{ $t('add.file.label') }}
+                                    </v-btn>
+                                  </div>
+                                  </template>
+                                  <span>{{ $t('attachments.toolpit.button') }}</span>
+                              </v-tooltip>
+                            </v-card-actions>
 
                             <v-select filled v-if="!readOnly" class="ma-3"
                               :items="levelsTemplate"
@@ -129,12 +147,12 @@
 
                             <v-expansion-panels class="pa-3" v-if="!hideCommentBloc(item)">
                             <v-expansion-panel>
-                                <v-expansion-panel-header>{{ $t('comment.label')}}  <span class="pl-3" v-if="item.requirementcomments != null && item.requirementcomments.comments.length > 0"><i class="fa fa-comment"></i> {{ item.requirementcomments.comments.length }}</span></v-expansion-panel-header>
+                                <v-expansion-panel-header>{{ $t('comment.label')}}  <span class="pl-3" v-if="item.comments != null && item.comments.length > 0"><i class="fa fa-comment"></i> {{ item.comments.length }}</span></v-expansion-panel-header>
                                 <v-expansion-panel-content>
                                     <comments 
                                         :comments_wrapper_classes="['custom-scrollbar', 'comments-wrapper']"
-                                        :comments="item.requirementcomments"
-                                        :item="item"
+                                        :comments="item.comments"
+                                        :requirementCode="item.code"
                                         :current_user="userName"
                                         :isreadonly="isReadOnlyComment"
                                         @submit-comment="submitItemComment"
@@ -173,6 +191,8 @@
                         {{ $t('button.save') }}
                     </v-btn>
             </div>
+
+            {{ myReport }}
 
             <div class="text-right save-button">
 
@@ -392,6 +412,14 @@ export default {
       service: function()  {
         return this.$store.getters.getService
       },
+      reportNotSavedYet: function () {
+        if(this.myReport.id) {
+          return false
+        } else {
+          return true 
+        }
+        
+      }
     },
     watch: {
       steps (val) {
@@ -401,6 +429,27 @@ export default {
       },
     },
     methods: {
+
+      getHtmlHRefLink(reportId, code, file) {
+        return "<a href='"+this.service+"/link/"+reportId+"/"+code+"/"+file+"' target='_blank' rel='noopener noreferrer'>"+file+"</a>"
+      },
+
+      copyText(reportId, code, file) {
+        const el = document.createElement('textarea');  
+        el.value = this.service+"/link/"+reportId+"/"+code+"/"+file;                                 
+        el.setAttribute('readonly', '');                
+        el.style.position = 'absolute';                     
+        el.style.left = '-9999px';                      
+        document.body.appendChild(el);                  
+        const selected =  document.getSelection().rangeCount > 0  ? document.getSelection().getRangeAt(0) : false;                                    
+        el.select();                                    
+        document.execCommand('copy');                   
+        document.body.removeChild(el);                  
+        if (selected) {                                 
+          document.getSelection().removeAllRanges();    
+          document.getSelection().addRange(selected);   
+        }
+      },
 
       openUploadFilesPopup(itemCode) {
         this.uploadInProgress = false
@@ -481,17 +530,18 @@ export default {
 
       // Display comment in chat box + save it in mongoDB
       submitItemComment: function(item, reply) {
+        debugger
         let self = this
-        item.requirementcomments.comments.push({
+        item.comments.push({
             user: this.userName,
             text: reply,
             creationDate: new Date(),
-            id: item.requirementcomments.comments.length
+            id: item.comments.length
         });
         this.axios({
             method: 'post',
-            url: this.service+'/certificationReport/v1_0/saveComments',
-            data: item.requirementcomments
+            url: this.service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&requirementCode='+item.code,
+            data: item.comments
         }).catch(function(error) {self.displayError("An error has occured:" + error)})
       },
 
@@ -514,7 +564,7 @@ export default {
 
       // if ready only mode and no comment hide the comments bloc
       hideCommentBloc(item) {
-        return this.isReadOnlyComment && item.requirementcomments != null && item.requirementcomments.comments.length == 0 || this.myReport.id == null
+        return this.isReadOnlyComment && item.comments != null && item.comments.length == 0 || this.myReport.id == null
       },
 
       // Save report
@@ -604,19 +654,15 @@ export default {
 
               if(!self.$route.query.copy) {
                 // BEGINNING add comments into report object
-                self.myReport.items[i].requirementcomments = {
-                  comments: [],
-                  reportId: self.myReport.id,
-                  itemCode: itemCode
-                }
+                self.myReport.items[i].comments = []
                 for (let commentItem in commentsCollection) {
                   if(itemCode == commentsCollection[commentItem].itemCode ) {
-                    self.myReport.items[i].requirementcomments = commentsCollection[commentItem]
+                    self.myReport.items[i].comments = commentsCollection[commentItem].comments
                   }
                 }
                 // END add comments into report object
               } else {
-                self.myReport.items[i].requirementcomments = null
+                self.myReport.items[i].comments = null
               }
 
               // BEGINNING add labels into report object from template
@@ -719,6 +765,10 @@ export default {
 .align-right {
 	position: absolute;
   right: 3%;
+}
+
+.link-file {
+  min-width: 15%;
 }
 
 </style>
