@@ -17,41 +17,46 @@ module.exports = {
           config.entry("app").clear().add("./src/main.production.js").end();
         }
     },
-    configureWebpack: {
-        optimization: {
-            splitChunks: false
-        },
-        plugins: [
-
-            new WebpackCdnUploadPlugin({
-                async upload(content, name) {
-                    if (name.endsWith(".map")) {
-                        //We ignore sourcemap file
-                        return;
-                    }
-                    let repo = "release";
-                    if (pkgVersion.toLowerCase().endsWith("snapshot")) {
-                        repo = "snapshot"
-                    }
-                    let url = "https://services.aeris-data.fr/cdn/jsrepo/v1_0/webpackupload/sandbox/" + repo + "/" + pkgName + "/" + pkgVersion
-                    console.log(url)
-
-                    await axios({
-                        method: 'post',
-                        url: url,
-                        headers: {},
-                        data: {
-                            content: content
-                        }
-                    });
-
-                    url = url.replace('webpackupload', 'download')
-                    return url;
-
+    configureWebpack: config => {
+        if (process.env.NODE_ENV === "production") {
+            return {
+                optimization: {
+                    splitChunks: false
                 },
-            }),
-        ]
+                plugins: [
 
+                    new WebpackCdnUploadPlugin({
+                        async upload(content, name) {
+                            if (name.endsWith(".map")) {
+                                //We ignore sourcemap file
+                                return;
+                            }
+                            let repo = "release";
+                            if (pkgVersion.toLowerCase().endsWith("snapshot")) {
+                                repo = "snapshot"
+                            }
+                            let url = "https://services.aeris-data.fr/cdn/jsrepo/v1_0/webpackupload/sandbox/" + repo + "/" + pkgName + "/" + pkgVersion
+                            console.log(url)
+
+                            await axios({
+                                method: 'post',
+                                url: url,
+                                maxContentLength: Infinity,
+                                maxBodyLength: Infinity,
+                                headers: {},
+                                data: {
+                                    content: content
+                                }
+                            });
+
+                            url = url.replace('webpackupload', 'download')
+                            return url;
+
+                        },
+                    }),
+                ]
+                }
+            }
     },
 
     pluginOptions: {
