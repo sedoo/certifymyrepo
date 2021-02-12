@@ -22,7 +22,8 @@
     "version.not.valid.error": "Version number must be valid. Example 2.1",
     "files.size.error": "Attachments size must be less than 10MB",
     "clipboard.toolpit.button": "Copy the link",
-    "attachments.toolpit.button": "Please, save your report once before adding attachments"
+    "attachments.toolpit.button": "Please, save your report once before adding attachments",
+    "button.download.raw.data": "Download JSON data"
   },
   "fr": {
     "title" : "Fiche {msg}",
@@ -45,7 +46,8 @@
     "version.not.valid.error": "Le numéro de version doit être valide. Exemple 2.1",
     "files.size.error": "Les pièces jointes ne doivent pas dépasser 10Mo",
     "clipboard.toolpit.button": "Copier le lien",
-    "attachments.toolpit.button": "Veuillez enregistrer votre rapport avant de pouvoir ajouter des pièces jointes"
+    "attachments.toolpit.button": "Veuillez enregistrer votre rapport avant de pouvoir ajouter des pièces jointes",
+    "button.download.raw.data": "Télécharger données JSON"
   }
 }
 </i18n>
@@ -192,10 +194,13 @@
                     </v-btn>
             </div>
 
-            {{ myReport }}
-
             <div class="text-right save-button">
-
+              <v-btn  text
+                color="primary"
+                @click="handleDownload"
+                >
+                {{ $t('button.download.raw.data') }}
+              </v-btn>
               <v-btn v-show="!readOnly"
                 color="primary"
                 @click="displayReleaseConfirmation"
@@ -203,128 +208,129 @@
                 >
                 {{ $t('button.release') }}
               </v-btn>
-
-              <v-dialog
-                  v-model="dialog"
-                  width="500"
-                  >
-
-              <v-card>
-                  <v-card-title
-                  class="headline grey lighten-2"
-                  primary-title
-                  >
-                  {{ $t('release.popup.title')}}
-                  </v-card-title>
-
-                  <v-card-text>
-                  {{ $t('release.popup.message')}}
-                  </v-card-text>
-
-                  <v-divider></v-divider>
-
-                  <v-card-actions>
-                  <div class="flex-grow-1"></div>
-                  <v-btn
-                      color="primary"
-                      text
-                      @click="dialog = false"
-                  >
-                      {{ $t('button.cancel') }}
-                  </v-btn>
-                  <v-btn
-                      color="primary"
-                      @click="releaseTheReport"
-                  >
-                      {{ $t('button.confirm') }}
-                  </v-btn>
-                  </v-card-actions>
-              </v-card>
-              </v-dialog>
-
-               <v-dialog
-                  v-model="dialogUploadFiles"
-                  width="500"
-                  >
-
-              <v-card>
-                  <v-card-title
-                  class="headline grey lighten-2"
-                  primary-title
-                  >
-                  {{ $t('upload.popup.title')}}
-                  </v-card-title>
-
-                  <v-file-input
-                    class="px-3"
-                    v-model="itemFiles"
-                    chips
-                    multiple
-                    show-size
-                    truncate-length="20"
-                    :label="$t('add.file.label')"
-                    :rules="rules.filesRules"
-                  ></v-file-input>
-
-                  <v-divider></v-divider>
-
-                  <v-card-actions>
-                  <div class="flex-grow-1"></div>
-                  <v-btn
-                      color="primary"
-                      text
-                      @click="dialogUploadFiles = false"
-                  >
-                      {{ $t('button.cancel') }}
-                  </v-btn>
-                  <v-btn
-                      color="primary"
-                      @click="updateUploadedFiles(itemFiles)"
-                      :loading="uploadInProgress"
-                  >
-                      {{ $t('button.confirm') }}
-                  </v-btn>
-                  </v-card-actions>
-              </v-card>
-              </v-dialog>
-
-              <v-dialog
-                  v-model="dialogDeleteFile"
-                  width="500">
-                <v-card>
-                    <v-card-title
-                    class="headline grey lighten-2"
-                    primary-title
-                    >
-                    {{ $t('delete.popup.title')}}
-                    </v-card-title>
-                  <v-card-text>
-                  {{ $t('delete.popup.message', {'msg':fileToDelete })}}
-                  </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions>
-                    <div class="flex-grow-1"></div>
-                    <v-btn
-                        color="primary"
-                        text
-                        @click="dialogDeleteFile = false"
-                    >
-                        {{ $t('button.cancel') }}
-                    </v-btn>
-                    <v-btn
-                        color="primary"
-                        @click="deleteFile()"
-                        :loading="deleteInProgress"
-                    >
-                        {{ $t('button.confirm') }}
-                    </v-btn>
-                    </v-card-actions>
-                </v-card>
-              </v-dialog>
-
             </div>
       </v-form>
     </div>
+
+
+    <v-dialog
+        v-model="dialog"
+        width="500"
+        >
+
+    <v-card>
+        <v-card-title
+        class="headline grey lighten-2"
+        primary-title
+        >
+        {{ $t('release.popup.title')}}
+        </v-card-title>
+
+        <v-card-text>
+        {{ $t('release.popup.message')}}
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+        <div class="flex-grow-1"></div>
+        <v-btn
+            color="primary"
+            text
+            @click="dialog = false"
+        >
+            {{ $t('button.cancel') }}
+        </v-btn>
+        <v-btn
+            color="primary"
+            @click="releaseTheReport"
+        >
+            {{ $t('button.confirm') }}
+        </v-btn>
+        </v-card-actions>
+    </v-card>
+    </v-dialog>
+
+      <v-dialog
+        v-model="dialogUploadFiles"
+        width="500"
+        >
+
+    <v-card>
+        <v-card-title
+        class="headline grey lighten-2"
+        primary-title
+        >
+        {{ $t('upload.popup.title')}}
+        </v-card-title>
+
+        <v-file-input
+          class="px-3"
+          v-model="itemFiles"
+          chips
+          multiple
+          show-size
+          truncate-length="20"
+          :label="$t('add.file.label')"
+          :rules="rules.filesRules"
+        ></v-file-input>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+        <div class="flex-grow-1"></div>
+        <v-btn
+            color="primary"
+            text
+            @click="dialogUploadFiles = false"
+        >
+            {{ $t('button.cancel') }}
+        </v-btn>
+        <v-btn
+            color="primary"
+            @click="updateUploadedFiles(itemFiles)"
+            :loading="uploadInProgress"
+        >
+            {{ $t('button.confirm') }}
+        </v-btn>
+        </v-card-actions>
+    </v-card>
+    </v-dialog>
+
+    <v-dialog
+        v-model="dialogDeleteFile"
+        width="500">
+      <v-card>
+          <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+          >
+          {{ $t('delete.popup.title')}}
+          </v-card-title>
+        <v-card-text>
+        {{ $t('delete.popup.message', {'msg':fileToDelete })}}
+        </v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn
+              color="primary"
+              text
+              @click="dialogDeleteFile = false"
+          >
+              {{ $t('button.cancel') }}
+          </v-btn>
+          <v-btn
+              color="primary"
+              @click="deleteFile()"
+              :loading="deleteInProgress"
+          >
+              {{ $t('button.confirm') }}
+          </v-btn>
+          </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     </div>
 
 </template>
@@ -429,6 +435,31 @@ export default {
       },
     },
     methods: {
+
+      /** 
+       * Download json data
+       * name: {reportId}.json
+       */
+      handleDownload() {
+        const blob = new Blob([JSON.stringify(this.myReport)], {
+          type: `application/json`
+        });
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = `${this.myReport.id}.json`;
+        link.click();
+      },
+
+      /**
+       * Display json data in a new tab
+       * unsustainable link
+       * 
+      handleDownload() {
+        const blob = new Blob([JSON.stringify(this.myReport)], {
+          type: `application/json`
+        });
+        window.open(window.URL.createObjectURL(blob))
+      },*/
 
       getHtmlHRefLink(reportId, code, file) {
         return "<a href='"+this.service+"/link/"+reportId+"/"+code+"/"+file+"' target='_blank' rel='noopener noreferrer'>"+file+"</a>"
