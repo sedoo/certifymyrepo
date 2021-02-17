@@ -18,6 +18,7 @@
     "delete.popup.title": "Delete",
     "delete.popup.message": "Do you really want to delete {msg} file ? This operation cannot be undone.",
     "add.file.label": "Attachments",
+    "add.file.message": "File name will be formatted without accent and space will be replace by underscore char. If the file exist alreay it will be replaced.",
     "version.required.error": "Version is required",
     "version.not.valid.error": "Version number must be valid. Example 2.1",
     "files.size.error": "Attachments size must be less than 10MB",
@@ -40,6 +41,7 @@
     "release.erreor.message": "Le statut doit être 'IN_PROGRESS' pour pouvoir valider une fiche",
     "upload.popup.title": "Ajouter des fichiers",
     "add.file.label": "Pièces jointes",
+    "add.file.message": "Le nom du fichier sera formaté sans accent. les éventuels espaces seront remplacés par le caractère underscore. Si le fichier existant déjà, le fichier précédent enregistré sera remplacé par le nouveau.",
     "delete.popup.title": "Suppression",
     "delete.popup.message": "Voulez vous vraiment supprimer le fichier {msg}? Veuillez noter que cette opération est irréversible.",
     "version.required.error": "Le champ Version est obligatoire",
@@ -197,6 +199,12 @@
             <div class="text-right save-button">
               <v-btn  text
                 color="primary"
+                @click="handlePDF"
+                >
+                PDF
+              </v-btn>
+              <v-btn  text
+                color="primary"
                 @click="handleDownload"
                 >
                 {{ $t('button.download.raw.data') }}
@@ -264,8 +272,10 @@
         {{ $t('upload.popup.title')}}
         </v-card-title>
 
+        <v-card-text class="py-5">{{ $t('add.file.message')}}</v-card-text>
+
         <v-file-input
-          class="px-3"
+          class="px-3 py-0"
           v-model="itemFiles"
           chips
           multiple
@@ -436,6 +446,23 @@ export default {
     },
     methods: {
 
+      handlePDF() {
+        debugger
+        var self = this;
+        this.axios({
+            method: 'get',
+            url: this.service+'/certificationReport/v1_0/getPDF?reportId='+ this.myReport.id+"&language="+this.language+"&service="+this.service,
+            responseType: 'arraybuffer'
+        }).then( function (response) {
+            debugger
+            let blob = new Blob([response.data], { type: "application/pdf" });
+            let link = document.createElement("a");
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `${self.myReport.id}.pdf`;
+            link.click();
+        }).catch(function(error) {self.displayError("An error has occured:" + error)})
+      },
+
       /** 
        * Download json data
        * name: {reportId}.json
@@ -496,16 +523,13 @@ export default {
         this.fileToDelete=file;
       },
 
-      updateUploadedFiles(files) {
-        debugger
+      updateUploadedFiles(filesToUpload) {
         if(!this.myReport.items[this.currentRequirementCode].files) {
           this.myReport.items[this.currentRequirementCode].files = [];
         }
         let formData = new FormData();
-        let filesToUpload = []
-        for(let i=0 ; i<files.length ; i++) {
-          filesToUpload.push(files[i].name)
-          formData.append("files", files[i], files[i].name);
+        for(let i=0 ; i<filesToUpload.length ; i++) {
+          formData.append("files", filesToUpload[i], filesToUpload[i].name);
         }
         this.uploadInProgress = true
         self = this
@@ -518,8 +542,14 @@ export default {
                 }
             })
             .then(response => {
-                console.log("Success!");
-                self.myReport.items[this.currentRequirementCode].files = filesToUpload
+              if(response && response.data) {
+                let filesName = self.myReport.items[this.currentRequirementCode].files
+                for(let i=0 ; i<response.data.length ; i++) {
+                  filesName.push(response.data[i])
+                }
+                self.myReport.items[this.currentRequirementCode].files = Array.from(new Set(filesName))
+              }
+
             })
             .catch(error => {
                 self.displayError("Your file could not be upload")
@@ -539,8 +569,11 @@ export default {
                   "&fileName="+this.fileToDelete,
             })
             .then(response => {
-                console.log("Success!");
-                this.myReport.items[this.currentRequirementCode].files = this.myReport.items[this.currentRequirementCode].files.filter(item => item !== self.fileToDelete)
+                for(let i=0 ; i<self.myReport.items[self.currentRequirementCode].files.length ; i++) {
+                  if(self.myReport.items[self.currentRequirementCode].files[i] === self.fileToDelete) {
+                    self.myReport.items[self.currentRequirementCode].files.splice(i, 1);
+                  }
+                }
             })
             .catch(error => {
                 self.displayError(self.fileToDelete + "could not be deleted")
