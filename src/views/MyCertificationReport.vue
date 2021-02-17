@@ -24,7 +24,7 @@
     "files.size.error": "Attachments size must be less than 10MB",
     "clipboard.toolpit.button": "Copy the link",
     "attachments.toolpit.button": "Please, save your report once before adding attachments",
-    "button.download.raw.data": "Download JSON data"
+    "button.download.raw.data": "JSON"
   },
   "fr": {
     "title" : "Fiche {msg}",
@@ -49,7 +49,7 @@
     "files.size.error": "Les pièces jointes ne doivent pas dépasser 10Mo",
     "clipboard.toolpit.button": "Copier le lien",
     "attachments.toolpit.button": "Veuillez enregistrer votre rapport avant de pouvoir ajouter des pièces jointes",
-    "button.download.raw.data": "Télécharger données JSON"
+    "button.download.raw.data": "JSON"
   }
 }
 </i18n>
@@ -62,7 +62,7 @@
       <v-btn dark text @click="notifier = false">{{ $t('button.close' )}}</v-btn>
     </v-snackbar>
     <div v-if="!loadingReport" class="report">
-    <h4 class="subheading grey--text pt-5 pb-5">{{ templateName }}</h4>
+    <h4 class="subheading grey--text pt-5 pb-5">{{ templateDescription }}</h4>
       <v-form v-model="valid">
             <v-text-field v-if="!readOnly"
                 :label="$t('version.number')"
@@ -197,18 +197,6 @@
             </div>
 
             <div class="text-right save-button">
-              <v-btn  text
-                color="primary"
-                @click="handlePDF"
-                >
-                PDF
-              </v-btn>
-              <v-btn  text
-                color="primary"
-                @click="handleDownload"
-                >
-                {{ $t('button.download.raw.data') }}
-              </v-btn>
               <v-btn v-show="!readOnly"
                 color="primary"
                 @click="displayReleaseConfirmation"
@@ -389,7 +377,7 @@ export default {
                 files => !files || !files.some(file => file.size > 10485760)|| this.$t('files.size.error'),
               ]
             },
-            templateName: null,
+            templateDescription: null,
             loadingReport: false,
             itemFiles: null,
             currentRequirementCode: null,
@@ -445,48 +433,6 @@ export default {
       },
     },
     methods: {
-
-      handlePDF() {
-        debugger
-        var self = this;
-        this.axios({
-            method: 'get',
-            url: this.service+'/certificationReport/v1_0/getPDF?reportId='+ this.myReport.id+"&language="+this.language+"&service="+this.service,
-            responseType: 'arraybuffer'
-        }).then( function (response) {
-            debugger
-            let blob = new Blob([response.data], { type: "application/pdf" });
-            let link = document.createElement("a");
-            link.href = window.URL.createObjectURL(blob);
-            link.download = `${self.myReport.id}.pdf`;
-            link.click();
-        }).catch(function(error) {self.displayError("An error has occured:" + error)})
-      },
-
-      /** 
-       * Download json data
-       * name: {reportId}.json
-       */
-      handleDownload() {
-        const blob = new Blob([JSON.stringify(this.myReport)], {
-          type: `application/json`
-        });
-        const link = document.createElement("a");
-        link.href = window.URL.createObjectURL(blob);
-        link.download = `${this.myReport.id}.json`;
-        link.click();
-      },
-
-      /**
-       * Display json data in a new tab
-       * unsustainable link
-       * 
-      handleDownload() {
-        const blob = new Blob([JSON.stringify(this.myReport)], {
-          type: `application/json`
-        });
-        window.open(window.URL.createObjectURL(blob))
-      },*/
 
       getHtmlHRefLink(reportId, code, file) {
         return "<a href='"+this.service+"/link/"+reportId+"/"+code+"/"+file+"' target='_blank' rel='noopener noreferrer'>"+file+"</a>"
@@ -703,7 +649,7 @@ export default {
           self.readOnly = response.data.readOnly
           
           if(response.data.template.description && response.data.template.description[self.$store.getters.getLanguage]) {
-            self.templateName = response.data.template.description[self.$store.getters.getLanguage]
+            self.templateDiscription = response.data.template.description[self.$store.getters.getLanguage]
           }
 
           let commentsCollection = response.data.requirementComments

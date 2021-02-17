@@ -11,6 +11,8 @@
     "read.help.message": "Read this report",
     "copy.help.message": "Create a new report from a copy",
     "edit.help.message": "Edit this report",
+    "pdf.help.message": "Download the report as PDF file",
+    "json.help.message": "Download the report in JSON",
     "delete.confirm.message": "Do you really want to delete this report ? This operation cannot be undone.",
     "delete": "Delete",
     "template.label": "Template"
@@ -25,6 +27,8 @@
     "read.help.message": "Consulter cette fiche",
     "copy.help.message": "Créer une nouvelle fiche à partir d'une copie",
     "edit.help.message": "Modifier cette fiche",
+    "pdf.help.message": "Télécharger le rapport au format PDF",
+    "json.help.message": "Télécharger le rapport au format JSON",
     "delete.confirm.message": "Voulez vous vraiment supprimer cette fiche? Veuillez noter que cette opération est irréversible.",
     "delete": "Suppression",
     "template.label": "Modèle"
@@ -98,6 +102,24 @@
                     </v-btn>
                 </template>
                 <span>{{ $t('copy.help.message') }}</span>
+            </v-tooltip>
+
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                    <v-btn icon v-on="on" class="mx-0" @click="handlePDF(item)" :loading="isDownloadingPDF">     
+                        <v-icon size="20px">fa-file-pdf</v-icon>    
+                    </v-btn>
+                </template>
+                <span>{{ $t('pdf.help.message') }}</span>
+            </v-tooltip>
+
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                    <v-btn icon v-on="on" class="mx-0" @click="handleJSON(item)" :loading="isDownloadingJson">     
+                        <v-icon size="20px">fa-file-alt</v-icon>    
+                    </v-btn>
+                </template>
+                <span>{{ $t('json.help.message') }}</span>
             </v-tooltip>
 
         </template>   
@@ -212,6 +234,8 @@ export default {
             notifier: false,
             notifierMessage: "",
             notifierColor: "success",
+            isDownloadingPDF: false,
+            isDownloadingJson: false
         }
     },
     computed: {
@@ -220,6 +244,54 @@ export default {
         },
     },
     methods: {
+
+        /**
+         * Download data in PDF file
+         */
+        handlePDF(report) {
+            this.isDownloadingPDF = true
+            var self = this;
+            this.axios({
+                method: 'get',
+                url: this.service+'/certificationReport/v1_0/getPDF?reportId='+ report.id +"&language="+this.$store.getters.getLanguage+"&service="+this.service,
+                responseType: 'arraybuffer'
+            }).then( function (response) {
+                let blob = new Blob([response.data], { type: "application/pdf" });
+                let link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `${self.getFileName(report)}.pdf`;
+                link.click();
+            }).catch(function(error) {self.displayError("An error has occured:" + error)})
+            .finally(function() {
+            self.isDownloadingPDF = false
+            })
+        },
+
+        /**
+         * Download json data
+         */
+        handleJSON(report) {
+            this.isDownloadingJson = true
+            var self = this;
+            this.axios({
+                method: 'get',
+                url: this.service+'/certificationReport/v1_0/getJSON?reportId='+report.id+"&language="+this.$store.getters.getLanguage+"&service="+this.service
+            }).then( function (response) {
+                let blob = new Blob([JSON.stringify(response.data)], { type: "application/json" });
+                let link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `${self.getFileName(report)}.json`;
+                link.click();
+            }).catch(function(error) {self.displayError("An error has occured:" + error)})
+            .finally(function() {
+            self.isDownloadingJson = false
+            })
+        },
+
+        getFileName(report) {
+            return this.$store.getters.getRepository.name + "_" + report.templateName + "_" + report.version
+        },
+
         levelList (report) {
             var serie = {name: 'certificationReport', data: []}
             var array = [];
