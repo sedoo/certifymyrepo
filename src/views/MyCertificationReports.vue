@@ -71,7 +71,7 @@
             <template v-slot:item.status="{ item }">  
                 <span>{{ $t(item.status) }}</span>
             </template> 
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:item.actions="{ item , index}">
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
@@ -106,7 +106,7 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn icon v-on="on" class="mx-0" @click="handlePDF(item)" :loading="isDownloadingPDF">     
+                    <v-btn icon v-on="on" class="mx-0" @click="generateHiddenRadarChart(item, index)" :loading="isDownloadingPDF[index]">     
                         <v-icon size="20px">fa-file-pdf</v-icon>    
                     </v-btn>
                 </template>
@@ -115,7 +115,7 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn icon v-on="on" class="mx-0" @click="handleJSON(item)" :loading="isDownloadingJson">     
+                    <v-btn icon v-on="on" class="mx-0" @click="handleJSON(item, index)" :loading="isDownloadingJson[index]">     
                         <v-icon size="20px">fa-file-alt</v-icon>    
                     </v-btn>
                 </template>
@@ -129,6 +129,10 @@
         </template>      
 
         </v-data-table>
+
+        <div v-if="report != null" style="visibility: hidden;">
+            <apexchart @animationEnd="handlePDF(report)" :ref="'radarchart'+report.id" type=radar height=350 :options="chartOptions(report)" :series="levelList(report)" />
+        </div>
 
         <v-dialog
                 v-model="dialogDelete"
@@ -234,8 +238,10 @@ export default {
             notifier: false,
             notifierMessage: "",
             notifierColor: "success",
-            isDownloadingPDF: false,
-            isDownloadingJson: false
+            isDownloadingPDF: [],
+            isDownloadingJson: [],
+            report: null,
+            index: null,
         }
     },
     computed: {
@@ -245,26 +251,48 @@ export default {
     },
     methods: {
 
+        generateHiddenRadarChart(report, index) {
+            this.report = report
+            this.index = index
+            this.isDownloadingPDF[this.index] = true
+        },
+
         /**
          * Download data in PDF file
          */
         handlePDF(report) {
-            this.isDownloadingPDF = true
+            this.report = null
             var self = this;
-            this.axios({
-                method: 'get',
-                url: this.service+'/certificationReport/v1_0/getPDF?reportId='+ report.id +"&language="+this.$store.getters.getLanguage+"&service="+this.service,
-                responseType: 'arraybuffer'
-            }).then( function (response) {
-                let blob = new Blob([response.data], { type: "application/pdf" });
-                let link = document.createElement("a");
-                link.href = window.URL.createObjectURL(blob);
-                link.download = `${self.getFileName(report)}.pdf`;
-                link.click();
-            }).catch(function(error) {self.displayError("An error has occured:" + error)})
-            .finally(function() {
-            self.isDownloadingPDF = false
-            })
+            this.$refs['radarchart'+report.id].chart.dataURI().then(data => {
+
+                let arr = data.imgURI.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                while(n--){
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                let blob = new Blob([u8arr], {type:mime});
+
+                let formData = new FormData();
+                formData.append("radar", blob);
+                
+                this.axios({
+                    method: 'post',
+                    url: this.service+'/certificationReport/v1_0/getPDF?reportId='+ report.id +"&language="+this.$store.getters.getLanguage+"&service="+this.service,
+                    responseType: 'arraybuffer',
+                    data: formData,
+                    headers: {'Content-Type': 'multipart/form-data'}
+                }).then( function (response) {
+                    let blob = new Blob([response.data], { type: "application/pdf" });
+                    let link = document.createElement("a");
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = `${self.getFileName(report)}.pdf`;
+                    link.click();
+                }).catch(function(error) {self.displayError("An error has occured:" + error)})
+                .finally(function() {
+                    self.isDownloadingPDF = []
+                })
+
+            });
         },
 
         /**
