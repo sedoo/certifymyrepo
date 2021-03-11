@@ -27,7 +27,7 @@
   <v-layout>
 
     <v-flex xs12>
-      <h1 class="display-1">{{ $t('title')}}</h1>
+      <h1 class="subheading grey--text">{{ $t('title') }}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}

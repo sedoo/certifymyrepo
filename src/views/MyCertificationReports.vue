@@ -46,8 +46,7 @@
 
         <template>
         <div class="text-center">
-
-        <div v-if="userRole === 'EDITOR'" class="text-right pa-3">
+        <div v-if="creationValidationAllowed" class="text-right pa-3">
             <v-btn color="primary" @click="dialogCreate = true">{{ $t('create.new.report')}}</v-btn>
         </div>
 
@@ -75,20 +74,20 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                <v-btn v-if="userRole != 'READER' && !isReleased(item)" icon v-on="on" class="mx-0" @click="editItem(item)">     
+                <v-btn v-if="editExistingAllowed  && !isReleased(item)" icon v-on="on" class="mx-0" @click="editItem(item)">     
                     <v-icon size="20px">fa-edit</v-icon>    
                 </v-btn>
                 </template>
                 <span>{{ $t('edit.help.message') }}</span>
             </v-tooltip>
 
-            <v-btn v-if="userRole === 'EDITOR' && !isReleased(item)" icon class="mx-0" @click="dialogDelete=true;reportId=item.id">     
+            <v-btn v-if="editExistingAllowed && !isReleased(item)" icon class="mx-0" @click="dialogDelete=true;reportId=item.id">     
                 <v-icon size="20px">fa-trash-alt</v-icon>    
             </v-btn>  
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                <v-btn v-if="userRole === 'READER' || isReleased(item)" icon v-on="on" class="mx-0 pa-3" @click="editItem(item)">     
+                <v-btn v-if="!editExistingAllowed || isReleased(item)" icon v-on="on" class="mx-0 pa-3" @click="editItem(item)">     
                     <v-icon size="20px">fa-book-open</v-icon>    
                 </v-btn>
                 </template>
@@ -97,7 +96,7 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn v-if="userRole === 'EDITOR' && isReleased(item)" icon v-on="on" class="mx-0" @click="copyItem(item)">     
+                    <v-btn v-if="creationValidationAllowed && isReleased(item)" icon v-on="on" class="mx-0" @click="copyItem(item)">     
                         <v-icon size="20px">fa-copy</v-icon>    
                     </v-btn>
                 </template>
@@ -130,7 +129,7 @@
 
         </v-data-table>
 
-        <div v-if="report != null" style="visibility: hidden;">
+        <div v-if="report != null" style="visibility: hidden; width: 500px;">
             <apexchart @animationEnd="handlePDF(report)" :ref="'radarchart'+report.id" type=radar height=350 :options="chartOptions(report)" :series="levelList(report)" />
         </div>
 
@@ -221,7 +220,8 @@ export default {
             dialogDelete: false,
             dialogCreate: false,
             reportId: null,
-            userRole: null,
+	        editExistingAllowed: false,
+	        creationValidationAllowed: false,
             repositoryId: this.$route.params.id,
             headers: [
                 { text: 'Version', value: 'version' },
@@ -295,11 +295,20 @@ export default {
             });
         },
 
+        isReleased: function (item) {
+            if(item.status == 'RELEASED') {
+                return true
+            } else {
+                return false
+            }
+        },
+
         /**
          * Download json data
          */
-        handleJSON(report) {
-            this.isDownloadingJson = true
+        handleJSON(report, index) {
+            debugger
+            this.isDownloadingJson[index] = true
             var self = this;
             this.axios({
                 method: 'get',
@@ -312,7 +321,7 @@ export default {
                 link.click();
             }).catch(function(error) {self.displayError("An error has occured:" + error)})
             .finally(function() {
-            self.isDownloadingJson = false
+            self.isDownloadingJson = []
             })
         },
 
@@ -371,14 +380,6 @@ export default {
         formatDate (timestamp) {
             return moment(timestamp).format('DD MMM YYYY HH:mm')
         },
-        isReleased: function (item) {
-            if(item.status == 'RELEASED') {
-
-                return true
-            } else {
-                return false
-            }
-        },
 
         displayError: function(message) {
             this.notifierMessage = message;
@@ -406,7 +407,8 @@ export default {
       .get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.$route.params.id)
       .then(response => {
         self.reports = response.data.reports
-        self.userRole = response.data.userRole
+        self.editExistingAllowed = response.data.editExistingAllowed
+	    self.creationValidationAllowed = response.data.creationValidationAllowed
       }).catch(function(error) {self.displayError("An error has occured:" + error)})
       .finally(() => this.loading = false)
     }

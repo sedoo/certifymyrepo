@@ -3,6 +3,8 @@ import VueRouter from "vue-router";
 import { store } from './store/store'
 
 import MyProfile from './views/MyProfile.vue'
+import Administration from './views/Administration.vue'
+import Dashboard from './views/Dashboard.vue'
 import MyRepositories from './views/MyRepositories.vue'
 import MyRepository from './views/MyRepository.vue'
 import MyCertificationReports from './views/MyCertificationReports.vue'
@@ -14,6 +16,18 @@ Vue.use(VueRouter);
 const router = new VueRouter({
     mode: 'hash',
     routes: [{
+            path: '/administration',
+            name: "administration",
+            component: Administration,
+            meta: {requiresAuth: true}
+        },
+        {
+            path: '/dashboard',
+            name: "dasbord",
+            component: Dashboard,
+            meta: {requiresAuth: true}
+        },
+        {
             path: '/repositories',
             name: "repositories",
             component: MyRepositories,

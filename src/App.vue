@@ -4,13 +4,17 @@
     "login": "LOGIN",
     "logout": "LOGOUT",
     "page.repositories" : "Repositories",
-    "page.profile" : "Profile"
+    "page.profile" : "Profile",
+    "page.dashboard" : "Dashboard",
+    "page.administration" : "Administration"
   },
   "fr": {
     "login": "CONNEXION",
     "logout": "DESCONNEXION",
     "page.repositories" : "Entrepôts",
-    "page.profile" : "Profile"
+    "page.profile" : "Profile",
+    "page.dashboard" : "Tableau de bord",
+    "page.administration" : "Administration"
   }
 }
 </i18n>
@@ -64,7 +68,7 @@ export default {
     },
     language: {
       type: String,
-      default: "fr"
+      default: "en"
     },
   },
   data: () => ({
@@ -72,7 +76,12 @@ export default {
     errored: false,
     drawer : false,
     link: null,
-    links : [{label:"page.repositories", route: '/repositories', icon: 'fa-archive'},{label:"page.profile", route: "/profile", icon: 'fa-user'}],
+    links : [
+      {label:"page.repositories", route: '/repositories', icon: 'fa-archive'},
+      {label:"page.profile", route: "/profile", icon: 'fa-user'}
+    ],
+    linkDashoard: {label:"page.dashboard", route: '/dashboard', icon: 'fa-archive'},
+    linkAdministration: {label:"page.administration", route: '/administration', icon: 'fa-archive'},
     // error and success notification vars
     timeout: 2000,
     notifier: false,
@@ -86,14 +95,27 @@ export default {
     },
     isLogged: function()  {
       return this.$store.getters.getLogged
-    }
+    },
+    userIsAdmin: function()  {
+      let isadmin
+      if(this.$store.getters.getUser != null) {
+        isadmin = this.$store.getters.getUser.admin
+      } 
+      return isadmin;
+    },
+    userIsSuperAdmin: function()  {
+      let isSuperAdmin
+      if(this.$store.getters.getUser != null) {
+        isSuperAdmin = this.$store.getters.getUser.superAdmin
+      } 
+      return isSuperAdmin;
+    },
   },
 
   created: function() {
-  this.$i18n.locale = this.language;
-  this.$store.commit('setLanguage', this.language)
+   this.$i18n.locale = this.language;
+   this.$store.commit('setLanguage', this.language)
    this.$store.commit('setService', this.service)
-  console.log("App created logged: "+this.isLogged)
    if (!this.isLogged) {
      var code = this.getCodeParameter();
      if (code) {
@@ -104,11 +126,16 @@ export default {
         }).then( function (response) {
             self.$store.commit('setUser', response.data)
             self.$store.commit('setLogged', true)
+            if(self.userIsAdmin || self.userIsSuperAdmin) {
+              self.links.push(self.linkDashoard)
+              self.links.push(self.linkAdministration)
+            }
             if(response.data.profile.email != null) {
               self.$router.push({path: '/repositories'})
             } else {
               self.$router.push({path: '/profile'})
             }
+
           }).catch(function(error) {self.displayError("An error has occured:" + error)})
       }
    }

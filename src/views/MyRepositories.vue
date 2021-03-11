@@ -10,7 +10,8 @@
     "edit.repository.button": "Edit this repository",
     "view.reports.button": "View the reports",
     "repositories.type": "Repositories type",
-    "radar.chart.title": "Requirements Radar Chart",
+    "radar.chart.title.valid": "Latest valid report chart",
+    "radar.chart.title.inProgress": "Latest report in progress chart",
     "keywords": "Keywords"
   },
   "fr": {
@@ -22,7 +23,8 @@
     "edit.repository.button": "Editer cet entrepôt",
     "view.reports.button": "Consulter les fiches",
     "repositories.type": "Type d'entrepôt",
-    "radar.chart.title": "Graphique radar des critères",
+    "radar.chart.title.valid": "Graphique de la dernière fiche validée",
+    "radar.chart.title.inProgress": "Graphique de la dernière fiche en cours",
     "keywords": "Mots clefs"
   }
 }
@@ -70,20 +72,20 @@
           >
             <v-card>
               <v-card-title v-bind:class="cssColorClass(item)">
-                <v-tooltip bottom>
-                  <template v-if="item.repository.url" v-slot:activator="{ on }">
-                    <v-btn v-on="on" icon :href="checkedURL(item.repository.url)" target="_blank">
-                      <v-icon size='20px'>fa-link</v-icon>
-                    </v-btn>
-                    </template>
-                    <span>{{ $t('url.repository.button') }}</span>
-                </v-tooltip> 
                 <h3 class="repo-title">{{ item.repository.name }}</h3>
                 <div class="icon-edit-delete">
                   <v-tooltip bottom>
+                    <template v-if="item.repository.url" v-slot:activator="{ on }">
+                      <v-btn v-on="on" icon :href="checkedURL(item.repository.url)" target="_blank">
+                        <v-icon size='20px'>fa-link</v-icon>
+                      </v-btn>
+                      </template>
+                      <span>{{ $t('url.repository.button') }}</span>
+                  </v-tooltip> 
+                  <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
                       <v-btn v-on="on" icon @click="routeToMyReports(item.repository)">
-                        <v-icon size='20px'>mdi-file-multiple</v-icon>
+                        <v-icon size='20px'>fa-eye</v-icon>
                       </v-btn>
                      </template>
                      <span>{{ $t('view.reports.button') }}</span>
@@ -116,15 +118,21 @@
                 </v-list-item>
               <v-list-group v-if="item.repository.description != null" sub-group no-action class="secondary--text">
                 <template v-slot:activator>
-                  <v-list-item-title>Description</v-list-item-title>
+                  <v-list-item-content>Description</v-list-item-content>
                 </template>
                 <v-textarea readonly :value="item.repository.description"></v-textarea>
               </v-list-group>
-              <v-list-group v-show="item.health != null" sub-group no-action class="secondary--text">
+              <v-list-group v-show="item.healthLatestValidReport != null" sub-group no-action class="secondary--text">
                 <template v-slot:activator>
-                <v-list-item-title>{{ $t('radar.chart.title')}}</v-list-item-title>
+                <v-list-item-content>{{ $t('radar.chart.title.valid')}}</v-list-item-content>
                 </template>
-                <apexchart type=radar :options="chartOptions(item.health)" :series="levelList(item.health)" />
+                <apexchart type=radar :options="chartOptions(item.healthLatestValidReport)" :series="levelList(item.healthLatestValidReport)" />
+              </v-list-group>
+              <v-list-group v-show="item.healthLatestInProgressReport != null" sub-group no-action class="secondary--text">
+                <template v-slot:activator>
+                <v-list-item-content>{{ $t('radar.chart.title.inProgress')}}</v-list-item-content>
+                </template>
+                <apexchart type=radar :options="chartOptions(item.healthLatestInProgressReport)" :series="levelList(item.healthLatestInProgressReport)" />
               </v-list-group>
               </v-list>
               </v-card-text>
@@ -240,12 +248,24 @@ export default {
         }
       },
       cssColorClass(item) {
-        if(item.health) {
-          if(item.health.green) {
+        let health = null
+        if(item.healthLatestValidReport != null && item.healthLatestInProgressReport != null) {
+          if(item.healthLatestValidReport.lastUpdateDate > item.healthLatestInProgressReport.lastUpdateDate) {
+            health = item.healthLatestValidReport
+          } else {
+            health = item.healthLatestInProgressReport
+          }
+        } else if(item.healthLatestValidReport == null && item.healthLatestInProgressReport != null) {
+          health = item.healthLatestInProgressReport
+        } else if(item.healthLatestValidReport != null && item.healthLatestInProgressReport == null) {
+          health = item.healthLatestValidReport
+        }
+        if(health) {
+          if(health.green) {
             return 'light-green'
-          } else if(item.health.orange) {
+          } else if(health.orange) {
             return 'light-orange'
-          } else if(item.health.red) {
+          } else if(health.red) {
             return 'light-red'
           } else {
             return ''

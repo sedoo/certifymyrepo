@@ -13,7 +13,7 @@
     "button.release": "Validate",
     "release.popup.title": "Validation",
     "release.popup.message": "Do you really want to validate this report ? You will not be able to modify or delete this version of the report after this operation.",
-    "release.erreor.message": "The report status must be 'IN_PROGRESS' before been able to validate a report",
+    "release.erreor.message": "The report status must be 'Redaction in progress' before been able to validate a report",
     "upload.popup.title": "Upload",
     "delete.popup.title": "Delete",
     "delete.popup.message": "Do you really want to delete {msg} file ? This operation cannot be undone.",
@@ -38,7 +38,7 @@
     "button.release": "Valider",
     "release.popup.title": "Validation",
     "release.popup.message": "Voulez-vous vraiment valider cette fiche ? Vous ne pourrez plus modifier ou supprimer cette version après cette opération",
-    "release.erreor.message": "Le statut doit être 'IN_PROGRESS' pour pouvoir valider une fiche",
+    "release.erreor.message": "Le statut doit être 'En cours de rédaction' pour pouvoir valider une fiche",
     "upload.popup.title": "Ajouter des fichiers",
     "add.file.label": "Pièces jointes",
     "add.file.message": "Le nom du fichier sera formaté sans accent. les éventuels espaces seront remplacés par le caractère underscore. Si le fichier existant déjà, le fichier précédent enregistré sera remplacé par le nouveau.",
@@ -64,14 +64,14 @@
     <div v-if="!loadingReport" class="report">
     <h4 class="subheading grey--text pt-5 pb-5">{{ templateDescription }}</h4>
       <v-form v-model="valid">
-            <v-text-field v-if="!readOnly"
+            <v-text-field v-if="editExistingAllowed"
                 :label="$t('version.number')"
                 v-model="myReport.version"
                 :rules="rules.versionRules"
             ></v-text-field>
-            <p v-if="readOnly"><span class="font-weight-bold">Version:  </span><span>{{ myReport.version }} </span></p>
+            <p v-if="!editExistingAllowed"><span class="font-weight-bold">Version:  </span><span>{{ myReport.version }} </span></p>
          
-            <v-select v-show="!readOnly"
+            <v-select v-show="editExistingAllowed"
                 :items="status"
                 v-model="myReport.status"
                 >
@@ -84,7 +84,7 @@
                   {{ $t(data.item) }}
               </template>
             </v-select>
-            <p v-if="readOnly"><span class="font-weight-bold">{{ $t('status.label') }} </span><span>{{ $t(myReport.status) }} </span></p>
+            <p v-if="!editExistingAllowed"><span class="font-weight-bold">{{ $t('status.label') }} </span><span>{{ $t(myReport.status) }} </span></p>
            
 
               <v-stepper v-model="e1" vertical >
@@ -101,23 +101,23 @@
                               height="auto"
                           >
                             <!-- start user detailed response -->
-                            <v-textarea v-if="!readOnly"
+                            <v-textarea v-if="editExistingAllowed"
                                 outlined class="ma-3"
                                 :label="$t('edit.response')"
                                 v-model="item.response"
                             >
                             </v-textarea>
-                            <p v-if="readOnly" class="text-justify">{{ item.response }}</p>
+                            <p v-if="!editExistingAllowed" class="text-justify">{{ item.response }}</p>
 
                             <v-list-item dense v-for="(file, i) in item.files" :key="i">
                               <div class="pa-0 link-file" v-html="getHtmlHRefLink(myReport.id, item.code, file)">
                               </div>
-                              <v-btn v-if="!readOnly" icon class="mx-0" @click="openDeleteFilePopup(item.code, file)">     
+                              <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" icon class="mx-0" @click="openDeleteFilePopup(item.code, file)">     
                                   <v-icon size="15px">fa-trash-alt</v-icon>    
                               </v-btn>  
                               <v-tooltip bottom>
-                                <template v-if="!item.readonly" v-slot:activator="{ on }">
-                                <v-btn v-on="on" icon class="mx-0" @click="copyText(myReport.id, item.code, file)">     
+                                <template v-slot:activator="{ on }">
+                                <v-btn v-if="myReport.status == 'RELEASED'" v-on="on" icon class="mx-0" @click="copyText(myReport.id, item.code, file)">     
                                     <v-icon size="15px">fa-clipboard</v-icon>    
                                 </v-btn>
                                   </template>
@@ -126,9 +126,9 @@
                             </v-list-item>
                             <v-card-actions>
                                <v-tooltip :disabled="!reportNotSavedYet" bottom>
-                                <template v-if="!item.readonly" v-slot:activator="{ on }">
+                                <template v-slot:activator="{ on }">
                                   <div v-on="on" class="pa-2">
-                                    <v-btn color="primary" :disabled="reportNotSavedYet" @click="openUploadFilesPopup(item.code)">
+                                    <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" color="primary" :disabled="reportNotSavedYet" @click="openUploadFilesPopup(item.code)">
                                         {{ $t('add.file.label') }}
                                     </v-btn>
                                   </div>
@@ -137,7 +137,7 @@
                               </v-tooltip>
                             </v-card-actions>
 
-                            <v-select filled v-if="!readOnly" class="ma-3"
+                            <v-select filled v-if="editExistingAllowed" class="ma-3"
                               :items="levelsTemplate"
                               :label="$t('level.label')"
                               v-model="item.level"
@@ -349,7 +349,8 @@ export default {
             dialog: false,
             dialogUploadFiles: false,
             dialogDeleteFile: false,
-            readOnly: null,
+	          editExistingAllowed: false,
+            validationAllowed: false,
             myReport: {
                 'id': null,
                 'templateName': null,
@@ -633,6 +634,7 @@ export default {
     },
     
     created () {
+      debugger
       this.loadingReport = true
       this.$i18n.locale = this.$store.getters.getLanguage;
       // case 1 id != null AND copy undefined or false => update the report
@@ -646,7 +648,8 @@ export default {
         .get(this.service+'/certificationReport/v1_0/getReport/'+id)
         .then( function (response) {
           self.myReport = response.data.report
-          self.readOnly = response.data.readOnly
+          self.editExistingAllowed = response.data.editExistingAllowed
+          self.validationAllowed = response.data.validationAllowed
           
           if(response.data.template.description && response.data.template.description[self.$store.getters.getLanguage]) {
             self.templateDiscription = response.data.template.description[self.$store.getters.getLanguage]
@@ -712,7 +715,8 @@ export default {
             let versionArray = self.myReport.version.split('.')
             self.myReport.version = (parseInt(versionArray[0])+1) + '.0'
             self.myReport.id = null
-            self.readOnly = false
+            self.editExistingAllowed = true
+            self.validationAllowed = true
           }
 
         }).catch(function(error) {self.displayError("An error has occured:" + error)})
