@@ -96,9 +96,9 @@
                       
                         <v-stepper-content :step="index + 1">
                           <v-card
-                              class="mb-12"
+                              class="mb-12 scroll"
                               color="grey lighten-3"
-                              height="auto"
+                              height="548px"
                           >
                             <!-- start user detailed response -->
                             <v-textarea v-if="editExistingAllowed"
@@ -634,7 +634,6 @@ export default {
     },
     
     created () {
-      debugger
       this.loadingReport = true
       this.$i18n.locale = this.$store.getters.getLanguage;
       // case 1 id != null AND copy undefined or false => update the report
@@ -782,6 +781,10 @@ export default {
 
 .link-file {
   min-width: 15%;
+}
+
+.scroll {
+   overflow-y: scroll
 }
 
 </style>

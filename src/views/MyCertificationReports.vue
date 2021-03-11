@@ -251,6 +251,11 @@ export default {
     },
     methods: {
 
+        /**
+         * If the expanded-item for apexchart is closed the char image cannot be send to the rest api generating to pdf report
+         * So an hidden chart is genereted with the given report
+         * See: <div v-if="report != null" style="visibility: hidden; width: 500px;">
+         */
         generateHiddenRadarChart(report, index) {
             this.report = report
             this.index = index
@@ -307,7 +312,6 @@ export default {
          * Download json data
          */
         handleJSON(report, index) {
-            debugger
             this.isDownloadingJson[index] = true
             var self = this;
             this.axios({
