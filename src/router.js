@@ -9,7 +9,8 @@ import MyRepositories from './views/MyRepositories.vue'
 import MyRepository from './views/MyRepository.vue'
 import MyCertificationReports from './views/MyCertificationReports.vue'
 import MyCertificationReport from './views/MyCertificationReport.vue'
-import Login from './views/Login.vue'
+import NotLogged from "./views/NotLogged.vue"
+import Logging from "./views/Logging.vue"
 
 Vue.use(VueRouter);
 
@@ -58,11 +59,16 @@ const router = new VueRouter({
           meta: {requiresAuth: true}
         },
         {
-            path: '/login',
-            name: "login",
-            component: Login,
+          path: "/logging",
+          name: "logging",
+          component: Logging
         },
-        { path: '/', redirect: '/login' }
+        {
+          path: "/notlogged",
+          name: "notlogged",
+          component: NotLogged
+        },
+        { path: '/', redirect: '/notlogged' }
     ]
 })
 
