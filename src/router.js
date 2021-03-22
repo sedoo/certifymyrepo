@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import { store } from './store/store'
 
 import MyProfile from './views/MyProfile.vue'
+import MyInformation from './views/MyInformation.vue'
 import Administration from './views/Administration.vue'
 import Dashboard from './views/Dashboard.vue'
 import MyRepositories from './views/MyRepositories.vue'
@@ -46,6 +47,12 @@ const router = new VueRouter({
             component: MyProfile,
             meta: {requiresAuth: true}
         },
+        {
+          path: '/information',
+          name: "information",
+          component: MyInformation,
+          meta: {requiresAuth: true}
+      },
         {
             path: '/certificationReports/:id',
             name: "certificationReports",
