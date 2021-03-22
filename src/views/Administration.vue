@@ -8,7 +8,8 @@
     "tab.admin": "Administrator",
     "tab.actions": "Actions",
     "edit.help.message": "Give administrator role",
-    "delete.help.message": "Remove administrator role"
+    "delete.help.message": "Remove administrator role",
+    "search": "Search"
   },
   "fr": {
     "title": "Administration",
@@ -17,7 +18,8 @@
     "tab.admin": "Administrator",
     "tab.actions": "Actions",
     "edit.help.message": "Donner les droits administrateur",
-    "delete.help.message": "Retier les droits administrateur"
+    "delete.help.message": "Retier les droits administrateur",
+    "search": "Recherche"
   }
 }
 </i18n>
@@ -34,11 +36,22 @@
 
     <div v-if="!loading" class="pa-5">
       <template v-if="users != null && users.length > 0">
+      <v-card>
+      <v-card-title>
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        :label="$t('search')"
+        single-line
+        hide-details
+      ></v-text-field>
+       </v-card-title>
         <v-data-table
           :headers="headers"
           :items="users"
           :items-per-page="5"
           class="elevation-1"
+          :search="search"
         >
             <template v-slot:item.admin="{ item }">  
                 <v-icon v-if="item.admin">mdi-check</v-icon>
@@ -47,7 +60,7 @@
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
                   <v-btn icon v-if="!item.admin" v-on="on" :loading="loadingGiveRole[index]" class="mx-0 pa-3" @click="giveRole(item, index)">     
-                      <v-icon size="20px">fa-edit</v-icon>    
+                      <v-icon size="20px">mdi-account-plus</v-icon>    
                   </v-btn>
                   </template>
                   <span>{{ $t('edit.help.message') }}</span>
@@ -55,13 +68,14 @@
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
                   <v-btn icon v-if="item.admin" v-on="on" :loading="loadingRemonveRole[index]" class="mx-0 pa-3" @click="removeRole(item, index)">     
-                      <v-icon size="20px">fa-trash-alt</v-icon>    
+                      <v-icon size="20px">mdi-account-minus</v-icon>    
                   </v-btn>
                   </template>
                   <span>{{ $t('delete.help.message') }}</span>
               </v-tooltip>
             </template> 
         </v-data-table>
+      </v-card>
       </template>
     </div>
     </v-flex>
@@ -89,6 +103,7 @@ export default {
           ] ,
       loadingGiveRole: [],
       loadingRemonveRole: [],
+      search: null,
     }
   },
 
