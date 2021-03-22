@@ -312,12 +312,12 @@ export default {
         }
         return profile;
       },
-      userIsAdmin: function()  {
-        let isadmin
+      userIsSuperAdmin: function()  {
+        let isSuperAdmin
         if(this.$store.getters.getUser != null) {
-          isadmin = this.$store.getters.getUser.admin
+          isSuperAdmin = this.$store.getters.getUser.superAdmin
         } 
-        return isadmin;
+        return isSuperAdmin;
       },
       dialogTitle: function() {
           if(this.userIndex == -1){
@@ -358,9 +358,8 @@ export default {
                 }).catch(function(error) {self.displayError("An error has occured:" + error)})
         } else {
             //this.myRepository = this.emptyRepo
-            // If the user creating a new repository he is manager by default
-            // if the logged user is admin no need to add him. He has all the rights.
-    	    if(!this.userIsAdmin && (this.myRepository.users == null || this.myRepository.users.length == 0)) {
+            // if the logged user is super admin no need to add him. He has all the rights.
+    	    if(!this.userIsSuperAdmin) {
                 let localUser = {id: this.userProfile.id , orcid: this.userProfile.orcid, name: this.userProfile.name , role: 'EDITOR'}
                 this.myRepository.users.push(localUser)
             }
