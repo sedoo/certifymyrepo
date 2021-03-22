@@ -5,11 +5,9 @@
     "page.repositories" : "Repositories",
     "url.repository.button": "Repository website link",
     "create.button" : "Create a new repository",
-    "repositories.type": "Repositories type",
     "delete.confirmation": "Do you really want to delete this repository and all the related reports? This operation cannot be undone.",
     "edit.repository.button": "Edit this repository",
     "view.reports.button": "View the reports",
-    "repositories.type": "Repositories type",
     "radar.chart.title.valid": "Latest valid report chart",
     "radar.chart.title.inProgress": "Latest report in progress chart",
     "keywords": "Keywords"
@@ -18,11 +16,9 @@
     "page.repositories" : "Entrepôts",
     "url.repository.button": "Lien vers le site web de l'entrepôt",
     "create.button" : "Créer un nouvel entrepôt",
-    "repositories.type": "Type d'entrepôt",
     "delete.confirmation": "Voulez vous vraiment supprimer cet entrepôt et toutes les fiches associées? Veuillez noter que cette opération est irréversible.",
     "edit.repository.button": "Editer cet entrepôt",
     "view.reports.button": "Consulter les fiches",
-    "repositories.type": "Type d'entrepôt",
     "radar.chart.title.valid": "Graphique de la dernière fiche validée",
     "radar.chart.title.inProgress": "Graphique de la dernière fiche en cours",
     "keywords": "Mots clefs"
@@ -43,20 +39,8 @@
 </div>  
   <v-card class="mx-auto" v-if="resultMyRepo != null && resultMyRepo.length > 0">
 	<v-container fluid>
-      <v-row>
-        <v-col cols="4">
-          <v-select id="selectRepoType"
-            v-model="repoType"
-            :items="repoTypes"
-            :label="$t('repositories.type')"
-            item-text="label"
-            item-value="value"
-            background-color="white"
-          ></v-select>
-        </v-col>
-      </v-row>
 	    <v-data-iterator 
-	      :items=filtedRepoList
+	      :items=resultMyRepo
 	      disable-pagination: true
         hide-default-footer
 	    >
@@ -183,8 +167,6 @@ export default {
   	},
     data() {
         return {
-          items: {"en": [{"label":"All", "value": "All"}, {"label":"Standard", "value": "All"}, {"label":"Test", "value": "Test"}],
-                "fr": [{"label":"Tous", "value": "All"}, {"label":"Standard", "value": "Standard"}, {"label":"Test", "value": "Test"}]},
           dialog: false,
           repositoryId: null,
           resultMyRepo: [],
@@ -201,38 +183,12 @@ export default {
     },
 
     computed: {
-      repoTypes: function() {
-        return this.items[this.$store.getters.getLanguage]
-      },
       userEmail: function()  {
         let email = null
         if(this.$store.getters.getUser != null) {
           email = this.$store.getters.getUser.profile.email
         }
         return email;
-      },
-
-      filtedRepoList: function() {
-        let result = null
-        if(this.repoType == 'All') {
-          result = this.resultMyRepo
-        } else {
-          let repoStandard = []
-          let repoTest = []
-          for(var i=0; i<this.resultMyRepo.length; i++) {
-            if(this.resultMyRepo[i].repository.isTest) {
-              repoTest.push(this.resultMyRepo[i])
-            } else {
-              repoStandard.push(this.resultMyRepo[i])
-            }
-          }
-          if(this.repoType == 'Standard') {
-            result = repoStandard
-          } else if(this.repoType == 'Test') {
-            result = repoTest
-          }
-        }
-        return result
       },
       service: function()  {
         return this.$store.getters.getService
@@ -283,7 +239,7 @@ export default {
           this.axios.delete(this.service+'/repository/v1_0/delete/'+this.repositoryId)
             .then( response =>
                 self.axios
-                    .get(self.service+'/repository/v1_0/listAllFullRepository')
+                    .get(self.service+'/repository/v1_0/listAllFullRepositories')
                     .then(response => {
                         self.resultMyRepo = response.data
                     })
@@ -303,12 +259,19 @@ export default {
             }
             return [serie];
         },
-      chartOptions (health) {
-          var option = {labels: null, title: {text: ''}, yaxis:{max: 4, forceNiceScale: true, tickAmount: 4}}
-          if(health != null) {
-            option.labels = health.requirementCodeList
+      chartOptions (health) {   
+        let option = {labels: null, title: {text: ''}, yaxis:{max: 0, forceNiceScale: true, tickAmount: 0}}   
+        if(health != null) {
+          let levelsNumber = 0
+          if(health.numberOfLevel) {
+            levelsNumber = health.numberOfLevel
           }
-          return option
+          option.labels = health.requirementCodeList
+          option.yaxis.min = 0
+          option.yaxis.max = levelsNumber
+          option.yaxis.tickAmount = levelsNumber
+        }
+        return option
       },
       routeToMyReports(repository) {
         if(this.userEmail==null) {
@@ -339,7 +302,7 @@ export default {
       // reset repository in the store
       this.$store.commit('setRepository', null)
       var self = this;
-      this.axios.get(this.service+'/repository/v1_0/listAllFullRepository')
+      this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')
       .then(response => {
         self.resultMyRepo = response.data
         if(this.userEmail==null) {
