@@ -758,6 +758,8 @@ export default {
           self.levelsTemplate = levelsLocal
           self.myReport.templateName = self.$route.query.template
           self.myReport.repositoryId = self.$route.query.repositoryId
+          self.editExistingAllowed = true
+          self.validationAllowed = false
         }).finally(function() { self.loadingReport = false})
 
       }

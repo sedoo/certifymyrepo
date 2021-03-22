@@ -3,7 +3,7 @@
 {
   "en": {
     "title": "Dasboard",
-    "tab.repo": "Reposioties",
+    "tab.repo": "Repositories",
     "tab.health.validated": "State latest validated report",
     "tab.date.validated": "Validation date",
     "tab.health.inprogress": "State latest report in progress",
@@ -83,7 +83,7 @@ export default {
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
     var self = this;
-    this.axios.get(this.service+'/repository/v1_0/listAllFullRepository')
+    this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')
     .then(response => {
       self.repoList = response.data
     }).catch(function(error) {self.displayError("An error has occured:" + error)})

@@ -4,7 +4,7 @@
     "login": "Login",
     "logout": "Logout (currently logged as : '{msg}')",
     "page.repositories" : "Repositories",
-    "page.profile" : "Profile",
+    "page.information" : "User information",
     "page.dashboard" : "Dashboard",
     "page.administration" : "Administration"
   },
@@ -12,7 +12,7 @@
     "login": "Connexion",
     "logout": "Desconnexion (vous êtes connecté en tant que : '{msg}'",
     "page.repositories" : "Entrepôts",
-    "page.profile" : "Profile",
+    "page.information" : "Information utilisateur",
     "page.dashboard" : "Tableau de bord",
     "page.administration" : "Administration"
   }
@@ -91,7 +91,7 @@ export default {
     link: null,
     links : [],
     linkRepositories: {label:"page.repositories", route: '/repositories', icon: 'mdi-archive'},
-    linkProfile: {label:"page.profile", route: "/profile", icon: 'mdi-account-details-outline'},
+    linkUserInformation: {label:"page.information", route: "/information", icon: 'mdi-account-details-outline'},
     linkDashoard: {label:"page.dashboard", route: '/dashboard', icon: 'mdi-view-dashboard'},
     linkAdministration: {label:"page.administration", route: '/administration', icon: 'mdi-cog-outline'},
     // error and success notification vars
@@ -156,7 +156,7 @@ export default {
             url: this.service+"/login/v1_0/orcid?code=" + code + "&redirect_uri=" + this.redirectUri
         }).then( function (response) {
             self.links.push(self.linkRepositories)
-            self.links.push(self.linkProfile)
+            self.links.push(self.linkUserInformation)
             self.$store.commit('setUser', response.data)
             self.$store.commit('setLogged', true)
             if(self.userIsAdmin || self.userIsSuperAdmin) {
@@ -171,9 +171,13 @@ export default {
 
           }).catch(function(error) {self.displayError("An error has occured:" + error)})
       }
-   } else if(this.userIsAdmin || this.userIsSuperAdmin) {
-      this.links.push(this.linkDashoard)
-      this.links.push(this.linkAdministration)
+   } else {
+      this.links.push(this.linkRepositories)
+      this.links.push(this.linkUserInformation)
+      if(this.userIsAdmin || this.userIsSuperAdmin) {
+        this.links.push(this.linkDashoard)
+        this.links.push(this.linkAdministration)
+      }
    }
  },
 
@@ -223,7 +227,7 @@ export default {
         logOut(this.$store)
         this.links = []
         this.links.push(this.linkRepositories)
-        this.links.push(this.linkProfile)
+        this.links.push(this.linkUserInformation)
         this.$router.push("/").catch(() => {});
       },
 

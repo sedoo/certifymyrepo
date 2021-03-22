@@ -230,7 +230,6 @@ export default {
                 { text: this.$t('status'), value: 'status' },
                 { text: 'Actions', value: 'actions', sortable: false }
                 ] ,
-            myReport: null,
             templateNames: ['CTS-2020-2022', 'TEST'],
             templateName: 'CTS-2020-2022',
             // error and success notification vars
