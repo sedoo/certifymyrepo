@@ -52,7 +52,7 @@ const router = new VueRouter({
           name: "information",
           component: MyInformation,
           meta: {requiresAuth: true}
-      },
+        },
         {
             path: '/certificationReports/:id',
             name: "certificationReports",

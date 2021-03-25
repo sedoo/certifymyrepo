@@ -72,15 +72,14 @@
 
     <v-btn
       :disabled="!valid"
-      color="error"
-      class="mr-4"
+      class="mx-5"
       @click="cancel"
     >{{ $t('button.cancel') }}
     </v-btn>
 
     <v-btn
       :disabled="!valid"
-      color="success"
+      color="info"
       class="mr-4"
       :loading="saving"
       @click="save"
@@ -108,14 +107,11 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                 <div class="flex-grow-1"></div>
-                    <v-btn
-                        color="primary"
-                        text
-                        @click="dialogDelete = false">
+                    <v-btn @click="dialogDelete = false">
                         {{ $t('button.cancel') }}
                     </v-btn>
                     <v-btn
-                        color="primary"
+                        color="info"
                         @click="dialogDelete = false; deleteProfile()">
                         {{ $t('button.confirm') }}
                     </v-btn>
@@ -129,6 +125,7 @@
 
 <script>
 import {logOut} from '../utils.js'
+import {displayError} from '../utils.js'
 export default {
 
   created: function() {
@@ -232,7 +229,7 @@ export default {
           self.loadProfile();
         })
         .catch(function(error) {
-          self.displayError("An error has occured:" + error);
+          displayError(self, error)
         })
         .finally(function() {
           self.saving = false;
@@ -254,7 +251,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.displayError("An error has occured:" + error)
+          displayError(self, error)
         })
         .finally(function() {
           self.loadingSimulation = false
@@ -275,7 +272,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.displayError("An error has occured:" + error)
+          displayError(self, error)
         })
         .finally(function() {
           self.loadingDelete = false
@@ -284,6 +281,7 @@ export default {
     },
 
     loadProfile: function() {
+      debugger
       var self = this;
       this.loading = true;
       this.axios
@@ -296,23 +294,15 @@ export default {
             }
           }
           if(self.profile.email == null) {
-            self.displayError(self.$t('email.error'));
+            displayError(self, self.$t('email.error'))
           }
         })
         .catch(function(error) {
-          self.displayError("An error has occured:" + error);
+          displayError(self, error)
         })
         .finally(function() {
           self.loading = false;
         });
-    },
-
-    displayError: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "error";
-      this.timeout = 8000;
-      this.notifier = true;
-
     },
 
     displaySuccess: function(message) {

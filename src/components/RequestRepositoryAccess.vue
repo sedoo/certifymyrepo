@@ -8,6 +8,7 @@
     "name.label": "Name",
     "keywords.label": "Keywords",
     "button.join": "Join",
+    "message.access.granded": "Access granted",
     "request.popup.title": "Request {msg} access"
   },
   "fr": {
@@ -17,6 +18,7 @@
     "name.label": "Nom",
     "keywords.label": "Mots cléfs",
     "button.join": "Rejoindre",
+    "message.access.granded": "Accès autorisé",
     "request.popup.title": "Demande d'accès à {msg}"
 
   }
@@ -26,7 +28,7 @@
     <div class="accessRequest">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">Close</v-btn>
+      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
     </v-snackbar>
         <v-card
             class="mx-auto pa-5"
@@ -35,13 +37,12 @@
             <v-card-text class="grey--text text--lighten-1">{{$t('search.message')}}</v-card-text >
             <v-card-actions>
                     <v-text-field v-model="keywords" @keyup.enter="lookup"></v-text-field>
-                    <v-btn style="margin-top:20px;"
-                        color="primary"
+                    <v-btn
                         @click="lookup"
                         icon
                         :disabled="isSearchButtonDisable"
                         >
-                        <v-icon size='20px'>fa-search</v-icon> 
+                        <v-icon>mdi-magnify</v-icon> 
                     </v-btn>
             </v-card-actions>
             <v-simple-table v-if="repositories!=null && repositories.length > 0">
@@ -58,9 +59,9 @@
                     <td>{{ item.name }}</td>
                     <td><span v-for="(keyword, index) in item.keywords" :key=index>{{ keyword }} </span></td>
                     <td v-if="userIsAdmin">A/N</td>
-                    <td v-else-if="isAccessGranted(item.users)">Access granted</td>
+                    <td v-else-if="isAccessGranted(item.users)">{{ $t('message.access.granded') }}</td>
                     <td v-else> 
-                        <v-btn color="primary" text @click="requestedRepository=item;dialog=true">{{ $t('button.join') }}</v-btn>
+                        <v-btn color="info" text @click="requestedRepository=item;dialog=true">{{ $t('button.join') }}</v-btn>
                     </td>
                     </tr>
                 </tbody>
@@ -112,8 +113,8 @@
 
             <v-card-actions>
             <div class="flex-grow-1"></div>
-            <v-btn color="primary" text @click="dialog = false">{{ $t('button.cancel') }}</v-btn>
-            <v-btn color="primary" @click="dialog = false; sendRequest()" :disabled="!valid">{{ $t('button.send') }}</v-btn>
+            <v-btn @click="dialog = false">{{ $t('button.cancel') }}</v-btn>
+            <v-btn color="info" @click="dialog = false; sendRequest()" :disabled="!valid">{{ $t('button.send') }}</v-btn>
             </v-card-actions>
         </v-card>
         </v-dialog>
@@ -159,24 +160,25 @@ export default {
         isSearchResultNull: function () {
             return this.repositories==null || this.repositories.length == 0
         },
-        userOrcid: function()  {
-            if(this.$store.getters.getUser != null) {
-                return this.$store.getters.getUser.orcId
-            } else {
-                return '';
-            }
-        },
         userIsAdmin: function()  {
             if(this.$store.getters.getUser != null) {
             return this.$store.getters.getUser.admin
             } else {
             return null;
             }
-      }
+        },
+        userProfile: function()  {
+            let profile = {}
+            if(this.$store.getters.getUser != null) {
+                profile = this.$store.getters.getUser.profile
+            }
+            return profile;
+        },
     },
 
     created() {
         this.$i18n.locale = this.$store.getters.getLanguage;
+        this.email = this.userProfile.email
     },
 
     methods: {
@@ -201,7 +203,7 @@ export default {
             }).catch(function(error) {self.displayError("An error has occured:" + error)})
         },
         isAccessGranted(users) {
-            if(JSON.stringify(users).includes(this.userOrcid)) {
+            if(JSON.stringify(users).includes(this.userProfile.id)) {
                 return true
             } else {
                 return false
@@ -215,7 +217,7 @@ export default {
                 url: this.service+'/repository/v1_0/requestAccess',
                 data: {
 	                repositoryId: this.requestedRepository.id,
-	                orcid: this.userOrcid,
+	                orcid: this.userProfile.orcid,
 	                text: this.text,
 	                email: this.email,
 	                role: this.role

@@ -47,7 +47,7 @@
         <template>
         <div class="text-center">
         <div v-if="creationValidationAllowed" class="text-right pa-3">
-            <v-btn color="primary" @click="dialogCreate = true">{{ $t('create.new.report')}}</v-btn>
+            <v-btn color="info" @click="dialogCreate = true">{{ $t('create.new.report')}}</v-btn>
         </div>
 
         </div>
@@ -75,20 +75,20 @@
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                 <v-btn v-if="editExistingAllowed  && !isReleased(item)" icon v-on="on" class="mx-0" @click="editItem(item)">     
-                    <v-icon size="20px">fa-edit</v-icon>    
+                   <v-icon>mdi-pencil-outline</v-icon>  
                 </v-btn>
                 </template>
                 <span>{{ $t('edit.help.message') }}</span>
             </v-tooltip>
 
             <v-btn v-if="editExistingAllowed && !isReleased(item)" icon class="mx-0" @click="dialogDelete=true;reportId=item.id">     
-                <v-icon size="20px">fa-trash-alt</v-icon>    
+                <v-icon>mdi-delete-forever-outline</v-icon>  
             </v-btn>  
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                 <v-btn v-if="!editExistingAllowed || isReleased(item)" icon v-on="on" class="mx-0 pa-3" @click="editItem(item)">     
-                    <v-icon size="20px">fa-book-open</v-icon>    
+                    <v-icon>mdi-book-open-variant</v-icon>    
                 </v-btn>
                 </template>
                 <span>{{ $t('read.help.message') }}</span>
@@ -97,7 +97,7 @@
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                     <v-btn v-if="creationValidationAllowed && isReleased(item)" icon v-on="on" class="mx-0" @click="copyItem(item)">     
-                        <v-icon size="20px">fa-copy</v-icon>    
+                        <v-icon>mdi-content-copy</v-icon>    
                     </v-btn>
                 </template>
                 <span>{{ $t('copy.help.message') }}</span>
@@ -106,7 +106,7 @@
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                     <v-btn icon v-on="on" class="mx-0" @click="generateHiddenRadarChart(item, index)" :loading="isDownloadingPDF[index]">     
-                        <v-icon size="20px">fa-file-pdf</v-icon>    
+                        <v-icon>mdi-file-pdf-box</v-icon>    
                     </v-btn>
                 </template>
                 <span>{{ $t('pdf.help.message') }}</span>
@@ -115,7 +115,7 @@
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                     <v-btn icon v-on="on" class="mx-0" @click="handleJSON(item, index)" :loading="isDownloadingJson[index]">     
-                        <v-icon size="20px">fa-file-alt</v-icon>    
+                        <v-icon>mdi-file-document-outline</v-icon>    
                     </v-btn>
                 </template>
                 <span>{{ $t('json.help.message') }}</span>
@@ -209,7 +209,7 @@
 
 <script>
 import moment from 'moment';
-
+import {displayError} from '../utils.js'
 export default {
     props: {
         item: null
@@ -291,7 +291,7 @@ export default {
                     link.href = window.URL.createObjectURL(blob);
                     link.download = `${self.getFileName(report)}.pdf`;
                     link.click();
-                }).catch(function(error) {self.displayError("An error has occured:" + error)})
+                }).catch(function(error) {displayError(self, error)})
                 .finally(function() {
                     self.isDownloadingPDF = []
                 })
@@ -322,7 +322,7 @@ export default {
                 link.href = window.URL.createObjectURL(blob);
                 link.download = `${self.getFileName(report)}.json`;
                 link.click();
-            }).catch(function(error) {self.displayError("An error has occured:" + error)})
+            }).catch(function(error) {displayError(self, error)})
             .finally(function() {
             self.isDownloadingJson = []
             })
@@ -369,7 +369,7 @@ export default {
                             self.readOnly = response.data.readOnly
                             self.reports = response.data.reports
                         })
-                ).catch(function(error) {self.displayError("An error has occured:" + error)})
+                ).catch(function(error) {displayError(self, error)})
         },
         createReport() {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null, template: this.templateName} })
@@ -382,13 +382,6 @@ export default {
         }, 
         formatDate (timestamp) {
             return moment(timestamp).format('DD MMM YYYY HH:mm')
-        },
-
-        displayError: function(message) {
-            this.notifierMessage = message;
-            this.notifierColor = "error";
-            this.timeout = 8000;
-            this.notifier = true;
         },
 
         displaySuccess: function(message) {
@@ -412,7 +405,7 @@ export default {
         self.reports = response.data.reports
         self.editExistingAllowed = response.data.editExistingAllowed
 	    self.creationValidationAllowed = response.data.creationValidationAllowed
-      }).catch(function(error) {self.displayError("An error has occured:" + error)})
+      }).catch(function(error) {displayError(self, error)})
       .finally(() => this.loading = false)
     }
 } 

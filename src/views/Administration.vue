@@ -85,6 +85,7 @@
 
 <script>
 import moment from 'moment';
+import {displayError} from '../utils.js'
 export default {
 
   data() {
@@ -132,7 +133,7 @@ export default {
       this.axios.get(this.service+'/admin/v1_0/listAllUsers')
       .then(response => {
         self.users = response.data
-      }).catch(function(error) {self.displayError("An error has occured:" + error)})
+      }).catch(function(error) {displayError(self, error)})
       .finally(() => self.loading = false)
     },
 
@@ -144,7 +145,7 @@ export default {
         if(response.data) {
           self.refeshData()
         }
-      }).catch(function(error) {self.displayError("An error has occured:" + error)})
+      }).catch(function(error) {displayError(self, error)})
       .finally(() => self.loadingGiveRole = [])
     },
 
@@ -156,16 +157,8 @@ export default {
         if(response.data) {
           self.refeshData()
         }
-      }).catch(function(error) {self.displayError("An error has occured:" + error)})
+      }).catch(function(error) {displayError(self, error)})
       .finally(() => self.loadingRemonveRole = [])
-    },
-
-    displayError: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "error";
-      this.timeout = 8000;
-      this.notifier = true;
-
     },
 
     displaySuccess: function(message) {

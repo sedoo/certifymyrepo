@@ -134,6 +134,7 @@
 
 <script>
 import {logOut} from '../utils.js'
+import {displayError} from '../utils.js'
 export default {
 
   created: function() {
@@ -215,7 +216,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.displayError("An error has occured:" + error)
+          displayError(self, error)
         })
         .finally(function() {
           self.loadingSimulation = false
@@ -236,7 +237,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.displayError("An error has occured:" + error)
+          displayError(self, error)
         })
         .finally(function() {
           self.loadingDelete = false
@@ -258,7 +259,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.displayError("An error has occured:" + error);
+          displayError(self, error)
         })
         .finally(function() {
           self.loadingProfile = false;
@@ -277,19 +278,11 @@ export default {
           }
         })
         .catch(function(error) {
-          self.displayError("An error has occured:" + error);
+          displayError(self, error)
         })
         .finally(function() {
           self.loadingRepo = false;
         });
-    },
-
-    displayError: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "error";
-      this.timeout = 8000;
-      this.notifier = true;
-
     },
 
     displaySuccess: function(message) {

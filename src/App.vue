@@ -26,7 +26,7 @@
       {{ notifierMessage }}
     <v-btn dark text @click="notifier = false">Close</v-btn>
    </v-snackbar>
-    <v-toolbar color="#f7941e" dark v-if="type!='external'">
+    <v-toolbar color="secondary" v-if="type!='external'">
       <v-toolbar-title class="text-uppercase" >
         <span class="font-weight-light">Crusöe</span>
       </v-toolbar-title>
@@ -35,7 +35,7 @@
       <v-toolbar-items  >
           <v-btn v-for="(link, i) in links"
             :key="i" router :to="link.route" :title="$t(link.label)"
-            color="#f7941e" dark
+            color="secondary"
             >
             <v-icon class="standard-icon">{{ link.icon }}</v-icon>
           </v-btn>

@@ -10,7 +10,8 @@
     "view.reports.button": "View the reports",
     "radar.chart.title.valid": "Latest valid report chart",
     "radar.chart.title.inProgress": "Latest report in progress chart",
-    "keywords": "Keywords"
+    "keywords": "Keywords",
+    "required.email.error": "Please go to MY PROFILE to add your email before editing a repository"
   },
   "fr": {
     "page.repositories" : "Entrepôts",
@@ -21,7 +22,8 @@
     "view.reports.button": "Consulter les fiches",
     "radar.chart.title.valid": "Graphique de la dernière fiche validée",
     "radar.chart.title.inProgress": "Graphique de la dernière fiche en cours",
-    "keywords": "Mots clefs"
+    "keywords": "Mots clefs",
+    "required.email.error": "Veuillez ajouter votre courriel dans votre profile avant d'éditer un entrepôt"
   }
 }
 </i18n>
@@ -34,15 +36,15 @@
     
     <h1 class="grey--text">{{ $t('page.repositories') }}</h1>
     
-<div class="text-right pa-2">
-  <v-btn class="primary" :disabled="userEmail==null" @click="createRepository">{{ $t('create.button') }}</v-btn>
-</div>  
+<v-layout justify-end>
+  <v-btn class="info my-3" :disabled="userEmail==null" @click="createRepository">{{ $t('create.button') }}</v-btn>
+</v-layout>
   <v-card class="mx-auto" v-if="resultMyRepo != null && resultMyRepo.length > 0">
-	<v-container fluid>
 	    <v-data-iterator 
 	      :items=resultMyRepo
 	      disable-pagination: true
         hide-default-footer
+        class="pa-5"
 	    >
       <template v-slot:default="props">
         <v-row>
@@ -61,7 +63,7 @@
                   <v-tooltip bottom>
                     <template v-if="item.repository.url" v-slot:activator="{ on }">
                       <v-btn v-on="on" icon :href="checkedURL(item.repository.url)" target="_blank">
-                        <v-icon size='20px'>fa-link</v-icon>
+                        <v-icon>mdi-link</v-icon>
                       </v-btn>
                       </template>
                       <span>{{ $t('url.repository.button') }}</span>
@@ -69,7 +71,7 @@
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
                       <v-btn v-on="on" icon @click="routeToMyReports(item.repository)">
-                        <v-icon size='20px'>fa-eye</v-icon>
+                        <v-icon>mdi-inbox-multiple-outline</v-icon>
                       </v-btn>
                      </template>
                      <span>{{ $t('view.reports.button') }}</span>
@@ -77,13 +79,13 @@
                   <v-tooltip bottom>
                     <template v-if="!item.readonly" v-slot:activator="{ on }">
                       <v-btn v-on="on" icon @click="editRepository(item.repository)">     
-                          <v-icon size='20px'>fa-edit</v-icon>    
+                        <v-icon>mdi-pencil-outline</v-icon>    
                       </v-btn>
                       </template>
                       <span>{{ $t('edit.repository.button') }}</span>
                   </v-tooltip>              
                   <v-btn v-if="!item.readonly" icon @click="repositoryId = item.repository.id;dialog=true" >     
-                      <v-icon size='20px'>fa-trash-alt</v-icon>    
+                      <v-icon>mdi-delete-forever-outline</v-icon>    
                   </v-btn>
                 </div>
               </v-card-title>
@@ -100,19 +102,19 @@
                   <v-list-item-content>Contact:</v-list-item-content>
                   <v-list-item-content class="align-end">{{ item.repository.contact }}</v-list-item-content>
                 </v-list-item>
-              <v-list-group v-if="item.repository.description != null" sub-group no-action class="secondary--text">
+              <v-list-group v-if="item.repository.description != null" sub-group no-action color="black--text">
                 <template v-slot:activator>
                   <v-list-item-content>Description</v-list-item-content>
                 </template>
-                <v-textarea readonly :value="item.repository.description"></v-textarea>
+                <div class="ma-5">{{ item.repository.description }}</div>
               </v-list-group>
-              <v-list-group v-show="item.healthLatestValidReport != null" sub-group no-action class="secondary--text">
+              <v-list-group v-show="item.healthLatestValidReport != null" sub-group no-action color="black--text">
                 <template v-slot:activator>
                 <v-list-item-content>{{ $t('radar.chart.title.valid')}}</v-list-item-content>
                 </template>
                 <apexchart type=radar :options="chartOptions(item.healthLatestValidReport)" :series="levelList(item.healthLatestValidReport)" />
               </v-list-group>
-              <v-list-group v-show="item.healthLatestInProgressReport != null" sub-group no-action class="secondary--text">
+              <v-list-group v-show="item.healthLatestInProgressReport != null" sub-group no-action color="black--text">
                 <template v-slot:activator>
                 <v-list-item-content>{{ $t('radar.chart.title.inProgress')}}</v-list-item-content>
                 </template>
@@ -124,8 +126,7 @@
           </v-col>
         </v-row>
       </template>
-    </v-data-iterator> 
-  </v-container>
+    </v-data-iterator>
   </v-card>
 
   <v-dialog v-model="dialog" width="500">
@@ -139,10 +140,10 @@
       <v-divider></v-divider>
       <v-card-actions>
       <div class="flex-grow-1"></div>
-      <v-btn color="primary" text @click="dialog = false">
+      <v-btn @click="dialog = false">
         {{ $t('button.cancel')}}
       </v-btn>
-      <v-btn color="primary" @click="dialog = false; deleteRepository()">
+      <v-btn color="info" @click="dialog = false; deleteRepository()">
         {{ $t('button.confirm')}}
       </v-btn>
       </v-card-actions>
@@ -157,7 +158,7 @@
 
 <script>
 import requestRepositoryAccess from '../components/RequestRepositoryAccess.vue'
-
+import {displayError} from '../utils.js'
 export default {
   components: {
       requestRepositoryAccess
@@ -243,11 +244,11 @@ export default {
                     .then(response => {
                         self.resultMyRepo = response.data
                     })
-            ).catch(function(error) {self.displayError("An error has occured:" + error)})
+            ).catch(function(error) {displayError(self, error)})
       },
       editRepository (item) {
         if(this.userEmail==null) {
-          this.displayError('Please go to MY PROFILE to add your email before editing your repository')
+          displayError(this, this.$t('required.email.error'))
         } else {
           this.$router.push({name: 'repository', query: {repositoryId: item.id}});
         }
@@ -275,26 +276,12 @@ export default {
       },
       routeToMyReports(repository) {
         if(this.userEmail==null) {
-          this.displayError('Please go to MY PROFILE to add your email before using your repository')
+          displayError(this, this.$t('required.email.error'))
         } else {
           this.$store.commit('setRepository', repository)
           this.$router.push({path: '/certificationReports/' + repository.id })
         }
       },
-      
-      displayError: function(message) {
-        this.notifierMessage = message;
-        this.notifierColor = "error";
-        this.timeout = 8000;
-        this.notifier = true;
-      },
-
-      displaySuccess: function(message) {
-        this.notifierMessage = message;
-        this.notifierColor = "success";
-        this.timeout = 4000;
-        this.notifier = true;
-      }
     },
     
     created: function() {
@@ -306,9 +293,9 @@ export default {
       .then(response => {
         self.resultMyRepo = response.data
         if(this.userEmail==null) {
-          this.displayError('Please go to MY PROFILE to add your email before creating a repository')
+          displayError(this, this.$t('required.email.error'))
         }
-      }).catch(function(error) {self.displayError("An error has occured:" + error)})
+      }).catch(function(error) {displayError(self, error)})
       .finally(() => this.loading = false)
       }
 } 

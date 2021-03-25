@@ -4,6 +4,7 @@
   "en": {
     "title" : "{msg} certification report",
     "version.number": "Version number",
+    "version.error.message": "Version is required",
     "status.label": "Status:",
     "button.previous" :"Previous",
     "button.continue" :"Continue",
@@ -29,6 +30,7 @@
   "fr": {
     "title" : "Fiche {msg}",
     "version.number": "Numéro de version",
+    "version.error.message": "La version est obligatoire",
     "status.label": "Statut:",
     "button.previous" :"Précédent",
     "button.continue" :"Continuer",
@@ -110,25 +112,25 @@
                             <p v-if="!editExistingAllowed" class="text-justify">{{ item.response }}</p>
 
                             <v-list-item dense v-for="(file, i) in item.files" :key="i">
-                              <div class="pa-0 link-file" v-html="getHtmlHRefLink(myReport.id, item.code, file)">
+                              <div class="link-file pr-3" v-html="getHtmlHRefLink(myReport.id, item.code, file)">
                               </div>
-                              <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" icon class="mx-0" @click="openDeleteFilePopup(item.code, file)">     
-                                  <v-icon size="15px">fa-trash-alt</v-icon>    
-                              </v-btn>  
                               <v-tooltip bottom>
                                 <template v-slot:activator="{ on }">
-                                <v-btn v-if="myReport.status == 'RELEASED'" v-on="on" icon class="mx-0" @click="copyText(myReport.id, item.code, file)">     
-                                    <v-icon size="15px">fa-clipboard</v-icon>    
+                                <v-btn v-on="on" icon class="mx-0" @click="copyText(myReport.id, item.code, file)">     
+                                    <v-icon>mdi-content-copy</v-icon>    
                                 </v-btn>
                                   </template>
                                   <span>{{ $t('clipboard.toolpit.button') }}</span>
                               </v-tooltip> 
+                              <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" icon class="mx-0" @click="openDeleteFilePopup(item.code, file)">     
+                                  <v-icon>mdi-delete-forever-outline</v-icon>    
+                              </v-btn>  
                             </v-list-item>
                             <v-card-actions>
                                <v-tooltip :disabled="!reportNotSavedYet" bottom>
                                 <template v-slot:activator="{ on }">
                                   <div v-on="on" class="pa-2">
-                                    <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" color="primary" :disabled="reportNotSavedYet" @click="openUploadFilesPopup(item.code)">
+                                    <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" color="info" :disabled="reportNotSavedYet" @click="openUploadFilesPopup(item.code)">
                                         {{ $t('add.file.label') }}
                                     </v-btn>
                                   </div>
@@ -166,10 +168,10 @@
                             </v-expansion-panels>
 
                             <v-card-actions>
-                              <v-btn text color="primary" @click="previousStep(index1)">
+                              <v-btn @click="previousStep(index1)">
                                   {{ $t('button.previous') }}
                               </v-btn>
-                              <v-btn color="primary" @click="nextStep(index+1)">
+                              <v-btn color="info" @click="nextStep(index+1)">
                                   {{ $t('button.continue') }}
                               </v-btn>
                             </v-card-actions>
@@ -230,17 +232,10 @@
 
         <v-card-actions>
         <div class="flex-grow-1"></div>
-        <v-btn
-            color="primary"
-            text
-            @click="dialog = false"
-        >
+        <v-btn @click="dialog = false">
             {{ $t('button.cancel') }}
         </v-btn>
-        <v-btn
-            color="primary"
-            @click="releaseTheReport"
-        >
+        <v-btn color="info" @click="releaseTheReport">
             {{ $t('button.confirm') }}
         </v-btn>
         </v-card-actions>
@@ -277,15 +272,11 @@
 
         <v-card-actions>
         <div class="flex-grow-1"></div>
-        <v-btn
-            color="primary"
-            text
-            @click="dialogUploadFiles = false"
-        >
+        <v-btn @click="dialogUploadFiles = false">
             {{ $t('button.cancel') }}
         </v-btn>
         <v-btn
-            color="primary"
+            color="info"
             @click="updateUploadedFiles(itemFiles)"
             :loading="uploadInProgress"
         >
@@ -336,6 +327,7 @@
 
 <script>
 import Comments from '../components/Comments.vue'
+import {displayError} from '../utils.js'
 export default {
     components: {
         Comments
@@ -436,7 +428,7 @@ export default {
     methods: {
 
       getHtmlHRefLink(reportId, code, file) {
-        return "<a href='"+this.service+"/link/"+reportId+"/"+code+"/"+file+"' target='_blank' rel='noopener noreferrer'>"+file+"</a>"
+        return "<a href='"+this.service+"/link/"+reportId+"/"+code+"/"+file+"' style='color: -webkit-link;' target='_blank' rel='noopener noreferrer'>"+file+"</a>"
       },
 
       copyText(reportId, code, file) {
@@ -499,7 +491,7 @@ export default {
 
             })
             .catch(error => {
-                self.displayError("Your file could not be upload")
+              displayError(self, error)
             }).finally(function() {
               self.uploadInProgress = false
               self.dialogUploadFiles = false
@@ -523,7 +515,7 @@ export default {
                 }
             })
             .catch(error => {
-                self.displayError(self.fileToDelete + "could not be deleted")
+              displayError(self, error)
             }).finally(function() {
               self.deleteInProgress = true
               self.dialogDeleteFile = false
@@ -552,7 +544,7 @@ export default {
             method: 'post',
             url: this.service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&requirementCode='+requirementCode,
             data: comments
-        }).catch(function(error) {self.displayError("An error has occured:" + error)})
+        }).catch(function(error) {displayError(self, error)})
       },
 
       nextStep (n) {
@@ -580,7 +572,7 @@ export default {
       // Save report
       save () {
         if(!this.valid) {
-          this.displayError("Version is required")
+          displayError(this, this.$t('version.error.message'))
         } else {
           this.myReport.updateDate = new Date()
           var self = this;
@@ -590,7 +582,7 @@ export default {
               data: this.myReport
           }).then( function (response) {
             self.$router.push({ path: '/certificationReports/'+response.data.repositoryId  })
-          }).catch(function(error) {self.displayError("An error has occured:" + error)})
+          }).catch(function(error) {displayError(self, error)})
         }
 
       },
@@ -601,7 +593,7 @@ export default {
 
       displayReleaseConfirmation() {
         if(this.myReport.status != 'IN_PROGRESS') {
-          this.displayError(this.$t('release.erreor.message'))
+          displayError(this, this.$t('release.erreor.message'))
         } else {
           this.dialog = true
         }
@@ -611,13 +603,6 @@ export default {
         this.dialog = false
         this.myReport.status = 'RELEASED'
         this.save ()
-      },
-
-      displayError: function(message) {
-          this.notifierMessage = message;
-          this.notifierColor = "error";
-          this.timeout = 8000;
-          this.notifier = true;
       },
 
       displaySuccess: function(message) {
@@ -718,7 +703,7 @@ export default {
             self.validationAllowed = true
           }
 
-        }).catch(function(error) {self.displayError("An error has occured:" + error)})
+        }).catch(function(error) {displayError(self, error)})
         .finally(function() { self.loadingReport = false})
 
       } else {
@@ -779,10 +764,6 @@ export default {
 .align-right {
 	position: absolute;
   right: 3%;
-}
-
-.link-file {
-  min-width: 15%;
 }
 
 .scroll {

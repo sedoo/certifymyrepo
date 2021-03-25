@@ -8,7 +8,7 @@
     "keywords": "Keywords",
     "name.label": "Name",
     "role.label": "Role",
-    "add.popup.title": "Add",
+    "add.popup.title": "Add an user",
     "editer.popup.title": "Edit",
     "email.error": "Please enter your email",
     "email.validation.error": "E-mail must be valid",
@@ -16,7 +16,8 @@
     "name.validation.error": "Name must be less than 20 characters",
     "role.required.error": "Role is required",
     "userName.required.error": "Name is required. Enter a valid orcid",
-    "message.test.repo": "Check this if your repository is for testing purposes"
+    "delete.user.confirmation.title": "Delete confirmation",
+    "delete.user.confirmation.label": "Do you really want to remove this user?"
   },
   "fr": {
     "title" : "Mon entrepôt",
@@ -25,7 +26,7 @@
     "keywords": "Mots clefs",
     "name.label": "Nom",
     "role.label": "Rôle",
-    "add.popup.title": "Ajouter",
+    "add.popup.title": "Ajouter un utilisateur",
     "editer.popup.title": "Editer",
     "email.error": "Veuillez entrer voute courriel",
     "email.validation.error": "Le courriel doit être valide",
@@ -33,7 +34,8 @@
     "name.validation.error": "Le nom doit faire moins de 20 caractères",
     "role.required.error": "Role is required",
     "userName.required.error": "Le nom est oblogatoire. Entrer un ORCID valid",
-    "message.test.repo": "Cocher cette case si votre entrepôt pour des besoins de test"
+    "delete.user.confirmation.title": "Confirmation de suppression",
+    "delete.user.confirmation.label": "Voulez-vous vraiment supprimer cet utilisateur?"
   }
 }
 </i18n>
@@ -102,6 +104,7 @@
                     <v-textarea
                         v-model="myRepository.description"
                         label="Description"
+                        outlined
                     ></v-textarea>
                 </v-col>
             </v-row>
@@ -111,7 +114,6 @@
                     <template v-slot:default>
                     <thead>
                         <tr>
-                        <th class="text-left">ORCID</th>
                         <th class="text-left">{{$t('name.label')}}</th>
                         <th class="text-left">{{$t('role.label')}}</th>
                         <th class="text-left">Actions</th>
@@ -119,15 +121,14 @@
                     </thead>
                     <tbody>
                         <tr v-for="(userItem, index) in myRepository.users" :key="index">
-                        <td>{{ userItem.orcid }}</td>
                         <td>{{ userItem.name }}</td>
                         <td>{{ $t(userItem.role) }}</td>
                         <td>
                             <v-btn v-if="displayActionsOnUser(index)" icon class="mx-0" @click="displayEditUser(index);">     
-                                <v-icon size='20px'>fa-edit</v-icon>    
+                                <v-icon>mdi-pencil-outline</v-icon>    
                             </v-btn>
                             <v-btn v-if="displayActionsOnUser(index)" icon class="mx-0" @click="userIndex = index;dialogRemove=true;">     
-                                <v-icon size='20px'>fa-trash-alt</v-icon>    
+                                <v-icon>mdi-delete-forever-outline</v-icon>    
                             </v-btn>
                         </td>
                         </tr>
@@ -139,31 +140,15 @@
                 </v-btn>
                 </v-col>
             </v-row>
-            <v-row>
-                <v-col cols="12">
-                    <v-checkbox
-                        v-model="myRepository.isTest"
-                        :label="$t('message.test.repo')"
-                        color="orange"
-                    ></v-checkbox>
-                </v-col>
-            </v-row>
             </v-container>
-            <div class="text-right">
-                     <v-btn text
-                        color="primary"
-                        @click="goToRepositories"
-                        >
+            <v-layout justify-end>
+                     <v-btn @click="goToRepositories" class="mr-5">
                         {{ $t("button.cancel") }}
                     </v-btn>
-                     <v-btn
-                        color="primary"
-                        @click="save"
-                        :disabled="!valid"
-                        >
+                     <v-btn color="info" @click="save" :disabled="!valid">
                         {{ $t('button.save') }}
                     </v-btn>
-            </div>
+            </v-layout>
         </v-form>
         <v-form v-model="validPopup">
             <v-dialog
@@ -175,13 +160,13 @@
                     {{ dialogTitle }}
                     </v-card-title>
                     <v-form v-model="validOrcid">
-                    <v-card-actions>
-                        <v-text-field class="pl-4" v-model="user.orcid" prepend-inner-icon="mdi-identifier" :counter="19" :rules="rules.orcIdRules" label="ORCID" required></v-text-field>
+                    <v-card-actions v-if="userIndex == -1">
+                        <v-text-field class="pl-4" v-model="orcid" prepend-inner-icon="mdi-identifier" :counter="19" :rules="rules.orcIdRules" label="ORCID" required></v-text-field>
                         <v-btn class="ml-3" color="primary" @click="searchOnOrcid" :disabled="!validOrcid" :loading="loadingOrcid">{{ $t('button.search') }}</v-btn>
                     </v-card-actions>
                     </v-form>
                     <v-card-text>
-                    <v-text-field :rules="rules.userNameRules" v-model="user.name" prepend-inner-icon="mdi-account" label="Name" readonly filled></v-text-field>
+                    <v-text-field class="pt-2" :rules="rules.userNameRules" v-model="user.name" prepend-inner-icon="mdi-account" label="Name" readonly filled></v-text-field>
                     <v-select :rules="rules.roleRules"
                     v-model="user.role"
                     :items="roles"
@@ -199,17 +184,10 @@
                     <v-divider></v-divider>
                     <v-card-actions>
                     <div class="flex-grow-1"></div>
-                    <v-btn
-                        color="primary"
-                        text
-                        @click="cancelAddUser"
-                    >
+                    <v-btn @click="cancelAddUser">
                         {{ $t("button.cancel") }}
                     </v-btn>
-                    <v-btn
-                        color="primary" :disabled="!validPopup"
-                        @click="addUser"
-                    >
+                    <v-btn color="info" :disabled="!validPopup" @click="addUser">
                         {{ $t("button.confirm") }}
                     </v-btn>
                     </v-card-actions>
@@ -224,23 +202,16 @@
                 >
             <v-card>
                 <v-card-title class="headline grey lighten-2" primary-title>
-                {{ $t('button.confirmation') }}
+                {{ $t('delete.user.confirmation.title') }}
                 </v-card-title>
-                <v-card-text>Do you really want to remove this user ?</v-card-text>
+                <v-card-text>{{ $t('delete.user.confirmation.label') }}</v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
                 <div class="flex-grow-1"></div>
-                <v-btn
-                    color="primary"
-                    text
-                    @click="dialogRemove = false"
-                >
+                <v-btn @click="dialogRemove = false">
                     {{ $t('button.cancel') }}
                 </v-btn>
-                <v-btn
-                    color="primary"
-                    @click="dialogRemove = false;removeUser()"
-                >
+                <v-btn color="info" @click="dialogRemove = false;removeUser()">
                     {{ $t('button.confirm') }}
                 </v-btn>
                 </v-card-actions>
@@ -252,7 +223,7 @@
 
 
 <script>
-
+import {displayError} from '../utils.js'
 export default {
     props: {
 
@@ -267,14 +238,14 @@ export default {
             validOrcid: false,
             searchKeywords: null,
             userIndex: -1,
+            orcid: null,
             user: {
                 role: null,
                 name: null,
-                orcid: null,
                 id: null
             },
             loadingOrcid: false,
-            myRepository: {id:null, name: null, keywords:[], contact: null, users: [], isTest: false},
+            myRepository: {id:null, name: null, keywords:[], contact: null, users: []},
             repositoryId: this.$route.query.repositoryId,
             rules: {
                 userNameRules: [v => !!v || this.$t('userName.required.error')],
@@ -355,12 +326,12 @@ export default {
             this.axios.get(this.service+'/repository/v1_0/getRepository/'+this.repositoryId )
                 .then(response => {       
                     self.myRepository = response.data
-                }).catch(function(error) {self.displayError("An error has occured:" + error)})
+                }).catch(function(error) {displayError(self, error)})
         } else {
             //this.myRepository = this.emptyRepo
             // if the logged user is super admin no need to add him. He has all the rights.
     	    if(!this.userIsSuperAdmin) {
-                let localUser = {id: this.userProfile.id , orcid: this.userProfile.orcid, name: this.userProfile.name , role: 'EDITOR'}
+                let localUser = {id: this.userProfile.id , name: this.userProfile.name , role: 'EDITOR'}
                 this.myRepository.users.push(localUser)
             }
             this.myRepository.contact = this.userProfile.email
@@ -402,40 +373,28 @@ export default {
             var self = this;
             this.axios({
                 method: 'post',
-                url: this.service+'/repository/v1_0/save',
+                url: this.service+'/repository/v1_0/save?language='+this.language,
                 data: this.myRepository
             }).then ( function () {self.goToRepositories()})
-            .catch(function(error) {self.displayError("An error has occured:" + error)})
+            .catch(function(error) {
+                displayError(self, error)
+                })
         },
 
         searchOnOrcid() {
             var self = this;
             this.loadingOrcid = true
-            this.axios.get(this.service+'/orcid/v1_0/getPersonNameByOrcid/'+this.user.orcid)
+            this.axios.get(this.service+'/orcid/v1_0/getUserByOrcId/'+this.orcid)
             .then(function (response) {
-                console.log('Response '+JSON.stringify(response.data))
-                self.user.name = response.data
-            }).catch(function(error) {self.displayError("An error has occured:" + error)})
+                self.user.name = response.data.name
+                self.user.id = response.data.id
+            }).catch(function(error) {displayError(self, error)})
             .finally(() => this.loadingOrcid = false)
         },
 
         cancelAddUser() {
             this.dialogAddEdit = false
-            this.user={name: null, orcid:null, role: null}
-        },
-
-        displayError: function(message) {
-            this.notifierMessage = message;
-            this.notifierColor = "error";
-            this.timeout = 8000;
-            this.notifier = true;
-        },
-
-        displaySuccess: function(message) {
-            this.notifierMessage = message;
-            this.notifierColor = "success";
-            this.timeout = 4000;
-            this.notifier = true;
+            this.user={name: null, id:null, role: null}
         },
 
         displayActionsOnUser: function(index) {

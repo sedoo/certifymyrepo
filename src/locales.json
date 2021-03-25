@@ -1,5 +1,6 @@
 {
     "en": {
+        "error.notification": "An error has occured: ",
         "button.confirm": "Confirm",
         "button.cancel": "Cancel",
         "button.save": "Save",
@@ -15,6 +16,7 @@
         "RELEASED": "Validated"
       },
     "fr": {
+        "error.notification": "Une erreur est survenue: ",
         "button.confirm": "Confirmer",
         "button.cancel": "Annuler",
         "button.save": "Enregister",

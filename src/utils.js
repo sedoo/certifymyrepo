@@ -10,3 +10,17 @@ function logOut (store) {
     })
 }
 export {logOut}
+
+function displayError (self, error) { 
+    let message = null
+    if(error && error.response && error.response.data) {
+        message = self.$t('error.notification') + error.response.data.message
+    } else {
+         message = error
+    }
+    self.notifierMessage =  message
+    self.notifierColor = "error";
+    self.timeout = 8000;
+    self.notifier = true;
+}
+export {displayError}
