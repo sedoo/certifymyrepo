@@ -17,7 +17,11 @@
     "role.required.error": "Role is required",
     "userName.required.error": "Name is required. Enter a valid orcid",
     "delete.user.confirmation.title": "Delete confirmation",
-    "delete.user.confirmation.label": "Do you really want to remove this user?"
+    "delete.user.confirmation.label": "Do you really want to remove this user?",
+    "tab.name": "Name",
+    "tab.email": "Email",
+    "create.user.title": "Create an user",
+    "create.user.successful": "The user has been successfully created."
   },
   "fr": {
     "title" : "Mon entrepôt",
@@ -35,7 +39,11 @@
     "role.required.error": "Role is required",
     "userName.required.error": "Le nom est oblogatoire. Entrer un ORCID valid",
     "delete.user.confirmation.title": "Confirmation de suppression",
-    "delete.user.confirmation.label": "Voulez-vous vraiment supprimer cet utilisateur?"
+    "delete.user.confirmation.label": "Voulez-vous vraiment supprimer cet utilisateur?",
+    "tab.name": "Nom",
+    "tab.email": "Courriel",
+    "create.user.title": "Créer un utilisateur",
+    "create.user.successful": "L'utilisateur a été créé."
   }
 }
 </i18n>
@@ -127,7 +135,7 @@
                             <v-btn v-if="displayActionsOnUser(index)" icon class="mx-0" @click="displayEditUser(index);">     
                                 <v-icon>mdi-pencil-outline</v-icon>    
                             </v-btn>
-                            <v-btn v-if="displayActionsOnUser(index)" icon class="mx-0" @click="userIndex = index;dialogRemove=true;">     
+                            <v-btn v-if="displayActionsOnUser(index)" icon class="mx-0" @click="userIndex = index;dialogRemoveUser=true;">     
                                 <v-icon>mdi-delete-forever-outline</v-icon>    
                             </v-btn>
                         </td>
@@ -135,7 +143,7 @@
                     </tbody>
                     </template>
                 </v-simple-table>
-                <v-btn class="ml-3 " x-small :title="$t('add.popup.title')" @click="dialogAddEdit=true;userIndex = -1"  fab color="accent"> 
+                <v-btn class="ml-3 " x-small title="Add an existing user by keyword" @click="openAddUserDialog()"  fab color="info"> 
                     <v-icon >mdi-plus</v-icon> 
                 </v-btn>
                 </v-col>
@@ -150,9 +158,9 @@
                     </v-btn>
             </v-layout>
         </v-form>
-        <v-form v-model="validPopup">
+        <v-form v-model="validPopupAddUserByOrcid">
             <v-dialog
-                v-model="dialogAddEdit"
+                v-model="dialogEditRole"
                 width="500"
                 >
                 <v-card>
@@ -187,19 +195,106 @@
                     <v-btn @click="cancelAddUser">
                         {{ $t("button.cancel") }}
                     </v-btn>
-                    <v-btn color="info" :disabled="!validPopup" @click="addUser">
+                    <v-btn color="info" :disabled="!validPopupAddUserByOrcid" @click="addUser">
                         {{ $t("button.confirm") }}
                     </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
+        </v-form>
 
+        <v-form v-model="validPopupCreateUser">
+            <v-dialog
+                v-model="dialogCreateUser"
+                width="500"
+                >
+                <v-card>
+                    <v-card-title class="headline grey lighten-2" primary-title>
+                    {{ $t('create.user.title') }}
+                    </v-card-title>
+                    <v-form v-model="validOrcid">
+                    <v-card-actions v-if="userIndex == -1">
+                        <v-text-field class="pl-4" v-model="orcid" prepend-inner-icon="mdi-identifier" :counter="19" :rules="rules.orcIdRules" label="ORCID" required></v-text-field>
+                        <v-btn class="ml-3" color="primary" @click="searchOnOrcid" :disabled="!validOrcid" :loading="loadingOrcid">{{ $t('button.search') }}</v-btn>
+                    </v-card-actions>
+                    </v-form>
+                    <v-card-text>
+                    <v-text-field class="pt-2" :rules="rules.userNameRules" v-model="user.name" prepend-inner-icon="mdi-account" label="Name" readonly filled></v-text-field>
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions>
+                    <div class="flex-grow-1"></div>
+                    <v-btn @click="cancelCreateUser">
+                        {{ $t("button.cancel") }}
+                    </v-btn>
+                    <v-btn color="info" :disabled="!validPopupCreateUser" @click="saveUser">
+                        {{ $t("button.confirm") }}
+                    </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </v-form>
+
+        <v-form v-model="validPopupAddUser">
+            <v-dialog
+                v-model="dialogAddEdit"
+                width="500"
+                >
+                <v-card>
+                    <v-card-title class="headline grey lighten-2" primary-title>
+                    {{ dialogTitle }}
+                    </v-card-title>
+                    <v-card-actions>
+                        <v-text-field class="pl-4" v-model="keyword" prepend-inner-icon="mdi-label-outline" label="Keyword"></v-text-field>
+                        <v-btn class="mx-3" color="primary" :disabled="keyword == null || keyword.length == 0" @click="searchUser" :loading="searchingUser">{{ $t('button.search') }}</v-btn>
+                        OR
+                        <v-btn class="mx-3" color="primary" @click="openCreateUserDialog" :loading="searchingUser">{{ $t('button.create') }}</v-btn>
+                    </v-card-actions>
+                    <v-card-text>
+                    <div v-if="foundUsers.length > 0">Select an user in the list</div>
+                    <v-data-table @click:row="rowClick" item-key="name" single-select
+                        :headers="headers"
+                        :items="foundUsers"
+                        :items-per-page="5"
+                        class="elevation-1"
+                    >
+                    </v-data-table>
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-text>
+
+                    <v-text-field class="pt-2" :rules="rules.userNameRules" v-model="user.name" prepend-inner-icon="mdi-account" label="Name" readonly filled></v-text-field>
+                    <v-select :rules="rules.roleRules"
+                    v-model="user.role"
+                    :items="roles"
+                    label="Select a role">
+                        <template slot="selection" slot-scope="data">
+                            <!-- HTML that describe how select should render selected items -->
+                            {{ $t(data.item) }} 
+                        </template>
+                        <template slot="item" slot-scope="data">
+                            <!-- HTML that describe how select should render items when the select is open -->
+                            {{ $t(data.item) }}
+                        </template>
+                    </v-select>
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions>
+                    <div class="flex-grow-1"></div>
+                    <v-btn @click="cancelAddUser">
+                        {{ $t("button.cancel") }}
+                    </v-btn>
+                    <v-btn color="info" :disabled="!validPopupAddUser" @click="addUser">
+                        {{ $t("button.confirm") }}
+                    </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
             </v-form>
 
             <v-dialog
-                v-model="dialogRemove"
-                width="500"
-                >
+                v-model="dialogRemoveUser"
+                width="500">
             <v-card>
                 <v-card-title class="headline grey lighten-2" primary-title>
                 {{ $t('delete.user.confirmation.title') }}
@@ -208,10 +303,10 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                 <div class="flex-grow-1"></div>
-                <v-btn @click="dialogRemove = false">
+                <v-btn @click="dialogRemoveUser = false">
                     {{ $t('button.cancel') }}
                 </v-btn>
-                <v-btn color="info" @click="dialogRemove = false;removeUser()">
+                <v-btn color="info" @click="dialogRemoveUser = false;removeUser()">
                     {{ $t('button.confirm') }}
                 </v-btn>
                 </v-card-actions>
@@ -224,21 +319,39 @@
 
 <script>
 import {displayError} from '../utils.js'
+import {displaySuccess} from '../utils.js'
 export default {
     props: {
 
   	},
     data() {
         return {
-            dialogRemove: false,
+            /** 
+             * There are 4 dialogs:
+             * - Add an known user
+             * - Create an new user by orcid (check) or email/renater (no check) 
+             * - Remove an user from a repository
+             * - Edit user role
+             */
+            dialogRemoveUser: false,
+            dialogAddEditOrcid: false,
             dialogAddEdit: false,
+            dialogCreateUser: false,
             roles: ["EDITOR", "CONTRIBUTOR", "READER"],
             valid: false,
-            validPopup: false,
+            validPopupCreateUser: false,
+            validPopupAddUser: false,
             validOrcid: false,
             searchKeywords: null,
+            searchingUser: false,
+            headers: [
+                { text: this.$t('tab.name'), value: 'name' },
+                { text: this.$t('tab.email'), value: 'email' }
+                ] ,
             userIndex: -1,
             orcid: null,
+            keyword: null,
+            foundUsers: [],
             user: {
                 role: null,
                 name: null,
@@ -328,12 +441,8 @@ export default {
                     self.myRepository = response.data
                 }).catch(function(error) {displayError(self, error)})
         } else {
-            //this.myRepository = this.emptyRepo
-            // if the logged user is super admin no need to add him. He has all the rights.
-    	    if(!this.userIsSuperAdmin) {
-                let localUser = {id: this.userProfile.id , name: this.userProfile.name , role: 'EDITOR'}
-                this.myRepository.users.push(localUser)
-            }
+            let localUser = {id: this.userProfile.id , name: this.userProfile.name , role: 'EDITOR'}
+            this.myRepository.users.push(localUser)
             this.myRepository.contact = this.userProfile.email
         }
 
@@ -357,6 +466,7 @@ export default {
                 this.myRepository.users.push(user)
             }
             this.user = {}
+            this.keyword = null
         },
         removeUser() {
             this.myRepository.users.splice(this.userIndex, 1)
@@ -364,7 +474,7 @@ export default {
         displayEditUser(index) {
             this.userIndex = index
             this.user = JSON.parse(JSON.stringify(this.myRepository.users[index]))
-            this.dialogAddEdit = true
+            this.dialogAddEditOrcid = true
         },
         goToRepositories() {
             this.$router.push({ path: '/repositories'});
@@ -381,6 +491,21 @@ export default {
                 })
         },
 
+        saveUser() {
+            self = this
+            this.axios.post(this.service + "/profile/v1_0/saveProfile", this.user).then(function(response) {
+                self.creatingUser = false
+                self.dialogCreateUser = false
+
+            })
+            .catch(function(error) {
+                displayError(self, error)
+            }).finally(() => {
+                this.user={name: null, id:null, role: null}
+                displaySucess(self, self.$t('create.user.successful'))
+            })
+        },
+
         searchOnOrcid() {
             var self = this;
             this.loadingOrcid = true
@@ -392,8 +517,51 @@ export default {
             .finally(() => this.loadingOrcid = false)
         },
 
+        searchUser() {
+            this.user={name: null, id:null, role: null}
+            var self = this;
+            this.searchingUser = true
+            this.axios.get(this.service+'/profile/v1_0/search?keyword='+this.keyword)
+            .then(function (response) {
+                self.foundUsers = response.data
+            }).catch(function(error) {
+                displayError(self, error)
+                })
+            .finally(() => this.searchingUser = false)
+        },
+
+        rowClick: function (item, row) {
+            row.select(true);
+            this.user.id = item.id
+            this.user.name = item.name
+        },
+
+        openAddUserDialog() {
+            this.dialogAddEdit=true
+            this.orcid = null
+            this.userIndex = -1
+            this.foundUsers = []
+            this.keyword = null
+            this.user={name: null, id:null, role: null}
+        },
+
+        openCreateUserDialog() {
+            this.dialogCreateUser=true
+            this.orcid = null
+            this.user={name: null, id:null, role: null}
+        },
+
         cancelAddUser() {
+            this.dialogAddEditOrcid = false
             this.dialogAddEdit = false
+            this.user={name: null, id:null, role: null}
+            this.foundUsers = []
+            this.keyword = null
+        },
+
+        cancelCreateUser() {
+            this.dialogCreateUser = false
+            this.orcid = null
             this.user={name: null, id:null, role: null}
         },
 
@@ -407,6 +575,11 @@ export default {
 } 
 </script>
 
+<style>
+tr.v-data-table__selected {
+  background: #7d92f5 !important;
+}
+</style>
 <style scoped>
 
 .add-user{

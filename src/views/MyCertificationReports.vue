@@ -366,7 +366,8 @@ export default {
                     this.axios
                         .get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
                         .then(response => {
-                            self.readOnly = response.data.readOnly
+                            self.editExistingAllowed = response.data.editExistingAllowed
+	                        self.creationValidationAllowed = response.data.creationValidationAllowed
                             self.reports = response.data.reports
                         })
                 ).catch(function(error) {displayError(self, error)})

@@ -86,7 +86,7 @@
     </div>
     <v-layout justify-end>
       <div class="pa-5">
-      <v-btn
+      <v-btn v-if="false"
         color="error"
         @click="openDeleteDialog()"
       >{{ $t('button.delete.user') }}

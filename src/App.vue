@@ -93,7 +93,7 @@ export default {
     linkRepositories: {label:"page.repositories", route: '/repositories', icon: 'mdi-archive'},
     linkUserInformation: {label:"page.information", route: "/information", icon: 'mdi-account-details-outline'},
     linkDashoard: {label:"page.dashboard", route: '/dashboard', icon: 'mdi-view-dashboard'},
-    linkAdministration: {label:"page.administration", route: '/administration', icon: 'mdi-cogs'},
+    linkAdministration: {label:"page.administration", route: '/administration', icon: 'mdi-cogs' },
     // error and success notification vars
     timeout: 2000,
     notifier: false,

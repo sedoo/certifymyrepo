@@ -24,3 +24,11 @@ function displayError (self, error) {
     self.notifier = true;
 }
 export {displayError}
+
+function displaySuccess (self, message) { 
+    self.notifierMessage = message;
+    self.notifierColor = "success";
+    self.timeout = 4000;
+    self.notifier = true;
+}
+export {displaySuccess}
