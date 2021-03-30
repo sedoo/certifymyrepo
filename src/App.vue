@@ -93,7 +93,7 @@ export default {
     linkRepositories: {label:"page.repositories", route: '/repositories', icon: 'mdi-archive'},
     linkUserInformation: {label:"page.information", route: "/information", icon: 'mdi-account-details-outline'},
     linkDashoard: {label:"page.dashboard", route: '/dashboard', icon: 'mdi-view-dashboard'},
-    linkAdministration: {label:"page.administration", route: '/administration', icon: 'mdi-cog-outline'},
+    linkAdministration: {label:"page.administration", route: '/administration', icon: 'mdi-cogs'},
     // error and success notification vars
     timeout: 2000,
     notifier: false,
@@ -253,7 +253,7 @@ export default {
           }
             
           }
-          if (this.logged) {
+          if (this.isLogged) {
             content += '<i route="logout" id="'+prefix+'-logout" style="color:#fb8c00" class="toolbar-button mdi mdi-application-export" title="'+this.$t('logout', {msg: this.userName})+'"></i>'
           } else {
             content += '<i route="login" id="'+prefix+'-login" style="color:#fb8c00" class="toolbar-button mdi mdi-application-import" title="'+this.$t('login')+'"></i>'
