@@ -281,7 +281,6 @@ export default {
     },
 
     loadProfile: function() {
-      debugger
       var self = this;
       this.loading = true;
       this.axios
