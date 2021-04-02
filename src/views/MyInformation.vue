@@ -95,10 +95,7 @@
     </v-layout>
     </v-flex>
 
-        <v-dialog
-                v-model="dialogDelete"
-                width="500"
-                >
+        <v-dialog v-model="dialogDelete" :width="$store.getters.getDialogWidth">
             <v-card>
                 <v-card-title
                 class="headline grey lighten-2"

@@ -22,6 +22,7 @@
     "delete.user.confirmation.label": "Do you really want to remove this user?",
     "tab.name": "Name",
     "tab.email": "Email",
+    "select.one.user.message": "Select an user in the list",
     "create.user.title": "Create an user",
     "create.user.successful": "The user has been successfully created.",
     "create.user.error.duplicate.orcid": "This ORCID is already in database for the user {msg}.",
@@ -51,6 +52,7 @@
     "delete.user.confirmation.label": "Voulez-vous vraiment supprimer cet utilisateur?",
     "tab.name": "Nom",
     "tab.email": "Courriel",
+    "select.one.user.message": "Selectionner un utilisateur dans le liste",
     "create.user.title": "Créer un utilisateur",
     "create.user.successful": "L'utilisateur a été créé.",
     "create.user.error.duplicate.orcid": "Cet ORCID est déjà dans la base de données pour l'utilisateur {msg}.",
@@ -172,10 +174,7 @@
                     </v-btn>
             </v-layout>
         </v-form>
-        <v-dialog
-            v-model="dialogEditUserRole"
-            width="500"
-            >
+        <v-dialog v-model="dialogEditUserRole" :width="$store.getters.getDialogWidth">
             <v-card>
                 <v-card-title class="headline grey lighten-2" primary-title>
                 {{ dialogTitle }}
@@ -210,10 +209,7 @@
         </v-dialog>
 
         <v-form v-model="validPopupCreateUser">
-            <v-dialog
-                v-model="dialogCreateUser"
-                width="500"
-                >
+            <v-dialog v-model="dialogCreateUser" :width="$store.getters.getDialogWidth">
                 <v-card>
                     <v-card-title class="headline grey lighten-2" primary-title>
                     {{ $t('create.user.title') }}
@@ -253,17 +249,15 @@
         </v-form>
 
         <v-form v-model="validPopupAddUser">
-            <v-dialog
-                v-model="dialogAddUser"
-                width="500"
-                >
+            <v-dialog v-model="dialogAddUser" :width="$store.getters.getDialogWidth">
                 <v-card>
                     <v-card-title class="headline grey lighten-2" primary-title>
                     {{ dialogTitle }}
                     </v-card-title>
-                    <v-card-actions>
-                        <v-progress-linear indeterminate v-if="loadingUsers" class="mt-3"></v-progress-linear>
-                        <div v-else>Select an user in the list
+                    <v-progress-linear indeterminate v-if="loadingUsers" class="mt-3"></v-progress-linear>
+                    <template v-else>
+                    <v-card-actions  >
+                        {{ $t('select.one.user.message') }}
                         <v-text-field
                             v-model="search"
                             append-icon="mdi-magnify"
@@ -272,6 +266,8 @@
                             hide-details
                             @input="clearSelectedUser"
                         ></v-text-field>
+                    <v-card-actions  >
+                    </v-card-actions  >
                         <v-data-table @click:row="rowClick" item-key="name" single-select
                             :headers="headers"
                             :items="foundUsers"
@@ -280,8 +276,8 @@
                             :search="search"
                         >
                         </v-data-table>
-                        </div>
                     </v-card-actions>
+                    </template>
                     <v-card-actions>
                         <div class="flex-grow-1"></div>
                         <v-btn class="mx-3" color="info" @click="openCreateUserDialog">{{ $t('button.create.user') }}</v-btn>
@@ -320,9 +316,7 @@
             </v-dialog>
             </v-form>
 
-            <v-dialog
-                v-model="dialogRemoveUser"
-                width="500">
+            <v-dialog v-model="dialogRemoveUser" :width="$store.getters.getDialogWidth">
             <v-card>
                 <v-card-title class="headline grey lighten-2" primary-title>
                 {{ $t('delete.user.confirmation.title') }}

@@ -73,7 +73,7 @@ export default {
     },
     language: {
       type: String,
-      default: "en"
+      default: "fr"
     },
     type: {
       Type: String,

@@ -7,7 +7,7 @@
     "no.data.message": "No data found",
     "name.label": "Name",
     "keywords.label": "Keywords",
-    "button.join": "Join",
+    "button.join": "Request access",
     "message.access.granded": "Access granted",
     "request.popup.title": "Request {msg} access"
   },
@@ -17,7 +17,7 @@
     "no.data.message": "Aucunes données trouvées",
     "name.label": "Nom",
     "keywords.label": "Mots cléfs",
-    "button.join": "Rejoindre",
+    "button.join": "Demandez l'accès",
     "message.access.granded": "Accès autorisé",
     "request.popup.title": "Demande d'accès à {msg}"
 
@@ -70,10 +70,7 @@
             <v-card-text v-if="notDataFound">{{ $t('no.data.message')}}</v-card-text>
         </v-card>
         <v-form v-model="valid">
-        <v-dialog
-        v-model="dialog"
-        width="500"
-        >
+        <v-dialog v-model="dialog" :width="$store.getters.getDialogWidth">
         <v-card>
             <v-card-title
             class="headline grey lighten-2"
@@ -214,9 +211,10 @@ export default {
             this.errored = false
             this.axios({
                 method: 'post',
-                url: this.service+'/repository/v1_0/requestAccess',
+                url: this.service+'/repository/v1_0/requestAccess?language='+this.$store.getters.getLanguage,
                 data: {
-	                repositoryId: this.requestedRepository.id,
+                    repositoryId: this.requestedRepository.id,
+                    name: this.userProfile.name,
 	                orcid: this.userProfile.orcid,
 	                text: this.text,
 	                email: this.email,

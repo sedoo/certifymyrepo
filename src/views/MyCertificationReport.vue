@@ -211,10 +211,7 @@
     </div>
 
 
-    <v-dialog
-        v-model="dialog"
-        width="500"
-        >
+    <v-dialog v-model="dialog" :width="$store.getters.getDialogWidth">
 
     <v-card>
         <v-card-title
@@ -242,10 +239,7 @@
     </v-card>
     </v-dialog>
 
-      <v-dialog
-        v-model="dialogUploadFiles"
-        width="500"
-        >
+      <v-dialog v-model="dialogUploadFiles" :width="$store.getters.getDialogWidth">
 
     <v-card>
         <v-card-title
@@ -286,9 +280,7 @@
     </v-card>
     </v-dialog>
 
-    <v-dialog
-        v-model="dialogDeleteFile"
-        width="500">
+    <v-dialog v-model="dialogDeleteFile" :width="$store.getters.getDialogWidth">
       <v-card>
           <v-card-title
           class="headline grey lighten-2"

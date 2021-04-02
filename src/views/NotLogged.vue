@@ -45,6 +45,9 @@ export default {
     login: function() {
       this.$emit("login");
     }
-  }
+  },
+  created: function() {
+    this.$i18n.locale = this.$store.getters.getLanguage;
+  },
 };
 </script>

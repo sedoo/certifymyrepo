@@ -133,10 +133,7 @@
             <apexchart @animationEnd="handlePDF(report)" :ref="'radarchart'+report.id" type=radar height=350 :options="chartOptions(report)" :series="levelList(report)" />
         </div>
 
-        <v-dialog
-                v-model="dialogDelete"
-                width="500"
-                >
+        <v-dialog v-model="dialogDelete" :width="$store.getters.getDialogWidth">
             <v-card>
                 <v-card-title
                 class="headline grey lighten-2"
@@ -165,10 +162,7 @@
             </v-card>
             </v-dialog>
 
-        <v-dialog
-                v-model="dialogCreate"
-                width="500"
-                >
+        <v-dialog v-model="dialogCreate" :width="$store.getters.getDialogWidth">
             <v-card>
                 <v-card-title
                 class="headline grey lighten-2"

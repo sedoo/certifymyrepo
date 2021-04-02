@@ -129,7 +129,7 @@
     </v-data-iterator>
   </v-card>
 
-  <v-dialog v-model="dialog" width="500">
+  <v-dialog v-model="dialog" :width="$store.getters.getDialogWidth">
     <v-card>
       <v-card-title class="headline grey lighten-2" primary-title>
       Confirmation

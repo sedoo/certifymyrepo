@@ -12,6 +12,7 @@ export const store = new Vuex.Store(
           repository: null,
           language: null,
           service: null,
+          dialogWidth: '900px'
         },
       
         mutations: {
@@ -49,6 +50,9 @@ export const store = new Vuex.Store(
           },
           getService(state) {
             return state.service;
+          },
+          getDialogWidth(state) {
+            return state.dialogWidth;
           }
         },
 
