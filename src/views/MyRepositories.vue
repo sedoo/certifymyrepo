@@ -277,9 +277,9 @@ export default {
       routeToMyReports(repository) {
         if(this.userEmail==null) {
           displayError(this, this.$t('required.email.error'))
-        } else {
-          this.$store.commit('setRepository', repository)
-          this.$router.push({path: '/certificationReports/' + repository.id })
+        //FIXME} else {
+        //  this.$store.commit('setRepository', repository)
+        //  this.$router.push({path: '/certificationReports/' + repository.id })
         }
       },
     },
