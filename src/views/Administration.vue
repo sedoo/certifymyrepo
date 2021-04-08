@@ -18,7 +18,7 @@
     "tab.admin": "Administrator",
     "tab.actions": "Actions",
     "edit.help.message": "Donner les droits administrateur",
-    "delete.help.message": "Retier les droits administrateur",
+    "delete.help.message": "Retirer les droits administrateur",
     "search": "Recherche"
   }
 }
