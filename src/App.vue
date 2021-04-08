@@ -143,42 +143,43 @@ export default {
   },
 
   created: function() {
-   this.$i18n.locale = this.language;
-   this.$store.commit('setLanguage', this.language)
-   this.$store.commit('setService', this.service)
-   this.links = []
-   if (!this.isLogged) {
-     var code = this.getCodeParameter();
-     if (code) {
-        var self = this;
-        this.axios({
-            method: 'post',
-            url: this.service+"/login/v1_0/orcid?code=" + code + "&redirect_uri=" + this.redirectUri
-        }).then( function (response) {
-            self.links.push(self.linkRepositories)
-            self.links.push(self.linkUserInformation)
-            self.$store.commit('setUser', response.data)
-            self.$store.commit('setLogged', true)
-            if(self.userIsAdmin || self.userIsSuperAdmin) {
-              self.links.push(self.linkDashoard)
-              self.links.push(self.linkAdministration)
-            }
-            if(response.data.profile.email != null) {
-              self.$router.push({path: '/repositories'})
-            } else {
-              self.$router.push({path: '/profile'})
-            }
-
-          }).catch(function(error) {self.displayError("An error has occured:" + error)})
-      }
-   } else {
-      this.links.push(this.linkRepositories)
-      this.links.push(this.linkUserInformation)
-      if(this.userIsAdmin || this.userIsSuperAdmin) {
-        this.links.push(this.linkDashoard)
-        this.links.push(this.linkAdministration)
-      }
-   }
+    this.$i18n.locale = this.language;
+    this.$store.commit('setLanguage', this.language)
+    this.$store.commit('setService', this.service)
+    this.links = []
+    if (this.isLogged) {
+        this.links.push(this.linkRepositories)
+        this.links.push(this.linkUserInformation)
+        if(this.userIsAdmin || this.userIsSuperAdmin) {
+          this.links.push(this.linkDashoard)
+          this.links.push(this.linkAdministration)
+        }
+    }
+    var code = this.getCodeParameter();
+    if (code) {
+    var self = this;
+    this.axios({
+        method: 'post',
+        url: this.service+"/login/v1_0/orcid?code=" + code + "&redirect_uri=" + this.redirectUri
+    }).then( function (response) {
+        self.links.push(self.linkRepositories)
+        self.links.push(self.linkUserInformation)
+        self.$store.commit('setUser', response.data)
+        self.$store.commit('setLogged', true)
+        if(self.userIsAdmin || self.userIsSuperAdmin) {
+          self.links.push(self.linkDashoard)
+          self.links.push(self.linkAdministration)
+        }
+        if(response.data.profile.email != null) {
+          self.$router.push({path: '/repositories'})
+        } else {
+          self.$router.push({path: '/profile'})
+        }
+      }).catch(function(error) {self.displayError("An error has occured:" + error)})
+      this.$router.push("/logging").catch(() => {});
+  } else {
+    this.logoutFromORCID()
+  }
  },
 
   mounted: function() {
@@ -226,8 +227,6 @@ export default {
       logoutFromORCID: function() {
         logOut(this.$store)
         this.links = []
-        this.links.push(this.linkRepositories)
-        this.links.push(this.linkUserInformation)
         this.$router.push("/").catch(() => {});
       },
 
