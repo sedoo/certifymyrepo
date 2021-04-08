@@ -95,7 +95,9 @@
                 <v-list-item v-if="item.repository.keywords && item.repository.keywords.length > 0">
                   <v-list-item-content>{{$t('keywords')}}:</v-list-item-content>
                   <v-list-item-content>
-                    <span v-for="(keyword, key) in item.repository.keywords" :key=key >{{ keyword }}</span>
+                  <v-chip-group active-class="primary--text" column>
+                    <v-chip small v-for="(keyword, key) in item.repository.keywords" :key=key >{{ keyword }}</v-chip>
+                  </v-chip-group>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item>
