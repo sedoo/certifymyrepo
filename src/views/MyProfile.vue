@@ -49,24 +49,26 @@
         <v-col cols="12">
           <v-text-field v-model="orcid" prepend-inner-icon="mdi-identifier" label="ORCID" readonly filled></v-text-field>
         </v-col>
-        <v-col cols="12">
+        <v-col v-if="featureFlag" cols="12">
           <v-text-field v-model="profile.title"  :label="$t('title.label')" prepend-inner-icon="mdi-bookmark"></v-text-field>
         </v-col>
         <v-col cols="12">
           <v-text-field v-model="profile.email"  :label="$t('email.label')" prepend-inner-icon="mdi-email"  :rules="emailRules" required></v-text-field>
         </v-col>
 
-        <v-col cols="12" v-for="(phone, index) in profile.phones" :key="index">
-          <v-text-field  v-model="profile.phones[index]" :label="$t('phone.label')" prepend-inner-icon="mdi-phone" v-if="index==0"></v-text-field>
-          <v-text-field  v-model="profile.phones[index]" :label="$t('phone.label')" prepend-inner-icon="mdi-phone" v-else append-icon="mdi-delete" @click:append="deletePhone(index)"></v-text-field>
-        </v-col>
-         <v-btn class="ml-3 " x-small title="Add a phone number" @click="profile.phones.push('')"  fab color="accent"> 
-          <v-icon >mdi-plus</v-icon> 
-        </v-btn>
+        <template v-if="featureFlag" >
+          <v-col cols="12" v-for="(phone, index) in profile.phones" :key="index">
+            <v-text-field  v-model="profile.phones[index]" :label="$t('phone.label')" prepend-inner-icon="mdi-phone" v-if="index==0"></v-text-field>
+            <v-text-field  v-model="profile.phones[index]" :label="$t('phone.label')" prepend-inner-icon="mdi-phone" v-else append-icon="mdi-delete" @click:append="deletePhone(index)"></v-text-field>
+          </v-col>
+          <v-btn class="ml-3 " x-small title="Add a phone number" @click="profile.phones.push('')"  fab color="accent"> 
+            <v-icon >mdi-plus</v-icon> 
+          </v-btn>
 
-        <v-col cols="12">
-          <v-text-field v-model="profile.fax"  label="Fax" prepend-inner-icon="mdi-fax" required></v-text-field>
-        </v-col>
+          <v-col cols="12">
+            <v-text-field v-model="profile.fax"  label="Fax" prepend-inner-icon="mdi-fax" required></v-text-field>
+          </v-col>
+        </template>
       </v-row>
     </v-form>
 
@@ -311,11 +313,7 @@ export default {
   },
 
   data: () => ({
-    affiliations: ["Toto"],
-    affiliation: {
-    },
-    affiliationDialog: false,
-    savingAffiliation : false,
+    featureFlag : false,
     loading: false,
     saving: false,
     timeout: 2000,
