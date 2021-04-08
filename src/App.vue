@@ -10,7 +10,7 @@
   },
   "fr": {
     "login": "Connexion",
-    "logout": "Desconnexion (vous êtes connecté en tant que : '{msg}'",
+    "logout": "Déconnexion (vous êtes connecté en tant que : '{msg}'",
     "page.repositories" : "Entrepôts",
     "page.information" : "Information utilisateur",
     "page.dashboard" : "Tableau de bord",

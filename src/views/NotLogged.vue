@@ -6,7 +6,7 @@
     "login.label.2": "to use the application."
   },
   "fr": {
-    "title" : "Bienvenu sur",
+    "title" : "Bienvenue sur",
     "login.label.1" : "Vous devez vous connecter sur",
     "login.label.2": "pour utiliser l'application"
   }

@@ -17,7 +17,7 @@
     "no.data.message": "Aucunes données trouvées",
     "name.label": "Nom",
     "keywords.label": "Mots cléfs",
-    "button.join": "Demandez l'accès",
+    "button.join": "Demander l'accès",
     "message.access.granded": "Accès autorisé",
     "request.popup.title": "Demande d'accès à {msg}"
 

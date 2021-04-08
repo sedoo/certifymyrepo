@@ -38,7 +38,7 @@
     "keywords": "Mots clefs",
     "name.label": "Nom",
     "role.label": "Rôle",
-    "button.create.user": "Créer un utiisateur",
+    "button.create.user": "Créer un utilisateur",
     "add.popup.title": "Ajouter un utilisateur",
     "editer.popup.title": "Editer",
     "email.error": "Veuillez entrer voute courriel",
@@ -52,7 +52,7 @@
     "delete.user.confirmation.label": "Voulez-vous vraiment supprimer cet utilisateur?",
     "tab.name": "Nom",
     "tab.email": "Courriel",
-    "select.one.user.message": "Selectionner un utilisateur dans le liste",
+    "select.one.user.message": "Selectionner un utilisateur dans la liste",
     "create.user.title": "Créer un utilisateur",
     "create.user.successful": "L'utilisateur a été créé.",
     "create.user.error.duplicate.orcid": "Cet ORCID est déjà dans la base de données pour l'utilisateur {msg}.",
@@ -254,9 +254,9 @@
                     <v-card-title class="headline grey lighten-2" primary-title>
                     {{ dialogTitle }}
                     </v-card-title>
-                    <v-progress-linear indeterminate v-if="loadingUsers" class="mt-3"></v-progress-linear>
-                    <template v-else>
                     <v-card-actions  >
+                    <v-progress-linear indeterminate v-if="loadingUsers" class="mt-3"></v-progress-linear>
+                    <div style="width: 100%;" v-else>
                         {{ $t('select.one.user.message') }}
                         <v-text-field
                             v-model="search"
@@ -266,8 +266,6 @@
                             hide-details
                             @input="clearSelectedUser"
                         ></v-text-field>
-                    <v-card-actions  >
-                    </v-card-actions  >
                         <v-data-table @click:row="rowClick" item-key="name" single-select
                             :headers="headers"
                             :items="foundUsers"
@@ -276,8 +274,9 @@
                             :search="search"
                         >
                         </v-data-table>
+                    
+                    </div>
                     </v-card-actions>
-                    </template>
                     <v-card-actions>
                         <div class="flex-grow-1"></div>
                         <v-btn class="mx-3" color="info" @click="openCreateUserDialog">{{ $t('button.create.user') }}</v-btn>
@@ -450,6 +449,9 @@ export default {
           } else {
               return this.$t('editer.popup.title')
           }
+      },
+      dialogWidth: function() {
+          return JSON.stringify(this.$store.getters.getDialogWidth)
       },
       isLastManager: function() {
         let managerCounter = 0
