@@ -19,7 +19,7 @@
 
 Authentication is not managed by the software itself but is delegated to the Renater and Orcid mechanisms.
 
-## Access rights management
+## Access management
 
 ### User roles
 
@@ -66,6 +66,76 @@ The toolbar of the application gives access to 4 pages and to logout button
 | Administration  		| Liste tous les utilisateurs dans un tableau filtrable par nom ou email. Permet de donner ou d'enlever des droits administrateur et de supprimer un utilisateur      | Visible only to administrators |
 | Logout button  		| Used to disconnect properly from the application.      | |
 
+
+## Packing and deployement
+
+### Front-end
+
+The front-end part will be packaged in the form of a javascript file (.js). This file will be available thought a cdn url.
+
+Project setup
+```
+npm install
+```
+
+Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+Compiles and minifies for production
+```
+npm run build
+```
+
+### Back-end
+
+The back-end part will be packaged in two forms
+• a Java / Spring boot application (.jar)
+• a Docker container
+
+Project setup
+```
+mvn clean install
+```
+
+Compiles and launch application on eclipse for development use those args :
+```
+-Dspring.profiles.active=dev 
+-DFTP_PASSWORD=xx 
+-DCLIENT_ID=xx 
+-DCLIENT_SECRET=xx
+-DMONGODB_PASSWORD=xx
+-DSUPER_ADMIN_ORCID_LIST=xx,xx
+-DADMIN_ORCID_LIST=xx,xx,xx
+```
+
+or add the file **application-local.yml** in src/main/resources with this conent (cannot be commited):
+```
+FTP_PASSWORD: xx
+CLIENT_ID: xx
+CLIENT_SECRET: xx
+MONGODB_PASSWORD: xx
+SUPER_ADMIN_ORCID_LIST: xx,xx
+ADMIN_ORCID_LIST: xx,xx,xx
+```
+
+Deploy for pre-production (linux service)
+```
+scp ./target/sedoo-certifymyrepo-rest-0.0.1-SNAPSHOT.jar wwwadm@twodoo.sedoo.fr:/export1/crusoe-preprod/services/crusoe-rest.jar
+```
+Reboot
+```
+service crusoe-preprod restart
+```
+Logs
+```
+tail -f /export1/crusoe-preprod/logs/crusoe-preprod.log 
+```
+
+Deploy for pre-production (Docker)
+
+TODO
 
 
 
