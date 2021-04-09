@@ -10,7 +10,6 @@
     "email.error": "Please enter your email",
     "email.validation.error": "E-mail must be valid",
     "confirmation": "The profile has been saved",
-    "delete.title": "Delete profile",
     "button.delete.user": "Delete all information about me",
     "delete.confirm.message": "You can delete your profile and all the user information from CRUSÖE database. You will loss access on your reposiories. If you are the only user with 'Editor' role on a repository, it will be deleted as well as related reports. This operation cannot be undone."
   },
@@ -23,7 +22,6 @@
     "email.error": "Veuillez entrer voute courriel",
     "email.validation.error": "Le courriel doit être valide",
     "confirmation": "Le profile a été sauvegardé",
-    "delete.title": "Suppression de profile",
     "button.delete.user": "Supprimer toutes les informations me concernant",
     "delete.confirm.message": "Vous pouvez supprimer votre profile avec toutes les informations qu'il contient de le base de données CRUSÖE. Vous perdrez l'accès à vous entrepôts. Si vous êtes le seul utilisateur ayant un rôle 'Editeur' sur un entrepôts, il sera supprimé, ainsi que les fiches qu'il contient. Veuillez noter que cette opération est irréversible."
   }
@@ -90,34 +88,6 @@
 
     </div>
     </v-flex>
-
-        <v-dialog v-model="dialogDelete" :width="$store.getters.getDialogWidth">
-            <v-card>
-                <v-card-title
-                class="headline grey lighten-2"
-                primary-title
-                >
-                {{ $t('delete.title') }}
-                </v-card-title>
-                <v-card-text>
-                <p>{{ $t('delete.confirm.message') }}</p>
-                <p><span v-html="warningMessage"></span></p>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                <div class="flex-grow-1"></div>
-                    <v-btn @click="dialogDelete = false">
-                        {{ $t('button.cancel') }}
-                    </v-btn>
-                    <v-btn
-                        color="info"
-                        @click="dialogDelete = false; deleteProfile()">
-                        {{ $t('button.confirm') }}
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
   </v-layout>
 
 </template>
@@ -239,46 +209,6 @@ export default {
 
     },
 
-    openDeleteDialog: function() {
-      var self = this;
-      this.loadingSimulation = true;
-      this.axios
-        .get(this.service + "/profile/v1_0/deleteProfileSimulation/"+this.language+"/"+this.userId)
-        .then(function(response) {
-          if(response.data != null && response.data != '') {
-            self.warningMessage = response.data
-          }
-        })
-        .catch(function(error) {
-          displayError(self, error)
-        })
-        .finally(function() {
-          self.loadingSimulation = false
-          self.dialogDelete = true
-        });
-    },
-
-    deleteProfile: function() {
-      var self = this;
-      this.loadingDelete = true;
-      this.axios
-        .delete(this.service + "/profile/v1_0/deleteProfile/"+this.language+"/"+this.userId)
-        .then(function(response) {
-          if(response.data != null && response.data != '') {
-            self.displaySuccess(response.data)
-          logOut(self.$store)
-          self.$router.push("/").catch(() => {});
-          }
-        })
-        .catch(function(error) {
-          displayError(self, error)
-        })
-        .finally(function() {
-          self.loadingDelete = false
-          self.dialogDelete = false
-        });
-    },
-
     loadProfile: function() {
       var self = this;
       this.loading = true;
@@ -330,7 +260,6 @@ export default {
         name: null,
         orcid: null,
     },
-    dialogDelete: false,
     loadingDelete: false,
     loadingSimulation: false,
     warningMessage: null,

@@ -3,7 +3,6 @@
 {
   "en": {
     "page.repositories" : "Repositories",
-    "url.repository.button": "Repository website link",
     "create.button" : "Create a new repository",
     "delete.confirmation": "Do you really want to delete this repository and all the related reports? This operation cannot be undone.",
     "edit.repository.button": "Edit this repository",
@@ -15,7 +14,6 @@
   },
   "fr": {
     "page.repositories" : "Entrepôts",
-    "url.repository.button": "Lien vers le site web de l'entrepôt",
     "create.button" : "Créer un nouvel entrepôt",
     "delete.confirmation": "Voulez vous vraiment supprimer cet entrepôt et toutes les fiches associées? Veuillez noter que cette opération est irréversible.",
     "edit.repository.button": "Editer cet entrepôt",
@@ -279,9 +277,9 @@ export default {
       routeToMyReports(repository) {
         if(this.userEmail==null) {
           displayError(this, this.$t('required.email.error'))
-        //FIXME} else {
-        //  this.$store.commit('setRepository', repository)
-        //  this.$router.push({path: '/certificationReports/' + repository.id })
+        } else {
+          this.$store.commit('setRepository', repository)
+          this.$router.push({path: '/certificationReports/' + repository.id })
         }
       },
     },

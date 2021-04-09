@@ -155,7 +155,14 @@ export default {
           this.links.push(this.linkDashoard)
           this.links.push(this.linkAdministration)
         }
-        //this.$router.push({path: '/repositories'})
+        // To deal with the case: 
+        // 1/ One logged user click on another Wordpress menu and leave The VueJS App
+        // 2/ He comes back on the VueJS App. He is still logged in
+        //  then path is equal to "/", router redirect to "/notlogged" by default
+        //  The app has to redirect to the main page
+        if(this.$route.fullPath == '/notlogged') {
+          this.$router.push({path: '/repositories'})
+        }
     } else {
       var code = this.getCodeParameter();
       if (code) {
@@ -230,7 +237,7 @@ export default {
       logoutFromORCID: function() {
         logOut(this.$store)
         this.links = []
-        this.$router.push("/").catch(() => {});
+        this.$router.push("/notlogged").catch(() => {});
       },
 
       /**

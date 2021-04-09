@@ -81,7 +81,7 @@
                 <span>{{ $t('edit.help.message') }}</span>
             </v-tooltip>
 
-            <v-btn v-if="editExistingAllowed && !isReleased(item)" icon class="mx-0" @click="dialogDelete=true;reportId=item.id">     
+            <v-btn v-if="creationValidationAllowed && !isReleased(item)" icon class="mx-0" @click="dialogDelete=true;reportId=item.id">     
                 <v-icon>mdi-delete-forever-outline</v-icon>  
             </v-btn>  
 

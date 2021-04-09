@@ -37,7 +37,7 @@ axios.interceptors.response.use(function (response) {
   // Do not do anything
   return response;
 }, function (error) {
-  if(error.response != null && (error.response.status == 400 || error.response.status == 403)) {
+  if(error.response != null && error.response.status == 403) {
     logOut(store)
     router.push({path: '/notlogged' })
   }

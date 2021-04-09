@@ -9,11 +9,9 @@
     "title.label": "Title",
     "email.label": "Email",
     "phone.label": "Phone",
-    "tab.repo": "Repositories",
-    "tab.role": "Role",
-    "tab.actions": "Action",
     "button.update": "Update",
     "button.delete.user": "Delete all information about me",
+    "delete.title": "Delete profile",
     "delete.confirm.message": "You can delete your profile and all the user information from CRUSÖE database. You will loss access on your reposiories. If you are the only user with 'Editor' role on a repository, it will be deleted as well as related reports. This operation cannot be undone."
   },
   "fr": {
@@ -24,12 +22,10 @@
     "title.label": "Titre",
     "email.label": "Courriel",
     "phone.label": "Téléphone",
-    "tab.repo": "Entrepôts",
-    "tab.role": "Rôle",
-    "tab.actions": "Action",
     "button.update": "Modifier",
     "button.delete.user": "Supprimer toutes les informations me concernant",
-    "delete.confirm.message": "Vous pouvez supprimer votre profile avec toutes les informations qu'il contient de le base de données CRUSÖE. Vous perdrez l'accès à vous entrepôts. Si vous êtes le seul utilisateur ayant un rôle 'Editeur' sur un entrepôts, il sera supprimé, ainsi que les fiches qu'il contient. Veuillez noter que cette opération est irréversible."
+    "delete.title": "Suppression de profile",
+    "delete.confirm.message": "Vous pouvez supprimer votre profile avec toutes les informations qu'il contient de le base de données CRUSÖE. Vous perdrez l'accès à vos entrepôts. Si vous êtes le seul utilisateur ayant un rôle 'Editeur' sur un entrepôts, il sera supprimé, ainsi que les fiches qu'il contient. Veuillez noter que cette opération est irréversible."
   }
 }
 </i18n>
@@ -75,24 +71,46 @@
           :headers="headers"
           :items="repoList"
           :items-per-page="5"
+          :expanded.sync="expanded"
+          single-expand
+          show-expand
           class="elevation-1"
         >
+            <template v-slot:item.keywords="{ item }">
+              <v-chip-group active-class="primary--text" column>
+                <v-chip small v-for="(keyword, key) in item.keywords" :key=key >{{ keyword }}</v-chip>
+              </v-chip-group>
+            </template> 
+            <template v-slot:item.url="{ item }">  
+              <v-tooltip bottom>
+                <template v-if="item.url" v-slot:activator="{ on }">
+                  <v-btn v-on="on" icon :href="checkedURL(item.url)" target="_blank">
+                    <v-icon>mdi-link</v-icon>
+                  </v-btn>
+                  </template>
+                  <span>{{ $t('url.repository.button') }}</span>
+              </v-tooltip> 
+            </template> 
             <template v-slot:item.role="{ item }">  
               {{ getUserRole(item)}}
             </template> 
+            <template v-slot:expanded-item="{ headers, item }">
+              <td :colspan="headers.length">
+               {{ item.description }}
+              </td>
+            </template>
         </v-data-table>
       </v-card>
-
+      <v-layout justify-end>
+        <div class="pa-5">
+        <v-btn
+          color="error"
+          @click="openDeleteDialog()"
+        >{{ $t('button.delete.user') }}
+        </v-btn>
+        </div>
+      </v-layout>
     </div>
-    <v-layout justify-end>
-      <div class="pa-5">
-      <v-btn v-if="false"
-        color="error"
-        @click="openDeleteDialog()"
-      >{{ $t('button.delete.user') }}
-      </v-btn>
-      </div>
-    </v-layout>
     </v-flex>
 
         <v-dialog v-model="dialogDelete" :width="$store.getters.getDialogWidth">
@@ -111,13 +129,11 @@
                 <v-card-actions>
                 <div class="flex-grow-1"></div>
                     <v-btn
-                        color="primary"
-                        text
                         @click="dialogDelete = false">
                         {{ $t('button.cancel') }}
                     </v-btn>
                     <v-btn
-                        color="primary"
+                        color="info"
                         @click="dialogDelete = false; deleteProfile()">
                         {{ $t('button.confirm') }}
                     </v-btn>
@@ -136,6 +152,14 @@ export default {
 
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
+    this.headers = [
+        { text: this.$t('tab.repo'), value: 'name' },
+        { text: this.$t('tab.keywords'), value: 'keywords' },
+        { text: this.$t('tab.contact'), value: 'contact' },
+        { text: this.$t('tab.link'), value: 'url' },
+        { text: this.$t('tab.role'), value: 'role' },
+        { text: '', value: 'data-table-expand' },
+        ],
     this.loadProfile();
     this.loadRepo();
   } ,
@@ -227,10 +251,11 @@ export default {
       this.axios
         .delete(this.service + "/profile/v1_0/deleteProfile/"+this.language+"/"+this.userId)
         .then(function(response) {
+          debugger
           if(response.data != null && response.data != '') {
             self.displaySuccess(response.data)
           logOut(self.$store)
-          self.$router.push("/").catch(() => {});
+          self.$router.push("/notlogged").catch(() => {});
           }
         })
         .catch(function(error) {
@@ -282,6 +307,14 @@ export default {
         });
     },
 
+    checkedURL(url) {
+      if(url.startsWith('//') || url.startsWith('https://') || url.startsWith('http://') ) {
+        return url
+      } else {
+        return "//" + url
+      }
+    },
+
     displaySuccess: function(message) {
       this.notifierMessage = message;
       this.notifierColor = "success";
@@ -313,11 +346,8 @@ export default {
       loadingSimulation: false,
       warningMessage: null,
       repoList: [],
-      headers: [
-        { text: this.$t('tab.repo'), value: 'name' },
-        { text: this.$t('tab.role'), value: 'role' }
-        ],
-
+      headers: [],
+      expanded: [],
     }
   }
 

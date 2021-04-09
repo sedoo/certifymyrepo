@@ -100,12 +100,7 @@ export default {
       notifier: false,
       notifierMessage: "",
       notifierColor: "success",
-      headers: [
-          { text: this.$t('tab.name'), value: 'name' },
-          { text: this.$t('tab.email'), value: 'email' },
-          { text: this.$t('tab.admin'), value: 'admin', sortable: false  },
-          { text: this.$t('tab.actions'), value: 'actions', sortable: false  }
-          ] ,
+      headers: [] ,
       loadingGiveRole: [],
       loadingRemonveRole: [],
       search: null,
@@ -114,6 +109,12 @@ export default {
 
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
+    this.headers = [
+          { text: this.$t('tab.name'), value: 'name' },
+          { text: this.$t('tab.email'), value: 'email' },
+          { text: this.$t('tab.admin'), value: 'admin', sortable: false  },
+          { text: this.$t('tab.actions'), value: 'actions', sortable: false  }
+          ] ,
     this.refeshData();
   },
 

@@ -3,7 +3,6 @@
 {
   "en": {
     "title": "Dasboard",
-    "tab.repo": "Repositories",
     "tab.health.validated": "State latest validated report",
     "tab.date.validated": "Validation date",
     "tab.health.inprogress": "State latest report in progress",
@@ -11,7 +10,6 @@
   },
   "fr": {
     "title": "Tableau de bord",
-    "tab.repo": "Entrepôts",
     "tab.health.validated": "Etat de la dernière fiche validée",
     "tab.date.validated": "Date validation",
     "tab.health.inprogress": "Etat de la dernière fiche en cours",
@@ -71,18 +69,19 @@ export default {
       notifier: false,
       notifierMessage: "",
       notifierColor: "success",
-      headers: [
-          { text: this.$t('tab.repo'), value: 'repository.name' },
-          { text: this.$t('tab.health.validated'), value: 'validHealth' },
-          { text: this.$t('tab.date.validated'), value: 'validDate' },
-          { text: this.$t('tab.health.inprogress'), value: 'inProgressHealth' },
-          { text: this.$t('tab.date.inprogress'), value: 'inProgressDate' }
-          ] ,
+      headers: [] ,
     }
   },
 
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
+    this.headers = [
+          { text: this.$t('tab.repo'), value: 'repository.name' },
+          { text: this.$t('tab.health.validated'), value: 'validHealth' },
+          { text: this.$t('tab.date.validated'), value: 'validDate' },
+          { text: this.$t('tab.health.inprogress'), value: 'inProgressHealth' },
+          { text: this.$t('tab.date.inprogress'), value: 'inProgressDate' }
+          ]
     var self = this;
     this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')
     .then(response => {
