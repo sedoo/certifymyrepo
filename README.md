@@ -39,11 +39,11 @@ The toolbar of the application gives access to 4 pages and to logout button
 
 | Name | Functionnalities | |
 | :--------------- |:---------------:|:---------------:|
-| Repositories  		| Permet d'accèder à l'écran de gestion des entrepôts  | |
-| User information	| Profile utisateur ainsi que la liste des entrepôts sur lesquels l'utilisateur à des droits	| |
-| Tableau de bord  		| Liste tous les entrepôts gérés, donne un apperçu de l'avancement sur forme de 3 états (soleil, mitigé, pluie) sur la dernière fiche validée et la dernière fiche en cours.      | Visible uniquement par les administrateurs |
-| Administration  		| Liste tous les utilisateurs dans un tableau filtrable par nom ou email. Permet de donner ou d'enlever des droits administrateur et de supprimer un utilisateur      | Visible uniquement par les administrateurs |
-| Bouton de déconnection  		| Permet de se déconnecter de l'application       | |
+| Repositories  		| Allows access to the repositories management page.  | |
+| User information	| User profile and and the list of user's repositories.	| |
+| Dashboard  		| List all the repositories managed. Gives a general overview in the form of 3 states (sunny, cloudy with sunny spells, rainy) on the last validated report and the last current report. | Visible only to administrators |
+| Administration  		| Liste tous les utilisateurs dans un tableau filtrable par nom ou email. Permet de donner ou d'enlever des droits administrateur et de supprimer un utilisateur      | Visible only to administrators |
+| Logout button  		| Used to disconnect properly from the application.      | |
 
 
 
