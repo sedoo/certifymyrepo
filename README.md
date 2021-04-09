@@ -1,5 +1,11 @@
 # CRUSOË
 
+# Table of Contents
+
+1. [Architecture](#architecture)
+2. [Access management](#access-management)
+3. [Packing and deployement](#packing-and-deployement)
+
 ## Architecture
 
 ### Front-end
