@@ -35,9 +35,9 @@ Authentication is not managed by the software itself but is delegated to the Ren
 
 | Internal code  | French label | English label | Rights |
 | :--------------- |:---------------:| :---------------: | :---------------: |
-| EDITOR  		| Rédacteur     | Editor 		| Can create, update and delete a repository and all related reports. He can as well validate a report.  |
-| CONTRIBUTOR 	| Contributeur	| Contributor 	| Can see a repository and update its related reports. He cannot validate them. |
-| READER  		| Lecteur       | Reader 		| Can see a repository and read its related reports. However he can add comments on any criteria. |
+| EDITOR  		| Rédacteur     | Editor 		| Can create, edit and delete a repository and all related reports. He can as well validate a report.  |
+| CONTRIBUTOR 	| Contributeur	| Contributor 	| Can see the repository and edit its related reports. He cannot validate them. |
+| READER  		| Lecteur       | Reader 		| Can see the repository and read its related reports. However he can add comments on any criteria. |
 
 An user can be Editor on a repository and Reader on another.
 
