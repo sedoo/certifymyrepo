@@ -3,8 +3,11 @@
 # Table of Contents
 
 1. [Architecture](#architecture)
-2. [Access management](#access-management)
-3. [Packing and deployement](#packing-and-deployement)
+2. [Access management](#access-management)   
+    - 2.1 [User roles](#user-roles)
+    - 2.2 [Administrators](#administrators)
+    - 2.3 [Application toolbar](#application-toolbar)
+4. [Packing and deployement](#packing-and-deployement)
 
 ## Architecture
 
