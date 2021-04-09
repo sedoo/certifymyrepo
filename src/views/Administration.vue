@@ -56,23 +56,27 @@
             <template v-slot:item.admin="{ item }">  
                 <v-icon v-if="item.admin">mdi-check</v-icon>
             </template>
-            <template v-slot:item.actions="{ item, index }">  
+            <template v-slot:item.actions="{ item, index }">
+              <div v-if="!item.admin">
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                  <v-btn icon v-if="!item.admin" v-on="on" :loading="loadingGiveRole[index]" class="mx-0 pa-3" @click="giveRole(item, index)">     
+                  <v-btn  icon v-on="on" :loading="loadingGiveRole[index]" class="mx-0 pa-3" @click="giveRole(item, index)">     
                       <v-icon size="20px">mdi-account-plus</v-icon>    
                   </v-btn>
                   </template>
                   <span>{{ $t('edit.help.message') }}</span>
               </v-tooltip>
+              </div>
+              <div v-else>
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                  <v-btn icon v-if="item.admin" v-on="on" :loading="loadingRemonveRole[index]" class="mx-0 pa-3" @click="removeRole(item, index)">     
+                  <v-btn icon v-on="on" :loading="loadingRemonveRole[index]" class="mx-0 pa-3" @click="removeRole(item, index)">     
                       <v-icon size="20px">mdi-account-minus</v-icon>    
                   </v-btn>
                   </template>
                   <span>{{ $t('delete.help.message') }}</span>
               </v-tooltip>
+              </div>
             </template> 
         </v-data-table>
       </v-card>
@@ -99,8 +103,8 @@ export default {
       headers: [
           { text: this.$t('tab.name'), value: 'name' },
           { text: this.$t('tab.email'), value: 'email' },
-          { text: this.$t('tab.admin'), value: 'admin' },
-          { text: this.$t('tab.actions'), value: 'actions' }
+          { text: this.$t('tab.admin'), value: 'admin', sortable: false  },
+          { text: this.$t('tab.actions'), value: 'actions', sortable: false  }
           ] ,
       loadingGiveRole: [],
       loadingRemonveRole: [],
