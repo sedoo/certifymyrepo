@@ -37,13 +37,13 @@
           class="elevation-1"
         >
             <template v-slot:item.validHealth="{ item }">  
-                <v-icon>{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
+                <v-icon :color="getHealthColor(item.healthLatestValidReport)">{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
             </template> 
             <template v-slot:item.validDate="{ item }">  
                 <span>{{ formatDate(item.healthLatestValidReport) }}</span>
             </template> 
             <template v-slot:item.inProgressHealth="{ item }">  
-                <v-icon>{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
+                <v-icon :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
             </template> 
             <template v-slot:item.inProgressDate="{ item }">  
                 <span>{{ formatDate(item.healthLatestInProgressReport) }}</span>
@@ -112,6 +112,22 @@ export default {
             return 'mdi-weather-partly-cloudy'
           } else if(health.red) {
             return 'mdi-weather-pouring'
+          } else {
+            return ''
+          }
+        } else {
+          return ''
+        }
+    },
+
+    getHealthColor(health) {
+        if(health) {
+          if(health.green) {
+            return 'green'
+          } else if(health.orange) {
+            return 'orange'
+          } else if(health.red) {
+            return 'red'
           } else {
             return ''
           }

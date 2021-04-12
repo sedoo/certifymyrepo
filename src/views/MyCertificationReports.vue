@@ -105,7 +105,7 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn icon v-on="on" class="mx-0" @click="generateHiddenRadarChart(item, index)" :loading="isDownloadingPDF[index]">     
+                    <v-btn v-if="featureFlag" icon v-on="on" class="mx-0" @click="generateHiddenRadarChart(item, index)" :loading="isDownloadingPDF[index]">     
                         <v-icon>mdi-file-pdf-box</v-icon>    
                     </v-btn>
                 </template>
@@ -114,7 +114,7 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn icon v-on="on" class="mx-0" @click="handleJSON(item, index)" :loading="isDownloadingJson[index]">     
+                    <v-btn v-if="featureFlag" icon v-on="on" class="mx-0" @click="handleJSON(item, index)" :loading="isDownloadingJson[index]">     
                         <v-icon>mdi-file-document-outline</v-icon>    
                     </v-btn>
                 </template>
@@ -235,6 +235,7 @@ export default {
             isDownloadingJson: [],
             report: null,
             index: null,
+            featureFlag: false,
         }
     },
     computed: {

@@ -10,7 +10,8 @@
     "radar.chart.title.valid": "Latest valid report chart",
     "radar.chart.title.inProgress": "Latest report in progress chart",
     "keywords": "Keywords",
-    "required.email.error": "Please go to MY PROFILE to add your email before editing a repository"
+    "required.email.error": "Please go to MY PROFILE to add your email before editing a repository",
+    "role.field": "Role: "
   },
   "fr": {
     "page.repositories" : "Entrepôts",
@@ -18,10 +19,11 @@
     "delete.confirmation": "Voulez vous vraiment supprimer cet entrepôt et toutes les fiches associées? Veuillez noter que cette opération est irréversible.",
     "edit.repository.button": "Editer cet entrepôt",
     "view.reports.button": "Consulter les fiches",
-    "radar.chart.title.valid": "Graphique de la dernière fiche validée",
-    "radar.chart.title.inProgress": "Graphique de la dernière fiche en cours",
+    "radar.chart.title.valid": "Dernière fiche validée",
+    "radar.chart.title.inProgress": "Dernière fiche en cours",
     "keywords": "Mots clefs",
-    "required.email.error": "Veuillez ajouter votre courriel dans votre profile avant d'éditer un entrepôt"
+    "required.email.error": "Veuillez ajouter votre courriel dans votre profile avant d'éditer un entrepôt",
+    "role.field": "Rôle: "
   }
 }
 </i18n>
@@ -55,9 +57,9 @@
             lg="4"
           >
             <v-card>
-              <v-card-title v-bind:class="cssColorClass(item)">
+              <v-card-title>
                 <h3 class="repo-title">{{ item.repository.name }}</h3>
-                <div class="icon-edit-delete">
+                <div class="icons-right">
                   <v-tooltip bottom>
                     <template v-if="item.repository.url" v-slot:activator="{ on }">
                       <v-btn v-on="on" icon :href="checkedURL(item.repository.url)" target="_blank">
@@ -87,9 +89,14 @@
                   </v-btn>
                 </div>
               </v-card-title>
+              <v-card-text>
+                <v-chip small>{{ getMyRoleMessage(item.repository) }}</v-chip>
+                <div class="icons-right">
+                </div>
+              </v-card-text>
               <v-divider></v-divider>
-              <v-card-text v-bind:class="cssColorClass(item)">
-              <v-list v-bind:class="cssColorClass(item)">
+              <v-card-text>
+              <v-list>
                 <v-list-item v-if="item.repository.keywords && item.repository.keywords.length > 0">
                   <v-list-item-content>{{$t('keywords')}}:</v-list-item-content>
                   <v-list-item-content>
@@ -111,12 +118,14 @@
               <v-list-group v-show="item.healthLatestValidReport != null" sub-group no-action color="black--text">
                 <template v-slot:activator>
                 <v-list-item-content>{{ $t('radar.chart.title.valid')}}</v-list-item-content>
+                <v-icon :color="getHealthColor(item.healthLatestValidReport)">{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
                 </template>
                 <apexchart type=radar :options="chartOptions(item.healthLatestValidReport)" :series="levelList(item.healthLatestValidReport)" />
               </v-list-group>
               <v-list-group v-show="item.healthLatestInProgressReport != null" sub-group no-action color="black--text">
                 <template v-slot:activator>
                 <v-list-item-content>{{ $t('radar.chart.title.inProgress')}}</v-list-item-content>
+                <v-icon :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
                 </template>
                 <apexchart type=radar :options="chartOptions(item.healthLatestInProgressReport)" :series="levelList(item.healthLatestInProgressReport)" />
               </v-list-group>
@@ -190,6 +199,13 @@ export default {
           email = this.$store.getters.getUser.profile.email
         }
         return email;
+      },
+      userId: function()  {
+        let userId = null
+        if(this.$store.getters.getUser != null) {
+          userId = this.$store.getters.getUser.profile.id
+        }
+        return userId;
       },
       service: function()  {
         return this.$store.getters.getService
@@ -282,6 +298,48 @@ export default {
           this.$router.push({path: '/certificationReports/' + repository.id })
         }
       },
+      getMyRoleMessage(item) {
+        let role = null
+        if(item.users != null && item.users.length > 0) {
+          for(let i=0 ; i<item.users.length ; i++) {
+            if(this.userId == item.users[i].id) {
+              role = this.$t('role.field') + this.$t(item.users[i].role)
+              break
+            }
+          }
+        }
+        return role
+      },
+      getHealthIcon(health) {
+          if(health) {
+            if(health.green) {
+              return 'mdi-weather-sunny'
+            } else if(health.orange) {
+              return 'mdi-weather-partly-cloudy'
+            } else if(health.red) {
+              return 'mdi-weather-pouring'
+            } else {
+              return ''
+            }
+          } else {
+            return ''
+          }
+      },
+      getHealthColor(health) {
+          if(health) {
+            if(health.green) {
+              return 'green'
+            } else if(health.orange) {
+              return 'orange'
+            } else if(health.red) {
+              return 'red'
+            } else {
+              return ''
+            }
+          } else {
+            return ''
+          }
+      },
     },
     
     created: function() {
@@ -308,7 +366,7 @@ export default {
   font-weight: bold;
 }
 
-.icon-edit-delete {
+.icons-right{
   position: absolute;
   right: 0;
   margin-right: 5px

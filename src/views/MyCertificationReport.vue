@@ -100,7 +100,7 @@
                           <v-card
                               class="mb-12 scroll"
                               color="grey lighten-3"
-                              height="548px"
+                              height="auto"
                           >
                             <!-- start user detailed response -->
                             <v-textarea v-if="editExistingAllowed"
@@ -111,6 +111,7 @@
                             </v-textarea>
                             <p v-if="!editExistingAllowed" class="text-justify">{{ item.response }}</p>
 
+                            <div v-if="featureFlag">
                             <v-list-item dense v-for="(file, i) in item.files" :key="i">
                               <div class="link-file pr-3" v-html="getHtmlHRefLink(myReport.id, item.code, file)">
                               </div>
@@ -138,7 +139,7 @@
                                   <span>{{ $t('attachments.toolpit.button') }}</span>
                               </v-tooltip>
                             </v-card-actions>
-
+                            </div>
                             <v-select filled v-if="editExistingAllowed" class="ma-3"
                               :items="levelsTemplate"
                               :label="$t('level.label')"
@@ -151,15 +152,19 @@
                               <span v-if="item.level != null">{{ getLevelLabel(item.level) }}</span> 
                             </p>
 
-                            <v-expansion-panels class="pa-3" v-if="!hideCommentBloc(item)">
+                            <v-expansion-panels flat class="pa-3" v-if="!hideCommentBloc(item)">
                             <v-expansion-panel>
-                                <v-expansion-panel-header>{{ $t('comment.label')}}  <span class="pl-3" v-if="item.comments != null && item.comments.length > 0"><i class="fa fa-comment"></i> {{ item.comments.length }}</span></v-expansion-panel-header>
+                                <v-expansion-panel-header class="px-3">
+                                  {{ $t('comment.label')}}  
+                                  <span class="pl-3" v-if="item.comments != null && item.comments.length > 0">
+                                    <i class="fa fa-comment"></i> {{ item.comments.length }}
+                                  </span>
+                                </v-expansion-panel-header>
                                 <v-expansion-panel-content>
                                     <comments 
                                         :comments_wrapper_classes="['custom-scrollbar', 'comments-wrapper']"
                                         :comments="item.comments"
                                         :requirementCode="item.code"
-                                        :current_user="userName"
                                         :isreadonly="isReadOnlyComment"
                                         @submit-comment="submitItemComment"
                                     ></comments>
@@ -184,14 +189,11 @@
               </v-stepper>                      
 
             <div class="text-right save-button">
-                     <v-btn text
-                        color="primary"
-                        @click="goToMyCertificationReports"
-                        >
+                     <v-btn @click="goToMyCertificationReports" class="mr-5">
                         {{ $t('button.cancel') }}
                     </v-btn>
-                     <v-btn v-show="!readOnly"
-                        color="primary"
+                     <v-btn v-show="editExistingAllowed"
+                        color="info"
                         @click="save"
                         >
                         {{ $t('button.save') }}
@@ -199,8 +201,8 @@
             </div>
 
             <div class="text-right save-button">
-              <v-btn v-show="!readOnly"
-                color="primary"
+              <v-btn v-show="validationAllowed"
+                color="info"
                 @click="displayReleaseConfirmation"
                 :disabled="!valid"
                 >
@@ -369,6 +371,7 @@ export default {
             fileToDelete: null,
             deleteInProgress: false,
             uploadInProgress: false,
+            featureFlag: false,
         }
     },
     computed: {
@@ -385,6 +388,13 @@ export default {
       userName: function()  {
         if(this.$store.getters.getUser != null) {
           return this.$store.getters.getUser.profile.name
+        } else {
+          return '';
+        }
+      },
+      userId: function()  {
+        if(this.$store.getters.getUser != null) {
+          return this.$store.getters.getUser.profile.id
         } else {
           return '';
         }

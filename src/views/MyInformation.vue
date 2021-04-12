@@ -95,13 +95,13 @@
               {{ getUserRole(item)}}
             </template> 
             <template v-slot:expanded-item="{ headers, item }">
-              <td :colspan="headers.length">
+              <td v-if="item.description != null" :colspan="headers.length">
                {{ item.description }}
               </td>
             </template>
         </v-data-table>
       </v-card>
-      <v-layout justify-end>
+      <v-layout v-if="featureFlag" justify-end>
         <div class="pa-5">
         <v-btn
           color="error"
@@ -348,6 +348,7 @@ export default {
       repoList: [],
       headers: [],
       expanded: [],
+      featureFlag: false,
     }
   }
 
