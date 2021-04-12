@@ -202,7 +202,7 @@
                 <v-btn @click="cancelAddUser">
                     {{ $t("button.cancel") }}
                 </v-btn>
-                <v-btn color="info" @click="addOrEditUserRole">
+                <v-btn color="info" @click="editUserRole">
                     {{ $t("button.confirm") }}
                 </v-btn>
                 </v-card-actions>
@@ -289,7 +289,7 @@
                     <v-divider></v-divider>
                     <v-card-actions>
                     <v-select :rules="rules.roleRules"
-                    v-model="user.role"
+                    v-model="role"
                     :items="roles"
                     label="Select a role">
                         <template slot="selection" slot-scope="data">
@@ -308,7 +308,7 @@
                     <v-btn @click="cancelAddUser">
                         {{ $t("button.cancel") }}
                     </v-btn>
-                    <v-btn color="info" :disabled="!validPopupAddUser || selectedUser.length == 0" @click="addOrEditUserRole">
+                    <v-btn color="info" :disabled="!validPopupAddUser || selectedUser.length == 0" @click="addUserRole">
                         {{ $t("button.confirm") }}
                     </v-btn>
                     </v-card-actions>
@@ -389,6 +389,7 @@ export default {
             keyword: null,
             foundUsers: [],
             selectedUser: [],
+            role: null,
             rowClicked: false,
             search: null,
             /**
@@ -499,9 +500,32 @@ export default {
     methods: {
         /**
          * Populate User role data (userId, name, role) into repository object
-         * Called by Add an user and Edit user role functionnalities
+         * Called by Add an user functionnalities
          */
-        addOrEditUserRole() {
+        addUserRole() {
+            this.dialogAddUser = false
+            this.dialogEditUserRole = false
+            let user = {name: this.selectedUser[0].name, id:this.selectedUser[0].userId, role: this.role}
+            if(this.userIndex < 0 ) {
+                if(this.myRepository.users == null || this.myRepository.users.length == 0) {
+                    let myUserList = [];
+                    myUserList.push(user)
+                    this.myRepository.users = myUserList;
+                } else {
+                    this.myRepository.users.push(user)
+                }
+                
+            } else {
+                this.myRepository.users.splice(this.userIndex, 1)
+                this.myRepository.users.push(user)
+            }
+            this.keyword = null
+        },
+        /**
+         * Populate User role data (userId, name, role) into repository object
+         * Called by Edit user role functionnalities
+         */
+        editUserRole() {
             this.dialogAddUser = false
             this.dialogEditUserRole = false
             let user = JSON.parse(JSON.stringify(this.user))
@@ -518,7 +542,6 @@ export default {
                 this.myRepository.users.splice(this.userIndex, 1)
                 this.myRepository.users.push(user)
             }
-            this.user = {}
             this.keyword = null
         },
         removeUser() {
@@ -642,7 +665,8 @@ export default {
         cancelAddUser() {
             this.dialogEditUserRole = false
             this.dialogAddUser = false
-            this.user={name: null, id:null, role: null}
+            this.role = null
+            this.selectedUser = []
             this.foundUsers = []
             this.keyword = null
         },
