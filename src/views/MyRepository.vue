@@ -18,6 +18,7 @@
     "role.required.error": "Role is required",
     "userName.required.orcid.error": "User name is required. Enter a valid orcid",
     "userName.required.error": "User name is required.",
+    "user.required.error": "Select an user.",
     "delete.user.confirmation.title": "Delete confirmation",
     "delete.user.confirmation.label": "Do you really want to remove this user?",
     "tab.name": "Name",
@@ -257,7 +258,6 @@
                     <v-card-actions  >
                     <v-progress-linear indeterminate v-if="loadingUsers" class="mt-3"></v-progress-linear>
                     <div style="width: 100%;" v-else>
-                        {{ $t('select.one.user.message') }}
                         <v-text-field
                             v-model="search"
                             append-icon="mdi-magnify"
@@ -266,15 +266,20 @@
                             hide-details
                             @input="clearSelectedUser"
                         ></v-text-field>
-                        <v-data-table @click:row="rowClick" item-key="name" single-select
+                        <v-data-table item-key="name" show-select single-select
+                            v-model="selectedUser"
+                            @input="rowClick"
+                            @click:row="rowClick"
                             :headers="headers"
                             :items="foundUsers"
                             :items-per-page="5"
-                            class="elevation-1"
+                            class="elevation-1 mb-2"
                             :search="search"
                         >
                         </v-data-table>
-                    
+                        <div class="error--text v-messages">
+                            <div v-show="selectedUser.length == 0 && rowClicked" class="v-messages__message">{{ $t('select.one.user.message') }}</div>
+                        </div>
                     </div>
                     </v-card-actions>
                     <v-card-actions>
@@ -282,10 +287,6 @@
                         <v-btn class="mx-3" color="info" @click="openCreateUserDialog">{{ $t('button.create.user') }}</v-btn>
                     </v-card-actions>
                     <v-divider></v-divider>
-                    <v-card-actions v-show="false">
-                        <!-- Not displayed but used for form validation. An user must have been selected. -->
-                        <v-text-field :rules="rules.userNameRules" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('name.label')" readonly filled></v-text-field>
-                    </v-card-actions>
                     <v-card-actions>
                     <v-select :rules="rules.roleRules"
                     v-model="user.role"
@@ -307,7 +308,7 @@
                     <v-btn @click="cancelAddUser">
                         {{ $t("button.cancel") }}
                     </v-btn>
-                    <v-btn color="info" :disabled="!validPopupAddUser" @click="addOrEditUserRole">
+                    <v-btn color="info" :disabled="!validPopupAddUser || selectedUser.length == 0" @click="addOrEditUserRole">
                         {{ $t("button.confirm") }}
                     </v-btn>
                     </v-card-actions>
@@ -387,6 +388,8 @@ export default {
              */
             keyword: null,
             foundUsers: [],
+            selectedUser: [],
+            rowClicked: false,
             search: null,
             /**
              * skeleton of user role object
@@ -400,6 +403,7 @@ export default {
             myRepository: {id:null, name: null, keywords:[], contact: null, users: []},
             repositoryId: this.$route.query.repositoryId,
             rules: {
+                selectUserRules: [v => !!v || this.$t('user.required.error')],
                 userNameOrcidRules: [v => !!v || this.$t('userName.required.orcid.error')],
                 userNameRules: [v => !!v || this.$t('userName.required.error')],
                 roleRules: [v => !!v || this.$t('role.required.error')],
@@ -476,6 +480,7 @@ export default {
     },
     
     created: function() {
+        this.rowClicked = false
         this.$i18n.locale = this.$store.getters.getLanguage;
         if(this.repositoryId != null) {
             var self = this;
@@ -594,12 +599,13 @@ export default {
             .finally(() => this.loadingUsers = false)
         },
 
-        rowClick: function (item, row) {
-            console.log(item)
-            console.log(this.user)
-            row.select(true);
-            this.user.id = item.userId
-            this.user.name = item.name
+        /**
+         * Not possible to use :rules="..." on v-data-table
+         * Error message is handle specificaly see <div class="error--text v-messages">
+         * To keep the same behavoir as rules the message is not shown at first but need a click on the checkbox or row to activate it.
+         */
+        rowClick: function () {
+            this.rowClicked = true;
         },
 
         /**
