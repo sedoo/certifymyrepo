@@ -537,7 +537,8 @@ export default {
       submitItemComment: function(requirementCode, comments, reply) {
         let self = this
         comments.push({
-            user: this.userName,
+            userId: this.userId,
+            userName: this.userName,
             text: reply,
             creationDate: new Date(),
             id: comments.length

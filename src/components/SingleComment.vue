@@ -1,7 +1,7 @@
 <template>
     <div class="comment">
         <div class="text">
-            <a class="username" href="#">@{{ comment.user }}</a> <span>{{ comment.text }}</span>
+            <a class="username" href="#">@{{ comment.userName }}</a> <span>{{ comment.text }}</span>
         </div>
     </div>
 </template>
