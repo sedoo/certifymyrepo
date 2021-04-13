@@ -1,27 +1,9 @@
 <i18n src="../locales.json"></i18n>
-<i18n>
-{
-  "en": {
-    "title": "Dasboard",
-    "tab.health.validated": "State latest validated report",
-    "tab.date.validated": "Validation date",
-    "tab.health.inprogress": "State latest report in progress",
-    "tab.date.inprogress": "Last update date"
-  },
-  "fr": {
-    "title": "Tableau de bord",
-    "tab.health.validated": "Etat de la dernière fiche validée",
-    "tab.date.validated": "Date validation",
-    "tab.health.inprogress": "Etat de la dernière fiche en cours",
-    "tab.date.inprogress": "Date mise à jour"
-  }
-}
-</i18n>
 <template>
   <v-layout>
 
     <v-flex xs12>
-    <h1 class="subheading grey--text">{{ $t('title') }}</h1>
+    <h1 class="subheading grey--text">{{ $t('dashboard.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
@@ -76,11 +58,11 @@ export default {
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
     this.headers = [
-          { text: this.$t('tab.repo'), value: 'repository.name' },
-          { text: this.$t('tab.health.validated'), value: 'validHealth' },
-          { text: this.$t('tab.date.validated'), value: 'validDate' },
-          { text: this.$t('tab.health.inprogress'), value: 'inProgressHealth' },
-          { text: this.$t('tab.date.inprogress'), value: 'inProgressDate' }
+          { text: this.$t('repository.table.column.repository.name'), value: 'repository.name' },
+          { text: this.$t('repository.table.column.report.validated.health'), value: 'validHealth' },
+          { text: this.$t('repository.table.column.report.validated.date'), value: 'validDate' },
+          { text: this.$t('repository.table.column.report.inprogress.health'), value: 'inProgressHealth' },
+          { text: this.$t('repository.table.column.report.inprogress.date'), value: 'inProgressDate' }
           ]
     var self = this;
     this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')

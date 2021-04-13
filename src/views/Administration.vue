@@ -1,33 +1,9 @@
 <i18n src="../locales.json"></i18n>
-<i18n>
-{
-  "en": {
-    "title": "Administration",
-    "tab.name": "Name",
-    "tab.email": "Email",
-    "tab.admin": "Administrator",
-    "tab.actions": "Actions",
-    "edit.help.message": "Give administrator role",
-    "delete.help.message": "Remove administrator role",
-    "search": "Search"
-  },
-  "fr": {
-    "title": "Administration",
-    "tab.name": "Nom",
-    "tab.email": "Courriel",
-    "tab.admin": "Administrator",
-    "tab.actions": "Actions",
-    "edit.help.message": "Donner les droits administrateur",
-    "delete.help.message": "Retirer les droits administrateur",
-    "search": "Recherche"
-  }
-}
-</i18n>
 <template>
   <v-layout>
 
     <v-flex xs12>
-    <h1 class="subheading grey--text">{{ $t('title') }}</h1>
+    <h1 class="subheading grey--text">{{ $t('administration.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
@@ -41,7 +17,7 @@
       <v-text-field
         v-model="search"
         append-icon="mdi-magnify"
-        :label="$t('search')"
+        :label="$t('administration.screen.search.bar.label')"
         single-line
         hide-details
       ></v-text-field>
@@ -64,7 +40,7 @@
                       <v-icon size="20px">mdi-account-plus</v-icon>    
                   </v-btn>
                   </template>
-                  <span>{{ $t('edit.help.message') }}</span>
+                  <span>{{ $t('administration.screen.edit.help.message') }}</span>
               </v-tooltip>
               </div>
               <div v-else>
@@ -74,7 +50,7 @@
                       <v-icon size="20px">mdi-account-minus</v-icon>    
                   </v-btn>
                   </template>
-                  <span>{{ $t('delete.help.message') }}</span>
+                  <span>{{ $t('administration.screen.delete.help.message') }}</span>
               </v-tooltip>
               </div>
             </template> 
@@ -82,6 +58,25 @@
       </v-card>
       </template>
     </div>
+
+    <v-dialog v-model="dialogEditAdmin" :width="$store.getters.getDialogWidth">
+    <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title>
+        {{ $t('delete.user.confirmation.title') }}
+        </v-card-title>
+        <v-card-text>{{ $t('delete.user.confirmation.label') }}</v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+        <div class="flex-grow-1"></div>
+        <v-btn @click="dialogRemoveUser = false">
+            {{ $t('button.cancel') }}
+        </v-btn>
+        <v-btn color="info" @click="dialogRemoveUser = false;removeUser()">
+            {{ $t('button.confirm') }}
+        </v-btn>
+        </v-card-actions>
+    </v-card>
+    </v-dialog>
     </v-flex>
   </v-layout>
 
@@ -110,10 +105,10 @@ export default {
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
     this.headers = [
-          { text: this.$t('tab.name'), value: 'name' },
-          { text: this.$t('tab.email'), value: 'email' },
-          { text: this.$t('tab.admin'), value: 'admin', sortable: false  },
-          { text: this.$t('tab.actions'), value: 'actions', sortable: false  }
+          { text: this.$t('user.table.column.user.name'), value: 'name' },
+          { text: this.$t('user.table.column.user.email'), value: 'email' },
+          { text: this.$t('user.table.column.user.admin'), value: 'admin', sortable: false  },
+          { text: this.$t('user.table.column.user.actions'), value: 'actions', sortable: false  }
           ] ,
     this.refeshData();
   },

@@ -1,32 +1,4 @@
 <i18n src="../locales.json"></i18n>
-<i18n>
-{
-  "en": {
-    "page.repositories" : "Repositories",
-    "create.button" : "Create a new repository",
-    "delete.confirmation": "Do you really want to delete this repository and all the related reports? This operation cannot be undone.",
-    "edit.repository.button": "Edit this repository",
-    "view.reports.button": "View the reports",
-    "radar.chart.title.valid": "Latest valid report chart",
-    "radar.chart.title.inProgress": "Latest report in progress chart",
-    "keywords": "Keywords",
-    "required.email.error": "Please go to MY PROFILE to add your email before editing a repository",
-    "role.field": "Role: "
-  },
-  "fr": {
-    "page.repositories" : "Entrepôts",
-    "create.button" : "Créer un nouvel entrepôt",
-    "delete.confirmation": "Voulez vous vraiment supprimer cet entrepôt et toutes les fiches associées? Veuillez noter que cette opération est irréversible.",
-    "edit.repository.button": "Editer cet entrepôt",
-    "view.reports.button": "Consulter les fiches",
-    "radar.chart.title.valid": "Dernière fiche validée",
-    "radar.chart.title.inProgress": "Dernière fiche en cours",
-    "keywords": "Mots clefs",
-    "required.email.error": "Veuillez ajouter votre courriel dans votre profile avant d'éditer un entrepôt",
-    "role.field": "Rôle: "
-  }
-}
-</i18n>
 <template>
     <div class="repositories">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
@@ -34,10 +6,10 @@
       <v-btn dark text @click="notifier = false">Close</v-btn>
     </v-snackbar>
     
-    <h1 class="grey--text">{{ $t('page.repositories') }}</h1>
+    <h1 class="grey--text">{{ $t('repository.screen.title') }}</h1>
     
 <v-layout justify-end>
-  <v-btn class="info my-3" :disabled="userEmail==null" @click="createRepository">{{ $t('create.button') }}</v-btn>
+  <v-btn class="info my-3" :disabled="userEmail==null" @click="createRepository">{{ $t('repository.screen.button.create.new.repository') }}</v-btn>
 </v-layout>
   <v-card class="mx-auto" v-if="resultMyRepo != null && resultMyRepo.length > 0">
 	    <v-data-iterator 
@@ -66,7 +38,7 @@
                         <v-icon>mdi-link</v-icon>
                       </v-btn>
                       </template>
-                      <span>{{ $t('url.repository.button') }}</span>
+                      <span>{{ $t('repository.button.help.message.link') }}</span>
                   </v-tooltip> 
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
@@ -74,7 +46,7 @@
                         <v-icon>mdi-inbox-multiple-outline</v-icon>
                       </v-btn>
                      </template>
-                     <span>{{ $t('view.reports.button') }}</span>
+                     <span>{{ $t('repository.screen.button.help.message.view') }}</span>
                   </v-tooltip>
                   <v-tooltip bottom>
                     <template v-if="!item.readonly" v-slot:activator="{ on }">
@@ -98,7 +70,7 @@
               <v-card-text>
               <v-list>
                 <v-list-item v-if="item.repository.keywords && item.repository.keywords.length > 0">
-                  <v-list-item-content>{{$t('keywords')}}:</v-list-item-content>
+                  <v-list-item-content>{{$t('repository.screen.label.keywords')}}:</v-list-item-content>
                   <v-list-item-content>
                   <v-chip-group active-class="primary--text" column>
                     <v-chip small v-for="(keyword, key) in item.repository.keywords" :key=key >{{ keyword }}</v-chip>
@@ -141,10 +113,10 @@
   <v-dialog v-model="dialog" :width="$store.getters.getDialogWidth">
     <v-card>
       <v-card-title class="headline grey lighten-2" primary-title>
-      Confirmation
+      {{ $t('repository.screen.delete.repository.confirmation.title')}}
       </v-card-title>
       <v-card-text>
-      {{ $t('delete.confirmation')}}
+      {{ $t('repository.screen.delete.repository.confirmation.message')}}
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
@@ -264,7 +236,7 @@ export default {
       },
       editRepository (item) {
         if(this.userEmail==null) {
-          displayError(this, this.$t('required.email.error'))
+          displayError(this, this.$t('repository.screen.required.email.error'))
         } else {
           this.$router.push({name: 'repository', query: {repositoryId: item.id}});
         }
@@ -292,7 +264,7 @@ export default {
       },
       routeToMyReports(repository) {
         if(this.userEmail==null) {
-          displayError(this, this.$t('required.email.error'))
+          displayError(this, this.$t('repository.screen.required.email.error'))
         } else {
           this.$store.commit('setRepository', repository)
           this.$router.push({path: '/certificationReports/' + repository.id })
@@ -303,7 +275,7 @@ export default {
         if(item.users != null && item.users.length > 0) {
           for(let i=0 ; i<item.users.length ; i++) {
             if(this.userId == item.users[i].id) {
-              role = this.$t('role.field') + this.$t(item.users[i].role)
+              role = this.$t('repository.screen.label.role') + ': ' + this.$t(item.users[i].role)
               break
             }
           }
@@ -351,7 +323,7 @@ export default {
       .then(response => {
         self.resultMyRepo = response.data
         if(this.userEmail==null) {
-          displayError(this, this.$t('required.email.error'))
+          displayError(this, this.$t('repository.screen.required.email.error'))
         }
       }).catch(function(error) {displayError(self, error)})
       .finally(() => this.loading = false)

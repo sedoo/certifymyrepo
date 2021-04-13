@@ -1,39 +1,9 @@
 <i18n src="../locales.json"></i18n>
-<i18n>
-{
-  "en": {
-    "title": "User information",
-    "profile": "Profile",
-    "myRepositories": "My repositories",
-    "name.label": "Name",
-    "title.label": "Title",
-    "email.label": "Email",
-    "phone.label": "Phone",
-    "button.update": "Update",
-    "button.delete.user": "Delete all information about me",
-    "delete.title": "Delete profile",
-    "delete.confirm.message": "You can delete your profile and all the user information from CRUSÖE database. You will loss access on your reposiories. If you are the only user with 'Editor' role on a repository, it will be deleted as well as related reports. This operation cannot be undone."
-  },
-  "fr": {
-    "title": "Information utilisateur",
-    "profile": "Profil",
-    "myRepositories": "Mes entrepôts",
-    "name.label": "Nom",
-    "title.label": "Titre",
-    "email.label": "Courriel",
-    "phone.label": "Téléphone",
-    "button.update": "Modifier",
-    "button.delete.user": "Supprimer toutes les informations me concernant",
-    "delete.title": "Suppression de profile",
-    "delete.confirm.message": "Vous pouvez supprimer votre profile avec toutes les informations qu'il contient de le base de données CRUSÖE. Vous perdrez l'accès à vos entrepôts. Si vous êtes le seul utilisateur ayant un rôle 'Editeur' sur un entrepôts, il sera supprimé, ainsi que les fiches qu'il contient. Veuillez noter que cette opération est irréversible."
-  }
-}
-</i18n>
 <template>
   <v-layout>
 
     <v-flex xs12>
-      <h1 class="subheading grey--text">{{ $t('title') }}</h1>
+      <h1 class="subheading grey--text">{{ $t('userinformation.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loadingProfile || loadingRepo" class="mt-3"></v-progress-linear>
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       <span v-html="notifierMessage"></span>
@@ -42,7 +12,7 @@
 
     <div v-if="!loadingProfile && !loadingRepo">
       <v-card class="ma-5">
-        <v-card-title>{{ $t('profile')}}</v-card-title>
+        <v-card-title>{{ $t('userinformation.screen.profile.bloc.title')}}</v-card-title>
         <v-card-text><v-icon>mdi-account</v-icon> {{ username }}</v-card-text>
         <v-card-text v-if="orcid != null"><v-icon>mdi-identifier</v-icon>{{ orcid }}</v-card-text>
         <v-card-text v-if="profile.title != null"><v-icon>mdi-bookmark</v-icon>{{ profile.title }}</v-card-text>
@@ -66,7 +36,7 @@
       </v-card>
 
       <v-card class="ma-5">
-        <v-card-title>{{ $t('myRepositories') }}</v-card-title>
+        <v-card-title>{{ $t('userinformation.screen.repositories.bloc.title') }}</v-card-title>
         <v-data-table
           :headers="headers"
           :items="repoList"
@@ -88,7 +58,7 @@
                     <v-icon>mdi-link</v-icon>
                   </v-btn>
                   </template>
-                  <span>{{ $t('url.repository.button') }}</span>
+                  <span>{{ $t('repository.button.help.message.link') }}</span>
               </v-tooltip> 
             </template> 
             <template v-slot:item.role="{ item }">  
@@ -106,7 +76,7 @@
         <v-btn
           color="error"
           @click="openDeleteDialog()"
-        >{{ $t('button.delete.user') }}
+        >{{ $t('userinformation.screen.delete.profile.button') }}
         </v-btn>
         </div>
       </v-layout>
@@ -119,10 +89,10 @@
                 class="headline grey lighten-2"
                 primary-title
                 >
-                {{ $t('delete.title') }}
+                {{ $t('userinformation.screen.delete.profile.confirmation.title') }}
                 </v-card-title>
                 <v-card-text>
-                <p>{{ $t('delete.confirm.message') }}</p>
+                <p>{{ $t('userinformation.screen.delete.profile.confirmation.message') }}</p>
                 <p><span v-html="warningMessage"></span></p>
                 </v-card-text>
                 <v-divider></v-divider>
@@ -153,11 +123,11 @@ export default {
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
     this.headers = [
-        { text: this.$t('tab.repo'), value: 'name' },
-        { text: this.$t('tab.keywords'), value: 'keywords' },
-        { text: this.$t('tab.contact'), value: 'contact' },
-        { text: this.$t('tab.link'), value: 'url' },
-        { text: this.$t('tab.role'), value: 'role' },
+        { text: this.$t('repository.table.column.repository.name'), value: 'name' },
+        { text: this.$t('repository.table.column.keywords'), value: 'keywords' },
+        { text: this.$t('repository.table.column.contact'), value: 'contact' },
+        { text: this.$t('repository.table.column.link'), value: 'url' },
+        { text: this.$t('repository.table.column.role'), value: 'role' },
         { text: '', value: 'data-table-expand' },
         ],
     this.loadProfile();
@@ -251,12 +221,11 @@ export default {
       this.axios
         .delete(this.service + "/profile/v1_0/deleteProfile/"+this.language+"/"+this.userId)
         .then(function(response) {
-          debugger
           if(response.data != null && response.data != '') {
             self.displaySuccess(response.data)
+          }
           logOut(self.$store)
           self.$router.push("/notlogged").catch(() => {});
-          }
         })
         .catch(function(error) {
           displayError(self, error)

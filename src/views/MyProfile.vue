@@ -1,37 +1,9 @@
 <i18n src="../locales.json"></i18n>
-<i18n>
-{
-  "en": {
-    "title": "User profile",
-    "name.label": "Name",
-    "title.label": "Title",
-    "email.label": "Email",
-    "phone.label": "Phone",
-    "email.error": "Please enter your email",
-    "email.validation.error": "E-mail must be valid",
-    "confirmation": "The profile has been saved",
-    "button.delete.user": "Delete all information about me",
-    "delete.confirm.message": "You can delete your profile and all the user information from CRUSÖE database. You will loss access on your reposiories. If you are the only user with 'Editor' role on a repository, it will be deleted as well as related reports. This operation cannot be undone."
-  },
-  "fr": {
-    "title": "Profil utilisateur",
-    "name.label": "Nom",
-    "title.label": "Titre",
-    "email.label": "Courriel",
-    "phone.label": "Téléphone",
-    "email.error": "Veuillez entrer voute courriel",
-    "email.validation.error": "Le courriel doit être valide",
-    "confirmation": "Le profile a été sauvegardé",
-    "button.delete.user": "Supprimer toutes les informations me concernant",
-    "delete.confirm.message": "Vous pouvez supprimer votre profile avec toutes les informations qu'il contient de le base de données CRUSÖE. Vous perdrez l'accès à vous entrepôts. Si vous êtes le seul utilisateur ayant un rôle 'Editeur' sur un entrepôts, il sera supprimé, ainsi que les fiches qu'il contient. Veuillez noter que cette opération est irréversible."
-  }
-}
-</i18n>
 <template>
   <v-layout>
 
     <v-flex xs12>
-      <h1 class="subheading grey--text">{{ $t('title') }}</h1>
+      <h1 class="subheading grey--text">{{ $t('profile.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       <span v-html="notifierMessage"></span>
@@ -42,30 +14,23 @@
     <v-form class="ma-5" ref="form" v-model="valid" lazy-validation>
       <v-row>
         <v-col cols="12">
-          <v-text-field v-model="username" prepend-inner-icon="mdi-account" :label="$t('name.label')" readonly filled></v-text-field>
+          <v-text-field v-model="username" prepend-inner-icon="mdi-account" :label="$t('profile.screen.label.name')" readonly filled></v-text-field>
         </v-col>
         <v-col cols="12">
           <v-text-field v-model="orcid" prepend-inner-icon="mdi-identifier" label="ORCID" readonly filled></v-text-field>
         </v-col>
-        <v-col v-if="featureFlag" cols="12">
-          <v-text-field v-model="profile.title"  :label="$t('title.label')" prepend-inner-icon="mdi-bookmark"></v-text-field>
-        </v-col>
         <v-col cols="12">
-          <v-text-field v-model="profile.email"  :label="$t('email.label')" prepend-inner-icon="mdi-email"  :rules="emailRules" required></v-text-field>
+          <v-text-field v-model="profile.email"  :label="$t('profile.screen.label.email')" prepend-inner-icon="mdi-email"  :rules="emailRules" required></v-text-field>
         </v-col>
 
         <template v-if="featureFlag" >
           <v-col cols="12" v-for="(phone, index) in profile.phones" :key="index">
-            <v-text-field  v-model="profile.phones[index]" :label="$t('phone.label')" prepend-inner-icon="mdi-phone" v-if="index==0"></v-text-field>
-            <v-text-field  v-model="profile.phones[index]" :label="$t('phone.label')" prepend-inner-icon="mdi-phone" v-else append-icon="mdi-delete" @click:append="deletePhone(index)"></v-text-field>
+            <v-text-field  v-model="profile.phones[index]" :label="$t('profile.screen.label.phone')" prepend-inner-icon="mdi-phone" v-if="index==0"></v-text-field>
+            <v-text-field  v-model="profile.phones[index]" :label="$t('profile.screen.label.phone')" prepend-inner-icon="mdi-phone" v-else append-icon="mdi-delete" @click:append="deletePhone(index)"></v-text-field>
           </v-col>
-          <v-btn class="ml-3 " x-small title="Add a phone number" @click="profile.phones.push('')"  fab color="accent"> 
+          <v-btn class="ml-3 " x-small :title="A$t('profile.screen.label.add.phone')" @click="profile.phones.push('')"  fab color="accent"> 
             <v-icon >mdi-plus</v-icon> 
           </v-btn>
-
-          <v-col cols="12">
-            <v-text-field v-model="profile.fax"  label="Fax" prepend-inner-icon="mdi-fax" required></v-text-field>
-          </v-col>
         </template>
       </v-row>
     </v-form>

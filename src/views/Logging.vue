@@ -1,20 +1,11 @@
-<i18n>
-{
-  "en": {
-    "connecting": "Connecting..."
-  },
-  "fr": {
-    "connecting": "Connexion..."
-  }
-}
-</i18n>
+<i18n src="../locales.json"></i18n>
 <template>
   <div class="pa-10">
     <div>
       <v-progress-linear indeterminate height="3" />
     </div>
     <div class="text-center pa-10 headline">
-      <p>{{ $t('connecting') }}.</p>
+      <p>{{ $t('logging.temporary.screen.connecting') }}.</p>
     </div>
   </div>
 </template>

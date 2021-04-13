@@ -1,29 +1,13 @@
-<i18n>
-{
-  "en": {
-    "title" : "Welcome to",
-    "login.label.1" : "You need to login using",
-    "login.label.2": "to use the application."
-  },
-  "fr": {
-    "title" : "Bienvenue sur",
-    "login.label.1" : "Vous devez vous connecter sur",
-    "login.label.2": "pour utiliser l'application"
-  }
-}
-</i18n>
+<i18n src="../locales.json"></i18n>
 <template>
   <v-container class="fill-height">
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="8">
         <div style="text-align:center " class="display-2 ma-3 font-weight-thin">
-          {{ $t('title') }}
-          <span class="text-uppercase"
-            ><span class="font-weight-regular">CRUSÖE</span></span
-          >
+          <span v-html="$t('notlogged.screen.title')"></span>
         </div>
         <div style="text-align:center" class="headline">
-          {{ $t('login.label.1') }}
+          {{ $t('notlogged.screen.message.part.1') }}
           <v-btn class="mx-3 light-green lighten-5" @click="login">
             <img
               style="vertical-align:middle;"
@@ -32,7 +16,7 @@
               height="24"
             />
             <span class="px-2">Orcid</span> </v-btn
-          >{{ $t('login.label.2') }}
+          >{{ $t('notlogged.screen.message.part.2') }}
         </div>
       </v-col>
     </v-row>
