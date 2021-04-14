@@ -21,11 +21,8 @@
 <template>
  <v-app class="grey lighten-4">
   <certifymyrepo-token-refresher :service="service"></certifymyrepo-token-refresher>
+  <sedoo-alert ref="sedooalert"></sedoo-alert>
 
-  <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      {{ notifierMessage }}
-    <v-btn dark text @click="notifier = false">Close</v-btn>
-   </v-snackbar>
     <v-toolbar color="secondary" v-if="type!='external'">
       <v-toolbar-title class="text-uppercase" >
         <span class="font-weight-light">Crusöe</span>
@@ -62,9 +59,11 @@
 <script>
 
 import {logOut} from './utils.js'
+import sedooAlert from './components/sedooAlert.vue'
 export default {
   name: 'App',
   components: {
+    sedooAlert
   },
   props: {
     service: {
@@ -73,7 +72,7 @@ export default {
     },
     language: {
       type: String,
-      default: "fr"
+      default: "en"
     },
     type: {
       Type: String,

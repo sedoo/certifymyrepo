@@ -5,10 +5,6 @@
     <v-flex xs12>
       <h1 class="subheading grey--text">{{ $t('profile.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      <span v-html="notifierMessage"></span>
-      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
-    </v-snackbar>
 
     <div v-if="!loading">
     <v-form class="ma-5" ref="form" v-model="valid" lazy-validation>
@@ -59,9 +55,13 @@
 
 <script>
 import {logOut} from '../utils.js'
-import {displayError} from '../utils.js'
+//import {displayError} from '../utils.js'
+//import displayNotifications from "../mixins/displayNotifications";
+//import sedooAlert from '../components/sedooAlert.vue'
 export default {
-
+ // components: {
+  //  sedooAlert
+  //},
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
     this.loadProfile();
@@ -75,8 +75,8 @@ export default {
 
     emailRules: function() {
       const rules = []
-      rules.push(v => !!v || this.$t('email.error'))
-      rules.push(v => /.+@.+\..+/.test(v) || this.$t('email.validation.error'))
+      rules.push(v => !!v || this.$t('repository.screen.required.email.error'))
+      rules.push(v => /.+@.+\..+/.test(v) || this.$t('profile.screen.error.email.validation'))
       return rules
     },
 
@@ -159,15 +159,18 @@ export default {
           let tmpuser = self.user
           tmpuser.profile = response.data
           self.$store.commit("setUser", tmpuser);
-          self.displaySuccess(self.$t('confirmation'));
+          //self.$refs.sedooalert.displaySuccess(self.$t('confirmation'));
+          self.$store.commit('setErrors', self.$t('confirmation'))
           self.loadProfile();
         })
         .catch(function(error) {
-          displayError(self, error)
+          //self.$refs.sedooalert.displayError(error)
+          debugger
+          self.$store.commit('setErrors', error)
         })
         .finally(function() {
           self.saving = false;
-          self.$router.push("/information").catch(() => {});
+          //self.$router.push("/information").catch(() => {});
         });
 
       }
@@ -187,23 +190,17 @@ export default {
             }
           }
           if(self.profile.email == null) {
-            displayError(self, self.$t('email.error'))
+            //self.$refs.sedooalert.displayError(self.$t('repository.screen.required.email.error'))
+            self.$store.commit('setErrors', self.$t('repository.screen.required.email.error'))
           }
         })
         .catch(function(error) {
-          displayError(self, error)
+          self.$store.commit('setErrors', error)
         })
         .finally(function() {
           self.loading = false;
         });
     },
-
-    displaySuccess: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "success";
-      this.timeout = 4000;
-      this.notifier = true;
-    }
 
   },
 
@@ -211,10 +208,6 @@ export default {
     featureFlag : false,
     loading: false,
     saving: false,
-    timeout: 2000,
-    notifier: false,
-    notifierMessage: "",
-    notifierColor: "success",
     valid: false,
     profile: {
         id: null,

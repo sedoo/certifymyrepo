@@ -8,6 +8,7 @@ import VueAxios from "vue-axios";
 Vue.config.productionTip = false
 
 import TokenRefresher from './components/CertifyMyRepo-token-refresher.vue'
+import sedooAlert from './components/sedooAlert.vue'
 import VueApexCharts from 'vue-apexcharts'
 import 'es6-promise/auto'
 import { store } from './store/store'
@@ -19,6 +20,7 @@ Vue.use(VueAxios, axios);
 
 Vue.component('apexchart', VueApexCharts)
 Vue.component('certifymyrepo-token-refresher', TokenRefresher)
+Vue.component('sedoo-alert', sedooAlert)
 
 //Enable request interceptor
 axios.interceptors.request.use(function (config) {
@@ -38,6 +40,10 @@ axios.interceptors.response.use(function (response) {
     router.push({path: '/notlogged' })
   }
   return Promise.reject(error);
+});
+
+Vue.mixin({
+	store: store
 });
 
 new Vue({
