@@ -1,45 +1,4 @@
 <i18n src="../locales.json"></i18n>
-<i18n>
-{
-  "en": {
-    "repo.name": "Repository name",
-    "email": "Contact email",
-    "keywords": "Keywords",
-    "name.label": "Name",
-    "role.label": "Role",
-    "editer.popup.title": "Edit",
-    "email.error": "Please enter your email",
-    "email.validation.error": "E-mail must be valid",
-    "name.required.error": "Name is required",
-    "name.validation.error": "Name must be less than 20 characters",
-    "role.required.error": "Role is required",
-    "userName.required.orcid.error": "User name is required. Enter a valid orcid",
-    "userName.required.error": "User name is required.",
-    "user.required.error": "Select an user.",
-    "delete.user.confirmation.title": "Delete confirmation",
-    "delete.user.confirmation.label": "Do you really want to remove this user?",
-    "select.one.user.message": "Select an user in the list"
-  },
-  "fr": {
-    "repo.name": "Nom de l'entrepôt",
-    "email": "Courriel du contact",
-    "keywords": "Mots clefs",
-    "name.label": "Nom",
-    "role.label": "Rôle",
-    "editer.popup.title": "Editer",
-    "email.error": "Veuillez entrer voute courriel",
-    "email.validation.error": "Le courriel doit être valide",
-    "name.required.error": "Le nom est obligatoire",
-    "name.validation.error": "Le nom doit faire moins de 20 caractères",
-    "role.required.error": "Role is required",
-    "userName.required.orcid.error": "Le nom est oblogatoire. Entrer un ORCID valid",
-    "userName.required.error": "Le nom est oblogatoire.",
-    "delete.user.confirmation.title": "Confirmation de suppression",
-    "delete.user.confirmation.label": "Voulez-vous vraiment supprimer cet utilisateur?",
-    "select.one.user.message": "Selectionner un utilisateur dans la liste"
-  }
-}
-</i18n>
 <template>
     <div class="repository">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
@@ -58,7 +17,7 @@
                     v-model="myRepository.name"
                     :rules="rules.nameRules"
                     :counter="20"
-                    :label="$t('repo.name')"
+                    :label="$t('repository.screen.label.repository.name')"
                     required
                 ></v-text-field>
                 </v-col>
@@ -68,7 +27,7 @@
                     <v-text-field
                         v-model="myRepository.contact"
                         :rules="rules.emailRules"
-                        :label="$t('email')"
+                        :label="$t('repository.screen.label.repository.email')"
                         required
                     ></v-text-field>
                 </v-col>
@@ -79,7 +38,7 @@
                     <template v-slot:activator="{ on }">
                         <v-combobox multiple v-on="on"
                                         v-model="myRepository.keywords" 
-                                        :label="$t('keywords')"
+                                        :label="$t('repository.screen.label.repository.keywords')"
                                         chips
                                         deletable-chips
                                         :search-input.sync="searchKeywords"
@@ -96,7 +55,7 @@
                 <v-col cols="12" >
                     <v-text-field
                         v-model="myRepository.url"
-                        label="URL"
+                        :label="$t('repository.screen.label.repository.url')"
                     ></v-text-field>
                 </v-col>
             </v-row>
@@ -104,7 +63,7 @@
                 <v-col cols="12" >
                     <v-textarea
                         v-model="myRepository.description"
-                        label="Description"
+                        :label="$t('repository.screen.label.repository.description')"
                         outlined
                     ></v-textarea>
                 </v-col>
@@ -115,9 +74,9 @@
                     <template v-slot:default>
                     <thead>
                         <tr>
-                        <th class="text-left">{{$t('name.label')}}</th>
-                        <th class="text-left">{{$t('role.label')}}</th>
-                        <th class="text-left">Actions</th>
+                        <th class="text-left">{{$t('repository.screen.label.user.name')}}</th>
+                        <th class="text-left">{{$t('repository.screen.label.user.role')}}</th>
+                        <th class="text-left">{{$t('repository.screen.label.actions')}}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -157,7 +116,7 @@
                 {{ dialogTitle }}
                 </v-card-title>
                 <v-card-text>
-                <v-text-field class="pt-2" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('name.label')" readonly filled></v-text-field>
+                <v-text-field class="pt-2" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repositories.screen.label.user.name')" readonly filled></v-text-field>
                 <v-select :rules="rules.roleRules"
                 v-model="user.role"
                 :items="roles"
@@ -204,11 +163,11 @@
                         </v-card-actions>
                     </v-form>
                     <v-card-text v-if="creationMode == 'orcid'">
-                        <v-text-field class="pt-2" :rules="rules.userNameOrcidRules" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('name.label')" readonly filled></v-text-field>
+                        <v-text-field class="pt-2" :rules="rules.userNameOrcidRules" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repositories.screen.label.user.name')" readonly filled></v-text-field>
                         <v-text-field class="pt-2" v-model="user.email" prepend-inner-icon="mdi-email" :label="$t('repository.screen.create.user.email')"></v-text-field>
                     </v-card-text>
                     <v-card-text v-else>
-                        <v-text-field class="pt-2" :rules="rules.userNameRules" v-model="name" prepend-inner-icon="mdi-account" :label="$t('name.label')"></v-text-field>
+                        <v-text-field class="pt-2" :rules="rules.userNameRules" v-model="name" prepend-inner-icon="mdi-account" :label="$t('repositories.screen.label.user.name')"></v-text-field>
                         <v-text-field class="px-4" v-model="email" prepend-inner-icon="mdi-email" :rules="rules.emailRules" :label="$t('repository.screen.create.user.email')" required></v-text-field>
                     </v-card-text>
                     <v-divider></v-divider>
@@ -254,7 +213,7 @@
                         >
                         </v-data-table>
                         <div class="error--text v-messages">
-                            <div v-show="selectedUser.length == 0 && rowClicked" class="v-messages__message">{{ $t('select.one.user.message') }}</div>
+                            <div v-show="selectedUser.length == 0 && rowClicked" class="v-messages__message">{{ $t('repository.screen.error.select.one.user') }}</div>
                         </div>
                     </div>
                     </v-card-actions>
@@ -295,9 +254,9 @@
             <v-dialog v-model="dialogRemoveUser" :width="$store.getters.getDialogWidth">
             <v-card>
                 <v-card-title class="headline grey lighten-2" primary-title>
-                {{ $t('delete.user.confirmation.title') }}
+                {{ $t('repository.screen.delete.user.confirmation.title') }}
                 </v-card-title>
-                <v-card-text>{{ $t('delete.user.confirmation.label') }}</v-card-text>
+                <v-card-text>{{ $t('repository.screen.delete.user.confirmation.message') }}</v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
                 <div class="flex-grow-1"></div>
@@ -380,13 +339,12 @@ export default {
             myRepository: {id:null, name: null, keywords:[], contact: null, users: []},
             repositoryId: this.$route.query.repositoryId,
             rules: {
-                selectUserRules: [v => !!v || this.$t('user.required.error')],
-                userNameOrcidRules: [v => !!v || this.$t('userName.required.orcid.error')],
-                userNameRules: [v => !!v || this.$t('userName.required.error')],
-                roleRules: [v => !!v || this.$t('role.required.error')],
+                userNameOrcidRules: [v => !!v || this.$t('repository.screen.error.user.name.required.orcid.error')],
+                userNameRules: [v => !!v || this.$t('repository.screen.error.user.name.required.renater.error')],
+                roleRules: [v => !!v || this.$t('repository.screen.error.user.role.required')],
                 nameRules: [
-                    v => !!v || this.$t('name.required.error'),
-                    v => !!v && v.length <= 20 || this.$t('name.validation.error'),
+                    v => !!v || this.$t('repository.screen.error.repository.name.madatory'),
+                    v => !!v && v.length <= 20 || this.$t('repository.screen.error.repository.name.validation'),
                 ],
                 orcIdRules: [
                     v => !!v || 'ORCID is required',
@@ -394,8 +352,8 @@ export default {
                     v => !!v && v.length <= 19 || 'ORCID length must be exactly 20 characters',
                 ],
                 emailRules: [
-                    v => !!v || this.$t('email.error'),
-                    v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || this.$t('email.validation.error'),
+                    v => !!v || this.$t('repository.screen.error.repository.email.mandatory'),
+                    v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || this.$t('repository.screen.error.repository.email.validation'),
                 ],
             },
             creationMode: 'orcid',
@@ -428,7 +386,7 @@ export default {
           if(this.userIndex == -1){
               return this.$t('repository.screen.add.user.title')
           } else {
-              return this.$t('editer.popup.title')
+              return this.$t('repository.screen.edit.user.role.title')
           }
       },
       dialogWidth: function() {
