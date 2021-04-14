@@ -2,62 +2,34 @@
 <i18n>
 {
   "en": {
-    "title" : "{msg} certification report",
-    "version.number": "Version number",
-    "version.error.message": "Version is required",
-    "status.label": "Status:",
-    "button.previous" :"Previous",
-    "button.continue" :"Continue",
-    "level.label" : "Level",
-    "edit.response": "Edit the response",
-    "comment.label" : "Comments",
-    "button.release": "Validate",
     "release.popup.title": "Validation",
     "release.popup.message": "Do you really want to validate this report ? You will not be able to modify or delete this version of the report after this operation.",
     "release.erreor.message": "The report status must be 'Redaction in progress' before been able to validate a report",
     "upload.popup.title": "Upload",
     "delete.popup.title": "Delete",
     "delete.popup.message": "Do you really want to delete {msg} file ? This operation cannot be undone.",
-    "add.file.label": "Attachments",
     "add.file.message": "File name will be formatted without accent and space will be replace by underscore char. If the file exist alreay it will be replaced.",
     "version.required.error": "Version is required",
     "version.not.valid.error": "Version number must be valid. Example 2.1",
-    "files.size.error": "Attachments size must be less than 10MB",
-    "clipboard.toolpit.button": "Copy the link",
-    "attachments.toolpit.button": "Please, save your report once before adding attachments",
-    "button.download.raw.data": "JSON"
+    "files.size.error": "Attachments size must be less than 10MB"
   },
   "fr": {
-    "title" : "Fiche {msg}",
-    "version.number": "Numéro de version",
-    "version.error.message": "La version est obligatoire",
-    "status.label": "Statut:",
-    "button.previous" :"Précédent",
-    "button.continue" :"Continuer",
-    "level.label" : "Niveau",
-    "edit.response": "Editer la réponse",
-    "comment.label" : "Commentaires",
-    "button.release": "Valider",
     "release.popup.title": "Validation",
     "release.popup.message": "Voulez-vous vraiment valider cette fiche ? Vous ne pourrez plus modifier ou supprimer cette version après cette opération",
     "release.erreor.message": "Le statut doit être 'En cours de rédaction' pour pouvoir valider une fiche",
     "upload.popup.title": "Ajouter des fichiers",
-    "add.file.label": "Pièces jointes",
     "add.file.message": "Le nom du fichier sera formaté sans accent. les éventuels espaces seront remplacés par le caractère underscore. Si le fichier existant déjà, le fichier précédent enregistré sera remplacé par le nouveau.",
     "delete.popup.title": "Suppression",
     "delete.popup.message": "Voulez vous vraiment supprimer le fichier {msg}? Veuillez noter que cette opération est irréversible.",
     "version.required.error": "Le champ Version est obligatoire",
     "version.not.valid.error": "Le numéro de version doit être valide. Exemple 2.1",
-    "files.size.error": "Les pièces jointes ne doivent pas dépasser 10Mo",
-    "clipboard.toolpit.button": "Copier le lien",
-    "attachments.toolpit.button": "Veuillez enregistrer votre rapport avant de pouvoir ajouter des pièces jointes",
-    "button.download.raw.data": "JSON"
+    "files.size.error": "Les pièces jointes ne doivent pas dépasser 10Mo"
   }
 }
 </i18n>
 <template>
     <div>
-    <h1 class="subheading grey--text">{{ $t('title', {'msg':$store.getters.getRepository.name } ) }}</h1>
+    <h1 class="subheading grey--text">{{ $t('report.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
     <v-progress-linear indeterminate v-if="loadingReport" class="mt-3"></v-progress-linear>
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
@@ -67,7 +39,7 @@
     <h4 class="subheading grey--text pt-5 pb-5">{{ templateDescription }}</h4>
       <v-form v-model="valid">
             <v-text-field v-if="editExistingAllowed"
-                :label="$t('version.number')"
+                :label="$t('report.screen.version.number')"
                 v-model="myReport.version"
                 :rules="rules.versionRules"
             ></v-text-field>
@@ -86,14 +58,14 @@
                   {{ $t(data.item) }}
               </template>
             </v-select>
-            <p v-if="!editExistingAllowed"><span class="font-weight-bold">{{ $t('status.label') }} </span><span>{{ $t(myReport.status) }} </span></p>
+            <p v-if="!editExistingAllowed"><span class="font-weight-bold">{{ $t('report.screen.label.status') }} </span><span>{{ $t(myReport.status) }} </span></p>
            
 
               <v-stepper v-model="e1" vertical >
                 <div v-for="(item, index) in myReport.items" :key=index>
                         <v-stepper-step :complete="e1 > index + 1" :step="index + 1" editable >
                         <h3>{{item.requirement}}</h3>
-                        <small v-if="item.level != null">{{ $t('level.label') }}: {{item.level}}</small>
+                        <small v-if="item.level != null">{{ $t('report.screen.label.level') }}: {{item.level}}</small>
                         </v-stepper-step>
                       
                         <v-stepper-content :step="index + 1">
@@ -105,7 +77,7 @@
                             <!-- start user detailed response -->
                             <v-textarea v-if="editExistingAllowed"
                                 outlined class="ma-3"
-                                :label="$t('edit.response')"
+                                :label="$t('report.screen.label.edit.response')"
                                 v-model="item.response"
                             >
                             </v-textarea>
@@ -121,7 +93,7 @@
                                     <v-icon>mdi-content-copy</v-icon>    
                                 </v-btn>
                                   </template>
-                                  <span>{{ $t('clipboard.toolpit.button') }}</span>
+                                  <span>{{ $t('report.screen.button.clipboard.help') }}</span>
                               </v-tooltip> 
                               <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" icon class="mx-0" @click="openDeleteFilePopup(item.code, file)">     
                                   <v-icon>mdi-delete-forever-outline</v-icon>    
@@ -132,11 +104,11 @@
                                 <template v-slot:activator="{ on }">
                                   <div v-on="on" class="pa-2">
                                     <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" color="info" :disabled="reportNotSavedYet" @click="openUploadFilesPopup(item.code)">
-                                        {{ $t('add.file.label') }}
+                                        {{ $t('report.screen.label.add.files') }}
                                     </v-btn>
                                   </div>
                                   </template>
-                                  <span>{{ $t('attachments.toolpit.button') }}</span>
+                                  <span>{{ $t('report.screen.button.add.files.help') }}</span>
                               </v-tooltip>
                             </v-card-actions>
                             </div>
@@ -155,7 +127,7 @@
                             <v-expansion-panels flat class="pa-3" v-if="!hideCommentBloc(item)">
                             <v-expansion-panel>
                                 <v-expansion-panel-header class="px-3">
-                                  {{ $t('comment.label')}}  
+                                  {{ $t('report.screen.label.comments')}}  
                                   <span class="pl-3" v-if="item.comments != null && item.comments.length > 0">
                                     <i class="fa fa-comment"></i> {{ item.comments.length }}
                                   </span>
@@ -575,7 +547,7 @@ export default {
       // Save report
       save () {
         if(!this.valid) {
-          displayError(this, this.$t('version.error.message'))
+          displayError(this, this.$t('report.screen.error.version.madatory'))
         } else {
           this.myReport.updateDate = new Date()
           var self = this;

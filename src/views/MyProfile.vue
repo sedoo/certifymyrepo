@@ -76,7 +76,7 @@ export default {
     emailRules: function() {
       const rules = []
       rules.push(v => !!v || this.$t('email.error'))
-      rules.push(v => /.+@.+\..+/.test(v) || this.$t('email.validation.error'))
+      rules.push(v => /.+@.+\..+/.test(v) || this.$t('profile.screen.error.email.validation'))
       return rules
     },
 
@@ -187,7 +187,7 @@ export default {
             }
           }
           if(self.profile.email == null) {
-            displayError(self, self.$t('email.error'))
+            displayError(self, self.$t('repository.screen.required.email.error'))
           }
         })
         .catch(function(error) {

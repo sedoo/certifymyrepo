@@ -6,10 +6,10 @@
       <v-btn dark text @click="notifier = false">Close</v-btn>
     </v-snackbar>
     
-    <h1 class="grey--text">{{ $t('repository.screen.title') }}</h1>
+    <h1 class="grey--text">{{ $t('repositories.screen.title') }}</h1>
     
 <v-layout justify-end>
-  <v-btn class="info my-3" :disabled="userEmail==null" @click="createRepository">{{ $t('repository.screen.button.create.new.repository') }}</v-btn>
+  <v-btn class="info my-3" :disabled="userEmail==null" @click="createRepository">{{ $t('repositories.screen.button.create.new.repository') }}</v-btn>
 </v-layout>
   <v-card class="mx-auto" v-if="resultMyRepo != null && resultMyRepo.length > 0">
 	    <v-data-iterator 
@@ -38,7 +38,7 @@
                         <v-icon>mdi-link</v-icon>
                       </v-btn>
                       </template>
-                      <span>{{ $t('repository.button.help.message.link') }}</span>
+                      <span>{{ $t('repositories.button.help.message.link') }}</span>
                   </v-tooltip> 
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
@@ -46,7 +46,7 @@
                         <v-icon>mdi-inbox-multiple-outline</v-icon>
                       </v-btn>
                      </template>
-                     <span>{{ $t('repository.screen.button.help.message.view') }}</span>
+                     <span>{{ $t('repositories.screen.button.help.message.view') }}</span>
                   </v-tooltip>
                   <v-tooltip bottom>
                     <template v-if="!item.readonly" v-slot:activator="{ on }">
@@ -54,7 +54,7 @@
                         <v-icon>mdi-pencil-outline</v-icon>    
                       </v-btn>
                       </template>
-                      <span>{{ $t('edit.repository.button') }}</span>
+                      <span>{{ $t('repositories.screen.button.help.message.edit') }}</span>
                   </v-tooltip>              
                   <v-btn v-if="!item.readonly" icon @click="repositoryId = item.repository.id;dialog=true" >     
                       <v-icon>mdi-delete-forever-outline</v-icon>    
@@ -70,7 +70,7 @@
               <v-card-text>
               <v-list>
                 <v-list-item v-if="item.repository.keywords && item.repository.keywords.length > 0">
-                  <v-list-item-content>{{$t('repository.screen.label.keywords')}}:</v-list-item-content>
+                  <v-list-item-content>{{$t('repositories.screen.label.keywords')}}:</v-list-item-content>
                   <v-list-item-content>
                   <v-chip-group active-class="primary--text" column>
                     <v-chip small v-for="(keyword, key) in item.repository.keywords" :key=key >{{ keyword }}</v-chip>
@@ -89,14 +89,14 @@
               </v-list-group>
               <v-list-group v-show="item.healthLatestValidReport != null" sub-group no-action color="black--text">
                 <template v-slot:activator>
-                <v-list-item-content>{{ $t('radar.chart.title.valid')}}</v-list-item-content>
+                <v-list-item-content>{{ $t('repositories.screen.radar.chart.title.valid')}}</v-list-item-content>
                 <v-icon :color="getHealthColor(item.healthLatestValidReport)">{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
                 </template>
                 <apexchart type=radar :options="chartOptions(item.healthLatestValidReport)" :series="levelList(item.healthLatestValidReport)" />
               </v-list-group>
               <v-list-group v-show="item.healthLatestInProgressReport != null" sub-group no-action color="black--text">
                 <template v-slot:activator>
-                <v-list-item-content>{{ $t('radar.chart.title.inProgress')}}</v-list-item-content>
+                <v-list-item-content>{{ $t('repositories.screen.radar.chart.title.inProgress')}}</v-list-item-content>
                 <v-icon :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
                 </template>
                 <apexchart type=radar :options="chartOptions(item.healthLatestInProgressReport)" :series="levelList(item.healthLatestInProgressReport)" />

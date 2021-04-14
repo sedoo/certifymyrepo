@@ -46,7 +46,7 @@
               <div v-else>
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" :loading="loadingRemonveRole[index]" class="mx-0 pa-3" @click="removeRole(item, index)">     
+                  <v-btn icon v-on="on" :loading="loadingRemonveRole[index]" class="mx-0 pa-3" @click="openDialogConfirmationRemoveAdmin(item, index)">     
                       <v-icon size="20px">mdi-account-minus</v-icon>    
                   </v-btn>
                   </template>
@@ -59,19 +59,19 @@
       </template>
     </div>
 
-    <v-dialog v-model="dialogEditAdmin" :width="$store.getters.getDialogWidth">
+    <v-dialog v-model="dialogRemoveAdmin" :width="$store.getters.getDialogWidth">
     <v-card>
         <v-card-title class="headline grey lighten-2" primary-title>
-        {{ $t('delete.user.confirmation.title') }}
+        {{ $t('administration.scree.remove.admin.confirmation.title') }}
         </v-card-title>
-        <v-card-text>{{ $t('delete.user.confirmation.label') }}</v-card-text>
+        <v-card-text>{{ $t('administration.scree.remove.admin.confirmation.label') }}</v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
         <div class="flex-grow-1"></div>
-        <v-btn @click="dialogRemoveUser = false">
+        <v-btn @click="dialogRemoveAdmin = false">
             {{ $t('button.cancel') }}
         </v-btn>
-        <v-btn color="info" @click="dialogRemoveUser = false;removeUser()">
+        <v-btn color="info" @click="removeAdminRoleHasBeenConfirmed()">
             {{ $t('button.confirm') }}
         </v-btn>
         </v-card-actions>
@@ -99,6 +99,9 @@ export default {
       loadingGiveRole: [],
       loadingRemonveRole: [],
       search: null,
+      dialogRemoveAdmin: false,
+      item: null,
+      index: null,
     }
   },
 
@@ -123,6 +126,15 @@ export default {
       return this.$store.getters.getService
     },
 
+    userId: function() {
+      let id = null
+      if(this.$store.getters.getUser != null) {
+        id = this.$store.getters.getUser.profile.id
+      }
+      return id
+    },
+
+
   },
 
   methods: {
@@ -135,6 +147,21 @@ export default {
         self.users = response.data
       }).catch(function(error) {displayError(self, error)})
       .finally(() => self.loading = false)
+    },
+
+    openDialogConfirmationRemoveAdmin(item, index) {
+      if(this.userId == item.userId) {
+        this.item = item;
+        this.index= index;
+        this.dialogRemoveAdmin = true
+      } else {
+        this.removeRole(item, index)
+      }
+    },
+
+    removeAdminRoleHasBeenConfirmed() {
+      this.dialogRemoveAdmin = false
+      this.removeRole(this.item, this.index)
     },
 
     giveRole(item, index) {

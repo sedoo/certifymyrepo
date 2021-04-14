@@ -1,53 +1,17 @@
 <i18n src="../locales.json"></i18n>
-<i18n>
-{
-  "en": {
-    "title" : "{msg} certification reports",
-    "create.new.report": "Create a new report",
-    "create.confirm.message": "Select the type of report.",
-    "date": "Update date",
-    "status": "status",
-    "radar.chart.title": "Requirements Radar Chart",
-    "read.help.message": "Read this report",
-    "copy.help.message": "Create a new report from a copy",
-    "edit.help.message": "Edit this report",
-    "pdf.help.message": "Download the report as PDF file",
-    "json.help.message": "Download the report in JSON",
-    "delete.confirm.message": "Do you really want to delete this report ? This operation cannot be undone.",
-    "delete": "Delete",
-    "template.label": "Template"
-  },
-  "fr": {
-    "title" : "Fiches {msg}",
-    "create.new.report": "Créer une nouvelle fiche",
-    "create.confirm.message": "Veuillez sélectionner le type de fiche.",
-    "date": "Date mise à jour",
-    "status": "statut",
-    "radar.chart.title": "Graphique radar des critères",
-    "read.help.message": "Consulter cette fiche",
-    "copy.help.message": "Créer une nouvelle fiche à partir d'une copie",
-    "edit.help.message": "Modifier cette fiche",
-    "pdf.help.message": "Télécharger le rapport au format PDF",
-    "json.help.message": "Télécharger le rapport au format JSON",
-    "delete.confirm.message": "Voulez vous vraiment supprimer cette fiche? Veuillez noter que cette opération est irréversible.",
-    "delete": "Suppression",
-    "template.label": "Modèle"
-  }
-}
-</i18n>
 <template>
     <div class="reports">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
       <v-btn dark text @click="notifier = false">Close</v-btn>
     </v-snackbar>
-    <h1 class="subheading grey--text">{{ $t('title', {'msg':$store.getters.getRepository.name } ) }}</h1>
+    <h1 class="subheading grey--text">{{ $t('reports.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
     <v-container class="my-3">
 
         <template>
         <div class="text-center">
         <div v-if="creationValidationAllowed" class="text-right pa-3">
-            <v-btn color="info" @click="dialogCreate = true">{{ $t('create.new.report')}}</v-btn>
+            <v-btn color="info" @click="dialogCreate = true">{{ $t('reports.screen.create.new.report.confirmation.title')}}</v-btn>
         </div>
 
         </div>
@@ -78,7 +42,7 @@
                    <v-icon>mdi-pencil-outline</v-icon>  
                 </v-btn>
                 </template>
-                <span>{{ $t('edit.help.message') }}</span>
+                <span>{{ $t('reports.screen.button.edit.help') }}</span>
             </v-tooltip>
 
             <v-btn v-if="creationValidationAllowed && !isReleased(item)" icon class="mx-0" @click="dialogDelete=true;reportId=item.id">     
@@ -91,7 +55,7 @@
                     <v-icon>mdi-book-open-variant</v-icon>    
                 </v-btn>
                 </template>
-                <span>{{ $t('read.help.message') }}</span>
+                <span>{{ $t('reports.screen.button.read.help') }}</span>
             </v-tooltip>
 
             <v-tooltip bottom>
@@ -100,7 +64,7 @@
                         <v-icon>mdi-content-copy</v-icon>    
                     </v-btn>
                 </template>
-                <span>{{ $t('copy.help.message') }}</span>
+                <span>{{ $t('reports.screen.button.copy.help') }}</span>
             </v-tooltip>
 
             <v-tooltip bottom>
@@ -109,7 +73,7 @@
                         <v-icon>mdi-file-pdf-box</v-icon>    
                     </v-btn>
                 </template>
-                <span>{{ $t('pdf.help.message') }}</span>
+                <span>{{ $t('reports.screen.button.pdf.help') }}</span>
             </v-tooltip>
 
             <v-tooltip bottom>
@@ -118,7 +82,7 @@
                         <v-icon>mdi-file-document-outline</v-icon>    
                     </v-btn>
                 </template>
-                <span>{{ $t('json.help.message') }}</span>
+                <span>{{ $t('reports.screen.button.json.help') }}</span>
             </v-tooltip>
 
         </template>   
@@ -139,22 +103,20 @@
                 class="headline grey lighten-2"
                 primary-title
                 >
-                {{ $t('delete') }}
+                {{ $t('reports.screen.delete.report.confirmation.title') }}
                 </v-card-title>
                 <v-card-text>
-                {{ $t('delete.confirm.message') }}
+                {{ $t('reports.screen.delete.report.confirmation.message') }}
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
                 <div class="flex-grow-1"></div>
                     <v-btn
-                        color="primary"
-                        text
                         @click="dialogDelete = false">
                         {{ $t('button.cancel') }}
                     </v-btn>
                     <v-btn
-                        color="primary"
+                        color="info"
                         @click="dialogDelete = false; deleteItem()">
                         {{ $t('button.confirm') }}
                     </v-btn>
@@ -168,10 +130,10 @@
                 class="headline grey lighten-2"
                 primary-title
                 >
-                {{ $t('create.new.report') }}
+                {{ $t('reports.screen.create.new.report.confirmation.title') }}
                 </v-card-title>
                 <v-card-text>
-                {{ $t('create.confirm.message') }}
+                {{ $t('reports.screen.create.new.report.confirmation.message') }}
                 <v-select :items="templateNames" v-model="templateName">
                 </v-select>
                 </v-card-text>
@@ -179,13 +141,11 @@
                 <v-card-actions>
                 <div class="flex-grow-1"></div>
                     <v-btn
-                        color="primary"
-                        text
                         @click="dialogCreate = false">
                         {{ $t('button.cancel') }}
                     </v-btn>
                     <v-btn
-                        color="primary"
+                        color="info"
                         @click="dialogCreate = false;createReport();">
                         {{ $t('button.confirm') }}
                     </v-btn>
@@ -218,11 +178,11 @@ export default {
 	        creationValidationAllowed: false,
             repositoryId: this.$route.params.id,
             headers: [
-                { text: 'Version', value: 'version' },
-                { text: this.$t('template.label'), value: 'templateName' },
-                { text: this.$t('date'), value: 'updateDate'},
-                { text: this.$t('status'), value: 'status' },
-                { text: 'Actions', value: 'actions', sortable: false }
+                { text: this.$t('reports.screen.table.reports.column.version'), value: 'version' },
+                { text: this.$t('reports.screen.table.reports.column.template'), value: 'templateName' },
+                { text: this.$t('reports.screen.table.reports.column.lastupdate'), value: 'updateDate'},
+                { text: this.$t('reports.screen.table.reports.column.status'), value: 'status' },
+                { text: this.$t('reports.screen.table.reports.column.actions'), value: 'actions', sortable: false }
                 ] ,
             templateNames: ['CTS-2020-2022', 'TEST'],
             templateName: 'CTS-2020-2022',
@@ -343,7 +303,7 @@ export default {
             return [serie];
         },
         chartOptions (report) {
-            var option = {labels: null, title: {text: this.$t('radar.chart.title')}, yaxis:{max: 4, forceNiceScale: true, tickAmount: 4} }
+            var option = {labels: null, title: {text: this.$t('reports.screen.table.reports.radar.chart.title')}, yaxis:{max: 4, forceNiceScale: true, tickAmount: 4} }
             var array = [];
             for (var j = 0; j < report.items.length; j++){
                 var r = report.items[j]

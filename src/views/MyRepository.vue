@@ -2,14 +2,11 @@
 <i18n>
 {
   "en": {
-    "title" : "My repository",
     "repo.name": "Repository name",
     "email": "Contact email",
     "keywords": "Keywords",
     "name.label": "Name",
     "role.label": "Role",
-    "button.create.user": "Create an user",
-    "add.popup.title": "Add an user",
     "editer.popup.title": "Edit",
     "email.error": "Please enter your email",
     "email.validation.error": "E-mail must be valid",
@@ -21,26 +18,14 @@
     "user.required.error": "Select an user.",
     "delete.user.confirmation.title": "Delete confirmation",
     "delete.user.confirmation.label": "Do you really want to remove this user?",
-    "tab.name": "Name",
-    "tab.email": "Email",
-    "select.one.user.message": "Select an user in the list",
-    "create.user.title": "Create an user",
-    "create.user.successful": "The user has been successfully created.",
-    "create.user.error.duplicate.orcid": "This ORCID is already in database for the user {msg}.",
-    "create.user.error.duplicate.email": "This Email is already in database for the user {msg}.",
-    "or.separation": "OR",
-    "user.email": "Email",
-    "search": "Search"
+    "select.one.user.message": "Select an user in the list"
   },
   "fr": {
-    "title" : "Mon entrepôt",
     "repo.name": "Nom de l'entrepôt",
     "email": "Courriel du contact",
     "keywords": "Mots clefs",
     "name.label": "Nom",
     "role.label": "Rôle",
-    "button.create.user": "Créer un utilisateur",
-    "add.popup.title": "Ajouter un utilisateur",
     "editer.popup.title": "Editer",
     "email.error": "Veuillez entrer voute courriel",
     "email.validation.error": "Le courriel doit être valide",
@@ -51,16 +36,7 @@
     "userName.required.error": "Le nom est oblogatoire.",
     "delete.user.confirmation.title": "Confirmation de suppression",
     "delete.user.confirmation.label": "Voulez-vous vraiment supprimer cet utilisateur?",
-    "tab.name": "Nom",
-    "tab.email": "Courriel",
-    "select.one.user.message": "Selectionner un utilisateur dans la liste",
-    "create.user.title": "Créer un utilisateur",
-    "create.user.successful": "L'utilisateur a été créé.",
-    "create.user.error.duplicate.orcid": "Cet ORCID est déjà dans la base de données pour l'utilisateur {msg}.",
-    "create.user.error.duplicate.email": "Ce courriel est déjà dans la base de données pour l'utilisateur {msg}.",
-    "or.separation": "OU",
-    "user.email": "Courriel",
-    "search": "Recherche"
+    "select.one.user.message": "Selectionner un utilisateur dans la liste"
   }
 }
 </i18n>
@@ -71,7 +47,7 @@
       <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
     </v-snackbar>
 
-    <h1 class="subheading grey--text">{{$t('title')}}</h1>
+    <h1 class="subheading grey--text">{{$t('repository.screen.title')}}</h1>
 
         <template>
         <v-form v-model="valid">
@@ -160,7 +136,7 @@
                     </tbody>
                     </template>
                 </v-simple-table>
-                <v-btn class="ml-3 " x-small :title="$t('add.popup.title')" @click="openAddUserDialog()"  fab color="info"> 
+                <v-btn class="ml-3 " x-small :title="$t('repository.screen.add.user.title')" @click="openAddUserDialog()"  fab color="info"> 
                     <v-icon >mdi-plus</v-icon> 
                 </v-btn>
                 </v-col>
@@ -185,7 +161,7 @@
                 <v-select :rules="rules.roleRules"
                 v-model="user.role"
                 :items="roles"
-                label="Select a role">
+                :label="$t('repository.screen.add.user.label.select.role')">
                     <template slot="selection" slot-scope="data">
                         <!-- HTML that describe how select should render selected items -->
                         {{ $t(data.item) }} 
@@ -213,7 +189,7 @@
             <v-dialog v-model="dialogCreateUser" :width="$store.getters.getDialogWidth">
                 <v-card>
                     <v-card-title class="headline grey lighten-2" primary-title>
-                    {{ $t('create.user.title') }}
+                    {{ $t('repository.screen.create.user.title') }}
                     </v-card-title>
                     <v-card-actions>
                         <v-radio-group class="pl-2" v-model="creationMode" row>
@@ -229,11 +205,11 @@
                     </v-form>
                     <v-card-text v-if="creationMode == 'orcid'">
                         <v-text-field class="pt-2" :rules="rules.userNameOrcidRules" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('name.label')" readonly filled></v-text-field>
-                        <v-text-field class="pt-2" v-model="user.email" prepend-inner-icon="mdi-email" :label="$t('user.email')"></v-text-field>
+                        <v-text-field class="pt-2" v-model="user.email" prepend-inner-icon="mdi-email" :label="$t('repository.screen.create.user.email')"></v-text-field>
                     </v-card-text>
                     <v-card-text v-else>
                         <v-text-field class="pt-2" :rules="rules.userNameRules" v-model="name" prepend-inner-icon="mdi-account" :label="$t('name.label')"></v-text-field>
-                        <v-text-field class="px-4" v-model="email" prepend-inner-icon="mdi-email" :rules="rules.emailRules" :label="$t('user.email')" required></v-text-field>
+                        <v-text-field class="px-4" v-model="email" prepend-inner-icon="mdi-email" :rules="rules.emailRules" :label="$t('repository.screen.create.user.email')" required></v-text-field>
                     </v-card-text>
                     <v-divider></v-divider>
                     <v-card-actions>
@@ -261,7 +237,7 @@
                         <v-text-field
                             v-model="search"
                             append-icon="mdi-magnify"
-                            :label="$t('search')"
+                            :label="$t('repository.screen.add.user.label.search.bar')"
                             single-line
                             hide-details
                             @input="clearSelectedUser"
@@ -284,14 +260,14 @@
                     </v-card-actions>
                     <v-card-actions>
                         <div class="flex-grow-1"></div>
-                        <v-btn class="mx-3" color="info" @click="openCreateUserDialog">{{ $t('button.create.user') }}</v-btn>
+                        <v-btn class="mx-3" color="info" @click="openCreateUserDialog">{{ $t('repository.screen.create.user.title') }}</v-btn>
                     </v-card-actions>
                     <v-divider></v-divider>
                     <v-card-actions>
                     <v-select :rules="rules.roleRules"
                     v-model="role"
                     :items="roles"
-                    label="Select a role">
+                    :label="$t('repository.screen.add.user.label.select.role')">
                         <template slot="selection" slot-scope="data">
                             <!-- HTML that describe how select should render selected items -->
                             {{ $t(data.item) }} 
@@ -372,8 +348,8 @@ export default {
             loadingUsers: false,
             /** List of user found in "Add a kown user" dialog */
             headers: [
-                { text: this.$t('tab.name'), value: 'name' },
-                { text: this.$t('tab.email'), value: 'email' }
+                { text: this.$t('user.table.column.user.name'), value: 'name' },
+                { text: this.$t('user.table.column.user.email'), value: 'email' }
                 ] ,
             /** loading button for orcid lookup */
             loadingUser: false,
@@ -450,7 +426,7 @@ export default {
       },
       dialogTitle: function() {
           if(this.userIndex == -1){
-              return this.$t('add.popup.title')
+              return this.$t('repository.screen.add.user.title')
           } else {
               return this.$t('editer.popup.title')
           }
@@ -571,7 +547,7 @@ export default {
             }).then(function(response) {
                 self.creatingUser = false
                 self.dialogCreateUser = false
-                displaySuccess(self, self.$t('create.user.successful'))
+                displaySuccess(self, self.$t('repository.screen.create.user.successful'))
             }).catch(function(error) {
                 displayError(self, error)
             }).finally(() => {
@@ -588,7 +564,7 @@ export default {
                 if(response.data.id == null) {
                     self.user = response.data
                 } else {
-                    displayError(self, self.$t('create.user.error.duplicate.orcid', {'msg':response.data.name } ))
+                    displayError(self, self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
                 }
             }).catch(function(error) {displayError(self, error)})
             .finally(() => this.loadingUser = false)
@@ -603,7 +579,7 @@ export default {
                     self.user.email = self.email
                     self.user.email = self.name
                 } else {
-                    displayError(self, self.$t('create.user.error.duplicate.email', {'msg':response.data.name } ))
+                    displayError(self, self.$t('repository.screen.create.user.error.duplicate.email', {'msg':response.data.name } ))
                 }
             }).catch(function(error) {displayError(self, error)})
             .finally(() => this.loadingUser = false)
