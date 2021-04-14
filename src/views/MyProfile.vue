@@ -166,7 +166,8 @@ export default {
         .catch(function(error) {
           //self.$refs.sedooalert.displayError(error)
           debugger
-          self.$store.commit('setErrors', error)
+          self.$emit('displayError', error);
+          //self.$store.commit('setErrors', error)
         })
         .finally(function() {
           self.saving = false;

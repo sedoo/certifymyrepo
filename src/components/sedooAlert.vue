@@ -1,10 +1,8 @@
 <i18n src="../locales.json"></i18n>
 <template>
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-        <span v-for="(error, index) in getErrors" :key=index>
-            <span v-html="error"></span>
-        </span>
-      <v-btn dark text @click="resetMessage()">{{ $t('button.close') }}</v-btn>
+      <span v-html="notifierMessage"></span>
+      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
     </v-snackbar>
 </template>
 
@@ -15,6 +13,8 @@ export default {
         return {
             // error and success notification vars
             timeout: 2000,
+            notifier: false,
+            notifierMessage: "",
             notifierColor: "success",
         }
     },
@@ -23,35 +23,25 @@ export default {
         this.$i18n.locale = this.$store.getters.getLanguage;
     },
 
-    computed :{
-        getErrors(){
-            let errors = []
-            if(this.$store.getters.getErrors != null) {
-                for(let i=0 ; i<this.$store.getters.getErrors.length ; i++) {
-                    let error = this.$store.getters.getErrors[i]
-                    if(error && error.response && error.response.data) {
-                        errors.push(this.$t('error.notification') + error.response.data.message)
-                    } else {
-                        errors.push(error)
-                    }
-                }
-            }
-            return errors
-        },
-        notifier() {
-            if(this.$store.getters.getErrors && this.$store.getters.getErrors.length > 0) {
-                return true
-            } else {
-                return false
-            }
-        }
-    },
-
     methods: {
-        resetMessage() {
-            this.$store.commit('setErrors', null)
+        displayError: function(error) {
+            let message = null
+            if(error && error.response && error.response.data) {
+                message = this.$t('error.notification') + error.response.data.message
+            } else {
+                 message = error
+            }
+            this.notifierMessage = message;
+            this.notifierColor = "error";
+            this.timeout = 8000;
+            this.notifier = true;
+        },
+        displaySuccess: function(message) {
+            this.notifierMessage = message;
+            this.notifierColor = "success";
+            this.timeout = 4000;
+            this.notifier = true;
         }
-
     },
 } 
 </script>
