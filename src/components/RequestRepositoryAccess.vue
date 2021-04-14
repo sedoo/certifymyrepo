@@ -1,29 +1,4 @@
 <i18n src="../locales.json"></i18n>
-<i18n>
-{
-  "en": {
-    "title" : "Request repository access",
-    "search.message": "Search by repository name and/or keywords",
-    "no.data.message": "No data found",
-    "name.label": "Name",
-    "keywords.label": "Keywords",
-    "button.join": "Request access",
-    "message.access.granded": "Access granted",
-    "request.popup.title": "Request {msg} access"
-  },
-  "fr": {
-    "title" : "Demande d'accès aux entrepôts",
-    "search.message": "Recherche par nom d'entrepôt et/ou mots clefs",
-    "no.data.message": "Aucunes données trouvées",
-    "name.label": "Nom",
-    "keywords.label": "Mots cléfs",
-    "button.join": "Demander l'accès",
-    "message.access.granded": "Accès autorisé",
-    "request.popup.title": "Demande d'accès à {msg}"
-
-  }
-}
-</i18n>
 <template>
     <div class="accessRequest">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
@@ -33,8 +8,8 @@
         <v-card
             class="mx-auto pa-5"
         >
-            <v-card-title>{{ $t('title') }}</v-card-title>
-            <v-card-text class="grey--text text--lighten-1">{{$t('search.message')}}</v-card-text >
+            <v-card-title>{{ $t('repository.screen.repository.access.title') }}</v-card-title>
+            <v-card-text class="grey--text text--lighten-1">{{$t('repository.screen.repository.access.label.search')}}</v-card-text >
             <v-card-actions>
                     <v-text-field v-model="keywords" @keyup.enter="lookup"></v-text-field>
                     <v-btn
@@ -49,9 +24,9 @@
                 <template v-slot:default>
                 <thead>
                     <tr>
-                    <th class="text-left">{{ $t('name.label')}}</th>
-                    <th class="text-left">{{ $t('keywords.label')}}</th>
-                    <th class="text-left pl-8">Actions</th>
+                    <th class="text-left">{{ $t('repository.screen.repository.access.label.name')}}</th>
+                    <th class="text-left">{{ $t('repository.screen.repository.access.label.keywords')}}</th>
+                    <th class="text-left pl-8">{{ $t('repository.screen.repository.access.label.actions')}}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,15 +34,15 @@
                     <td>{{ item.name }}</td>
                     <td><span v-for="(keyword, index) in item.keywords" :key=index>{{ keyword }} </span></td>
                     <td v-if="userIsAdmin">A/N</td>
-                    <td v-else-if="isAccessGranted(item.users)">{{ $t('message.access.granded') }}</td>
+                    <td v-else-if="isAccessGranted(item.users)">{{ $t('repository.screen.repository.access.access.granded') }}</td>
                     <td v-else> 
-                        <v-btn color="info" text @click="requestedRepository=item;dialog=true">{{ $t('button.join') }}</v-btn>
+                        <v-btn color="info" text @click="requestedRepository=item;dialog=true">{{ $t('repository.screen.repository.access.button.join') }}</v-btn>
                     </td>
                     </tr>
                 </tbody>
                 </template>
             </v-simple-table>
-            <v-card-text v-if="notDataFound">{{ $t('no.data.message')}}</v-card-text>
+            <v-card-text v-if="notDataFound">{{ $t('repository.screen.repository.access.label.no.data')}}</v-card-text>
         </v-card>
         <v-form v-model="valid">
         <v-dialog v-model="dialog" :width="$store.getters.getDialogWidth">
@@ -76,12 +51,12 @@
             class="headline grey lighten-2"
             primary-title
             >
-             {{ $t('request.popup.title', {'msg':resquestPopupTitle(requestedRepository) } ) }}
+             {{ $t('repository.screen.repository.access.popup.title', {'msg':resquestPopupTitle(requestedRepository) } ) }}
             </v-card-title>
 
             <v-card-text>
             <v-text-field
-                label="Enter your email"
+                :label="$t('profile.screen.error.email.mandatory')"
                 v-model="email"
                 :rules="emailRules"
                 required

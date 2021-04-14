@@ -1,32 +1,4 @@
 <i18n src="../locales.json"></i18n>
-<i18n>
-{
-  "en": {
-    "release.popup.title": "Validation",
-    "release.popup.message": "Do you really want to validate this report ? You will not be able to modify or delete this version of the report after this operation.",
-    "release.erreor.message": "The report status must be 'Redaction in progress' before been able to validate a report",
-    "upload.popup.title": "Upload",
-    "delete.popup.title": "Delete",
-    "delete.popup.message": "Do you really want to delete {msg} file ? This operation cannot be undone.",
-    "add.file.message": "File name will be formatted without accent and space will be replace by underscore char. If the file exist alreay it will be replaced.",
-    "version.required.error": "Version is required",
-    "version.not.valid.error": "Version number must be valid. Example 2.1",
-    "files.size.error": "Attachments size must be less than 10MB"
-  },
-  "fr": {
-    "release.popup.title": "Validation",
-    "release.popup.message": "Voulez-vous vraiment valider cette fiche ? Vous ne pourrez plus modifier ou supprimer cette version après cette opération",
-    "release.erreor.message": "Le statut doit être 'En cours de rédaction' pour pouvoir valider une fiche",
-    "upload.popup.title": "Ajouter des fichiers",
-    "add.file.message": "Le nom du fichier sera formaté sans accent. les éventuels espaces seront remplacés par le caractère underscore. Si le fichier existant déjà, le fichier précédent enregistré sera remplacé par le nouveau.",
-    "delete.popup.title": "Suppression",
-    "delete.popup.message": "Voulez vous vraiment supprimer le fichier {msg}? Veuillez noter que cette opération est irréversible.",
-    "version.required.error": "Le champ Version est obligatoire",
-    "version.not.valid.error": "Le numéro de version doit être valide. Exemple 2.1",
-    "files.size.error": "Les pièces jointes ne doivent pas dépasser 10Mo"
-  }
-}
-</i18n>
 <template>
     <div>
     <h1 class="subheading grey--text">{{ $t('report.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
@@ -114,13 +86,13 @@
                             </div>
                             <v-select filled v-if="editExistingAllowed" class="ma-3"
                               :items="levelsTemplate"
-                              :label="$t('level.label')"
+                              :label="$t('report.screen.label.level')"
                               v-model="item.level"
                               item-text="label"
                               item-value="code"
                             ></v-select>
                             <p v-else>
-                              <span class="font-weight-bold">{{ $t('level.label') }}: </span>
+                              <span class="font-weight-bold">{{ $t('report.screen.label.level') }}: </span>
                               <span v-if="item.level != null">{{ getLevelLabel(item.level) }}</span> 
                             </p>
 
@@ -192,11 +164,11 @@
         class="headline grey lighten-2"
         primary-title
         >
-        {{ $t('release.popup.title')}}
+        {{ $t('report.screen.release.confirmation.title')}}
         </v-card-title>
 
         <v-card-text>
-        {{ $t('release.popup.message')}}
+        {{ $t('report.screen.release.confirmation.message')}}
         </v-card-text>
 
         <v-divider></v-divider>
@@ -220,10 +192,10 @@
         class="headline grey lighten-2"
         primary-title
         >
-        {{ $t('upload.popup.title')}}
+        {{ $t('report.screen.upload.popup.title')}}
         </v-card-title>
 
-        <v-card-text class="py-5">{{ $t('add.file.message')}}</v-card-text>
+        <v-card-text class="py-5">{{ $t('report.screen.upload.popup.message')}}</v-card-text>
 
         <v-file-input
           class="px-3 py-0"
@@ -232,7 +204,7 @@
           multiple
           show-size
           truncate-length="20"
-          :label="$t('add.file.label')"
+          :label="$t('report.screen.label.add.files')"
           :rules="rules.filesRules"
         ></v-file-input>
 
@@ -260,10 +232,10 @@
           class="headline grey lighten-2"
           primary-title
           >
-          {{ $t('delete.popup.title')}}
+          {{ $t('report.screen.delete.confirmation.title')}}
           </v-card-title>
         <v-card-text>
-        {{ $t('delete.popup.message', {'msg':fileToDelete })}}
+        {{ $t('report.screen.delete.confirmation.message', {'msg':fileToDelete })}}
         </v-card-text>
           <v-divider></v-divider>
           <v-card-actions>
@@ -343,7 +315,7 @@ export default {
             fileToDelete: null,
             deleteInProgress: false,
             uploadInProgress: false,
-            featureFlag: false,
+            featureFlag: true,
         }
     },
     computed: {
