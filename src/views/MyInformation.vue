@@ -1,4 +1,3 @@
-<i18n src="../locales.json"></i18n>
 <template>
   <v-layout>
 
@@ -46,6 +45,9 @@
           show-expand
           class="elevation-1"
         >
+            <template v-slot:item.affiliation="{ item }">
+              {{ formatAffiliation(item.affiliation).text }}
+            </template> 
             <template v-slot:item.keywords="{ item }">
               <v-chip-group active-class="primary--text" column>
                 <v-chip small v-for="(keyword, key) in item.keywords" :key=key >{{ keyword }}</v-chip>
@@ -118,12 +120,14 @@
 <script>
 import {logOut} from '../utils.js'
 import {displayError} from '../utils.js'
+import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
-
+  mixins: [formattedAffiliationMixin],
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
     this.headers = [
         { text: this.$t('repository.table.column.repository.name'), value: 'name' },
+        { text: this.$t('repository.table.column.repository.affiliation'), value: 'affiliation' },
         { text: this.$t('repository.table.column.keywords'), value: 'keywords' },
         { text: this.$t('repository.table.column.contact'), value: 'contact' },
         { text: this.$t('repository.table.column.link'), value: 'url' },

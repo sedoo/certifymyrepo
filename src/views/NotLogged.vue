@@ -1,4 +1,3 @@
-<i18n src="../locales.json"></i18n>
 <template>
   <v-container class="fill-height">
     <v-row align="center" justify="center">

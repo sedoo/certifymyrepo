@@ -1,4 +1,3 @@
-<i18n src="../locales.json"></i18n>
 <template>
     <div>
     <h1 class="subheading grey--text">{{ $t('report.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>

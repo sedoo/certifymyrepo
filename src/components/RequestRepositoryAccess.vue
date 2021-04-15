@@ -1,4 +1,3 @@
-<i18n src="../locales.json"></i18n>
 <template>
     <div class="accessRequest">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">

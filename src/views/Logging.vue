@@ -1,4 +1,3 @@
-<i18n src="../locales.json"></i18n>
 <template>
   <div class="pa-10">
     <div>

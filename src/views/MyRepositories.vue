@@ -1,4 +1,3 @@
-<i18n src="../locales.json"></i18n>
 <template>
     <div class="repositories">
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
@@ -62,15 +61,17 @@
                 </div>
               </v-card-title>
               <v-card-text>
-                <v-chip small>{{ getMyRoleMessage(item.repository) }}</v-chip>
-                <div class="icons-right">
-                </div>
+                <v-chip v-show="item.repository.displayRole" small>{{ getMyRoleMessage(item.repository) }}</v-chip>
               </v-card-text>
               <v-divider></v-divider>
               <v-card-text>
               <v-list>
+                <v-list-item>
+                  <v-list-item-content>{{ $t('repositories.screen.label.affiliation') }}:</v-list-item-content>
+                  <v-list-item-content class="align-end">{{ formatAffiliation(item.repository.affiliation).text }}</v-list-item-content>
+                </v-list-item>
                 <v-list-item v-if="item.repository.keywords && item.repository.keywords.length > 0">
-                  <v-list-item-content>{{$t('repositories.screen.label.keywords')}}:</v-list-item-content>
+                  <v-list-item-content>{{ $t('repositories.screen.label.keywords') }}:</v-list-item-content>
                   <v-list-item-content>
                   <v-chip-group active-class="primary--text" column>
                     <v-chip small v-for="(keyword, key) in item.repository.keywords" :key=key >{{ keyword }}</v-chip>
@@ -140,7 +141,9 @@
 <script>
 import requestRepositoryAccess from '../components/RequestRepositoryAccess.vue'
 import {displayError} from '../utils.js'
+import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
+  mixins: [formattedAffiliationMixin],
   components: {
       requestRepositoryAccess
   },
@@ -271,11 +274,13 @@ export default {
         }
       },
       getMyRoleMessage(item) {
+        item.displayRole = false
         let role = null
         if(item.users != null && item.users.length > 0) {
           for(let i=0 ; i<item.users.length ; i++) {
             if(this.userId == item.users[i].id) {
-              role = this.$t('repository.screen.label.role') + ': ' + this.$t(item.users[i].role)
+              role = this.$t('repository.screen.label.repository.role') + ': ' + this.$t(item.users[i].role)
+              item.displayRole = true
               break
             }
           }

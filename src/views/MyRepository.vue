@@ -1,6 +1,13 @@
-<i18n src="../locales.json"></i18n>
 <template>
     <div class="repository">
+
+    <AffiliationCreationDialog
+      @cancel="creatingAffiliation = false"
+      @created="affiliationCreated"
+      :visible="creatingAffiliation"
+      mode="creation"
+    ></AffiliationCreationDialog>
+
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
       <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
@@ -9,8 +16,7 @@
     <h1 class="subheading grey--text">{{$t('repository.screen.title')}}</h1>
 
         <template>
-        <v-form v-model="valid">
-            <v-container>
+        <v-form v-model="valid" class="ma-5 dense">
             <v-row>
                 <v-col cols="12">
                 <v-text-field
@@ -21,8 +27,6 @@
                     required
                 ></v-text-field>
                 </v-col>
-            </v-row>
-            <v-row>
                 <v-col cols="12" >
                     <v-text-field
                         v-model="myRepository.contact"
@@ -31,8 +35,27 @@
                         required
                     ></v-text-field>
                 </v-col>
-            </v-row>
-            <v-row>
+            <v-col cols="11" class="pa-0">
+              <v-select
+                required
+                :rules="affiliationRules"
+                v-model="editedAffiliation"
+                :items="affiliations"
+                class="required"
+                prepend-inner-icon="mdi-bank"
+                :label="$t('repository.screen.label.repository.affiliation')"
+                :loading="affiliationLoading"
+              ></v-select>
+            </v-col>
+            <v-col cols="1">
+                <v-btn
+                  fab color="info"
+                  x-small
+                  title="Create an affiliation"
+                  @click="creatingAffiliation = true">
+                    <v-icon >mdi-plus</v-icon> 
+                </v-btn>
+            </v-col>
                 <v-col cols="12" >
                     <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
@@ -50,16 +73,12 @@
                     </v-tooltip>
  
                 </v-col> 
-            </v-row>
-            <v-row>
                 <v-col cols="12" >
                     <v-text-field
                         v-model="myRepository.url"
                         :label="$t('repository.screen.label.repository.url')"
                     ></v-text-field>
                 </v-col>
-            </v-row>
-            <v-row>
                 <v-col cols="12" >
                     <v-textarea
                         v-model="myRepository.description"
@@ -67,8 +86,6 @@
                         outlined
                     ></v-textarea>
                 </v-col>
-            </v-row>
-            <v-row>
                 <v-col cols="12">
                 <v-simple-table v-if="myRepository.users != null && myRepository.users.length > 0">
                     <template v-slot:default>
@@ -100,7 +117,6 @@
                 </v-btn>
                 </v-col>
             </v-row>
-            </v-container>
             <v-layout justify-end>
                      <v-btn @click="goToRepositories" class="mr-5">
                         {{ $t("button.cancel") }}
@@ -113,7 +129,7 @@
         <v-dialog v-model="dialogEditUserRole" :width="$store.getters.getDialogWidth">
             <v-card>
                 <v-card-title class="headline grey lighten-2" primary-title>
-                {{ dialogTitle }}
+                {{ $t('repository.screen.edit.user.role.title') }}
                 </v-card-title>
                 <v-card-text>
                 <v-text-field class="pt-2" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repositories.screen.label.user.name')" readonly filled></v-text-field>
@@ -188,7 +204,7 @@
             <v-dialog v-model="dialogAddUser" :width="$store.getters.getDialogWidth">
                 <v-card>
                     <v-card-title class="headline grey lighten-2" primary-title>
-                    {{ dialogTitle }}
+                    {{ $t('repository.screen.add.user.title') }}
                     </v-card-title>
                     <v-card-actions  >
                     <v-progress-linear indeterminate v-if="loadingUsers" class="mt-3"></v-progress-linear>
@@ -277,10 +293,13 @@
 <script>
 import {displayError} from '../utils.js'
 import {displaySuccess} from '../utils.js'
+import AffiliationCreationDialog from "../components/AffiliationCreationDialog";
+import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
-    props: {
-
-  	},
+    mixins: [formattedAffiliationMixin],
+    components: {
+        AffiliationCreationDialog
+    },
     data() {
         return {
             /** 
@@ -336,7 +355,7 @@ export default {
                 name: null,
                 id: null
             },
-            myRepository: {id:null, name: null, keywords:[], contact: null, users: []},
+            myRepository: {id:null, name: null, affiliationId: null, url: null, keywords:[], contact: null, users: []},
             repositoryId: this.$route.query.repositoryId,
             rules: {
                 userNameOrcidRules: [v => !!v || this.$t('repository.screen.error.user.name.required.orcid.error')],
@@ -361,6 +380,12 @@ export default {
             notifier: false,
             notifierMessage: "",
             notifierColor: "success",
+            // Affiliation
+            editedAffiliation: null,
+            creatingAffiliation: false,
+            affiliationRules: [v => !!v || "Affiliation is mandatory"],
+            affiliationLoading: false,
+            affiliations: [],
         }
     },
 
@@ -374,20 +399,6 @@ export default {
           profile = this.$store.getters.getUser.profile
         }
         return profile;
-      },
-      userIsSuperAdmin: function()  {
-        let isSuperAdmin
-        if(this.$store.getters.getUser != null) {
-          isSuperAdmin = this.$store.getters.getUser.superAdmin
-        } 
-        return isSuperAdmin;
-      },
-      dialogTitle: function() {
-          if(this.userIndex == -1){
-              return this.$t('repository.screen.add.user.title')
-          } else {
-              return this.$t('repository.screen.edit.user.role.title')
-          }
       },
       dialogWidth: function() {
           return JSON.stringify(this.$store.getters.getDialogWidth)
@@ -408,10 +419,9 @@ export default {
       service: function()  {
         return this.$store.getters.getService
       },
-    },
-    
-    mounted: function() {
-    	//console.log("Monté")
+      affiliationService: function() {
+        return this.$store.getters.getService + "/myaffi/v1_0/list";
+      },
     },
     
     created: function() {
@@ -422,6 +432,7 @@ export default {
             this.axios.get(this.service+'/repository/v1_0/getRepository/'+this.repositoryId )
                 .then(response => {       
                     self.myRepository = response.data
+                    self.editedAffiliation = response.data.affiliation.id
                 }).catch(function(error) {displayError(self, error)})
         } else {
             let localUser = {id: this.userProfile.id , name: this.userProfile.name , role: 'EDITOR'}
@@ -429,6 +440,10 @@ export default {
             this.myRepository.contact = this.userProfile.email
         }
 
+    },
+
+    mounted: function() {
+        this.loadAffiliations();
     },
 
     methods: {
@@ -486,6 +501,7 @@ export default {
         },
         save () {
             var self = this;
+            this.myRepository.affiliationId = this.editedAffiliation
             this.axios({
                 method: 'post',
                 url: this.service+'/repository/v1_0/save?language='+this.language,
@@ -613,7 +629,35 @@ export default {
 
         displayActionsOnUser: function(index) {
             return !(this.isLastManager && this.myRepository.users[index].role == 'EDITOR')
-        }
+        },
+
+        affiliationCreated: function() {
+            this.creatingAffiliation = false;
+            this.loadAffiliations()
+        },
+
+        loadAffiliations: function() {
+
+            var self = this;
+            this.affiliationLoading = true;
+            this.axios
+                .get(this.affiliationService)
+                .then(function(response) {
+                let affiliations = [];
+                let aux = response.data;
+                for (let i = 0; i < aux.length; i++) {
+                    affiliations.push(self.formatAffiliation(aux[i]));
+                }
+
+                self.affiliations = affiliations;
+                })
+                .catch(function(error) {
+                    displayError(self, error);
+                })
+                .finally(function() {
+                    self.affiliationLoading = false;
+                });
+        },
 
     },
 

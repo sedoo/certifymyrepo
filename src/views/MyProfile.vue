@@ -1,4 +1,3 @@
-<i18n src="../locales.json"></i18n>
 <template>
   <v-layout>
 
