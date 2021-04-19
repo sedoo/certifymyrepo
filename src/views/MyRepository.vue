@@ -132,7 +132,7 @@
                 {{ $t('repository.screen.edit.user.role.title') }}
                 </v-card-title>
                 <v-card-text>
-                <v-text-field class="pt-2" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repositories.screen.label.user.name')" readonly filled></v-text-field>
+                <v-text-field class="pt-2" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')" readonly filled></v-text-field>
                 <v-select :rules="rules.roleRules"
                 v-model="user.role"
                 :items="roles"
@@ -169,7 +169,7 @@
                     <v-card-actions>
                         <v-radio-group class="pl-2" v-model="creationMode" row>
                             <v-radio label="ORCID" value="orcid"></v-radio>
-                            <v-radio disabled label="Renater email" value="email"></v-radio>
+                            <v-radio label="Renater email" value="email"></v-radio>
                         </v-radio-group>
                     </v-card-actions>
                     <v-form v-if="creationMode == 'orcid'" v-model="validOrcid">
@@ -179,12 +179,12 @@
                         </v-card-actions>
                     </v-form>
                     <v-card-text v-if="creationMode == 'orcid'">
-                        <v-text-field class="pt-2" :rules="rules.userNameOrcidRules" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repositories.screen.label.user.name')" readonly filled></v-text-field>
+                        <v-text-field class="pt-2" :rules="rules.userNameOrcidRules" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')" readonly filled></v-text-field>
                         <v-text-field class="pt-2" v-model="user.email" prepend-inner-icon="mdi-email" :label="$t('repository.screen.create.user.email')"></v-text-field>
                     </v-card-text>
                     <v-card-text v-else>
-                        <v-text-field class="pt-2" :rules="rules.userNameRules" v-model="name" prepend-inner-icon="mdi-account" :label="$t('repositories.screen.label.user.name')"></v-text-field>
-                        <v-text-field class="px-4" v-model="email" prepend-inner-icon="mdi-email" :rules="rules.emailRules" :label="$t('repository.screen.create.user.email')" required></v-text-field>
+                        <v-text-field class="pt-2" :rules="rules.userNameRules" v-model="userName" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')"></v-text-field>
+                        <v-text-field class="pt-2" v-model="email" prepend-inner-icon="mdi-email" :rules="rules.emailRules" :label="$t('repository.screen.create.user.email')" required></v-text-field>
                     </v-card-text>
                     <v-divider></v-divider>
                     <v-card-actions>
@@ -517,7 +517,7 @@ export default {
             this.axios({
                 method: 'post',
                 url: this.service + "/profile/v1_0/createNewProfile?language="+this.language,
-                data: this.user
+                data: {name: this.userName, email: this.email }
             }).then(function(response) {
                 self.creatingUser = false
                 self.dialogCreateUser = false
@@ -525,7 +525,8 @@ export default {
             }).catch(function(error) {
                 displayError(self, error)
             }).finally(() => {
-                this.user={name: null, id:null, role: null}
+                this.userName = null
+                this.email = null
                 this.loadUsers()
             })
         },
@@ -624,6 +625,8 @@ export default {
         cancelCreateUser() {
             this.dialogCreateUser = false
             this.orcid = null
+            this.userName = null
+            this.email = null
             this.user={name: null, id:null, role: null}
         },
 

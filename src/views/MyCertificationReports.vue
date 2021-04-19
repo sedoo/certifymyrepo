@@ -84,6 +84,15 @@
                 <span>{{ $t('reports.screen.button.json.help') }}</span>
             </v-tooltip>
 
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                    <v-btn v-if="featureFlag" icon v-on="on" class="mx-0" @click="handleXML(item, index)" :loading="isDownloadingJson[index]">     
+                        <v-icon>mdi-xml</v-icon>    
+                    </v-btn>
+                </template>
+                <span>{{ $t('reports.screen.button.xml.help') }}</span>
+            </v-tooltip>
+
         </template>   
 
         <template v-slot:expanded-item="{ headers, item }">
@@ -275,6 +284,27 @@ export default {
                 let link = document.createElement("a");
                 link.href = window.URL.createObjectURL(blob);
                 link.download = `${self.getFileName(report)}.json`;
+                link.click();
+            }).catch(function(error) {displayError(self, error)})
+            .finally(function() {
+            self.isDownloadingJson = []
+            })
+        },
+
+        /**
+         * Download xml data
+         */
+        handleXML(report, index) {
+            this.isDownloadingJson[index] = true
+            var self = this;
+            this.axios({
+                method: 'get',
+                url: this.service+'/certificationReport/v1_0/getXML?reportId='+report.id+"&language="+this.$store.getters.getLanguage+"&service="+this.service
+            }).then( function (response) {
+                let blob = new Blob([response.data], { type: "application/xml" });
+                let link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `${self.getFileName(report)}.xml`;
                 link.click();
             }).catch(function(error) {displayError(self, error)})
             .finally(function() {

@@ -29,10 +29,10 @@
           :search="search"
         >
             <template v-slot:item.admin="{ item }">  
-                <v-icon v-if="item.admin">mdi-check</v-icon>
+                <v-icon v-if="item.adminId != null">mdi-check</v-icon>
             </template>
             <template v-slot:item.actions="{ item, index }">
-              <div v-if="!item.admin">
+              <div v-if="item.adminId == null">
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
                   <v-btn  icon v-on="on" :loading="loadingGiveRole[index]" class="mx-0 pa-3" @click="giveRole(item, index)">     
@@ -61,9 +61,9 @@
     <v-dialog v-model="dialogRemoveAdmin" :width="$store.getters.getDialogWidth">
     <v-card>
         <v-card-title class="headline grey lighten-2" primary-title>
-        {{ $t('administration.scree.remove.admin.confirmation.title') }}
+        {{ titleDialogConfirmationRemoveAdmin() }}
         </v-card-title>
-        <v-card-text>{{ $t('administration.scree.remove.admin.confirmation.label') }}</v-card-text>
+        <v-card-text>{{ labelDialogConfirmationRemoveAdmin() }}</v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
         <div class="flex-grow-1"></div>
@@ -149,12 +149,26 @@ export default {
     },
 
     openDialogConfirmationRemoveAdmin(item, index) {
-      if(this.userId == item.userId) {
-        this.item = item;
-        this.index= index;
-        this.dialogRemoveAdmin = true
+      this.item = item;
+      this.index= index;
+      this.dialogRemoveAdmin = true
+    },
+
+    titleDialogConfirmationRemoveAdmin() {
+      if(this.item && this.userId == this.item.userId) {
+        return this.$t('administration.scree.remove.admin.ownrole.confirmation.title')
       } else {
-        this.removeRole(item, index)
+        return this.$t('administration.scree.remove.admin.confirmation.title')
+      }
+    },
+
+    labelDialogConfirmationRemoveAdmin() {
+      if(this.item) {
+        if(this.userId == this.item.userId) {
+          return this.$t('administration.scree.remove.admin.ownrole.confirmation.label')
+        } else {
+          return this.$t('administration.scree.remove.admin.confirmation.label', {msg: this.item.name})
+        }
       }
     },
 

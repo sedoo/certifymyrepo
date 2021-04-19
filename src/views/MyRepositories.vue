@@ -37,7 +37,7 @@
                         <v-icon>mdi-link</v-icon>
                       </v-btn>
                       </template>
-                      <span>{{ $t('repositories.button.help.message.link') }}</span>
+                      <span>{{ $t('repository.button.help.message.link') }}</span>
                   </v-tooltip> 
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
@@ -114,10 +114,10 @@
   <v-dialog v-model="dialog" :width="$store.getters.getDialogWidth">
     <v-card>
       <v-card-title class="headline grey lighten-2" primary-title>
-      {{ $t('repository.screen.delete.repository.confirmation.title')}}
+      {{ $t('repositories.screen.delete.repository.confirmation.title')}}
       </v-card-title>
       <v-card-text>
-      {{ $t('repository.screen.delete.repository.confirmation.message')}}
+      {{ $t('repositories.screen.delete.repository.confirmation.message')}}
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
