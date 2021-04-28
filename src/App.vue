@@ -166,26 +166,51 @@ export default {
     } else {
       var code = this.getCodeParameter();
       if (code) {
-        var self = this;
-        this.axios({
-            method: 'post',
-            url: this.service+"/login/v1_0/orcid?code=" + code + "&redirect_uri=" + this.redirectUri
-        }).then( function (response) {
-            self.links.push(self.linkRepositories)
-            self.links.push(self.linkUserInformation)
-            self.$store.commit('setUser', response.data)
-            self.$store.commit('setLogged', true)
-            if(self.userIsAdmin || self.userIsSuperAdmin) {
-              self.links.push(self.linkDashoard)
-              self.links.push(self.linkAdministration)
-            }
-            if(response.data.profile.email != null) {
-              self.$router.push({path: '/repositories'})
-            } else {
-              self.$router.push({path: '/profile'})
-            }
-          }).catch(function(error) {self.displayError("An error has occured:" + error)})
+        if(false && this.getAuthentificationType() && this.getAuthentificationType() == 'shibb') {
+          var self = this;
+          this.axios({
+              method: 'get',
+              url: "https://services-coso-preprod.sedoo.fr/shibboleth/userbycode?code=" + code
+          }).then( function (response) {
+              self.links.push(self.linkRepositories)
+              self.links.push(self.linkUserInformation)
+              self.$store.commit('setUser', response.data)
+              self.$store.commit('setLogged', true)
+              if(self.userIsAdmin || self.userIsSuperAdmin) {
+                self.links.push(self.linkDashoard)
+                self.links.push(self.linkAdministration)
+              }
+              if(response.data.profile.email != null) {
+                self.$router.push({path: '/repositories'})
+              } else {
+                self.$router.push({path: '/profile'})
+              }
+          }).catch(function(error) {
+            self.displayError("An error has occured:" + error)
+            })
           this.$router.push("/logging").catch(() => {});
+        } else {
+          var self = this;
+          this.axios({
+              method: 'post',
+              url: this.service+"/login/v1_0/login?code=" + code + "&redirect_uri=" + this.redirectUri + "&type=" + this.getAuthentificationType()
+          }).then( function (response) {
+              self.links.push(self.linkRepositories)
+              self.links.push(self.linkUserInformation)
+              self.$store.commit('setUser', response.data)
+              self.$store.commit('setLogged', true)
+              if(self.userIsAdmin || self.userIsSuperAdmin) {
+                self.links.push(self.linkDashoard)
+                self.links.push(self.linkAdministration)
+              }
+              if(response.data.profile.email != null) {
+                self.$router.push({path: '/repositories'})
+              } else {
+                self.$router.push({path: '/profile'})
+              }
+            }).catch(function(error) {self.displayError("An error has occured:" + error)})
+            this.$router.push("/logging").catch(() => {});
+        }
       } else {
         this.logoutFromORCID()
       }
@@ -207,6 +232,10 @@ export default {
 
       getCodeParameter: function (){
         return this.getURLParameter("code");
+      },
+
+      getAuthentificationType: function (){
+        return this.getURLParameter("authtype");
       },
 
       getURLParameter: function (sParam){
