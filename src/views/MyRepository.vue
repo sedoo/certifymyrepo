@@ -19,25 +19,24 @@
         <v-form v-model="valid" class="ma-5 dense">
             <v-row>
                 <v-col cols="12">
-                <v-text-field
+                <v-text-field outlined dense
                     v-model="myRepository.name"
                     :rules="rules.nameRules"
                     :counter="20"
                     :label="$t('repository.screen.label.repository.name')"
-                    required
+                    class="required"
                 ></v-text-field>
                 </v-col>
                 <v-col cols="12" >
-                    <v-text-field
+                    <v-text-field outlined dense
                         v-model="myRepository.contact"
                         :rules="rules.emailRules"
                         :label="$t('repository.screen.label.repository.email')"
-                        required
+                        class="required"
                     ></v-text-field>
                 </v-col>
             <v-col cols="11" class="pa-0">
-              <v-select
-                required
+              <v-select outlined dense
                 :rules="affiliationRules"
                 v-model="editedAffiliation"
                 :items="affiliations"
@@ -47,10 +46,10 @@
                 :loading="affiliationLoading"
               ></v-select>
             </v-col>
-            <v-col cols="1">
-                <v-btn
+            <v-col cols="1" class="py-0">
+                <v-btn 
                   fab color="info"
-                  x-small
+                  small
                   title="Create an affiliation"
                   @click="creatingAffiliation = true">
                     <v-icon >mdi-plus</v-icon> 
@@ -62,7 +61,8 @@
                         <v-combobox multiple v-on="on"
                                         v-model="myRepository.keywords" 
                                         :label="$t('repository.screen.label.repository.keywords')"
-                                        chips
+                                        small-chips
+                                        outlined dense
                                         deletable-chips
                                         :search-input.sync="searchKeywords"
                                         >
@@ -74,7 +74,7 @@
  
                 </v-col> 
                 <v-col cols="12" >
-                    <v-text-field
+                    <v-text-field outlined dense
                         v-model="myRepository.url"
                         :label="$t('repository.screen.label.repository.url')"
                     ></v-text-field>
@@ -133,7 +133,7 @@
                 </v-card-title>
                 <v-card-text>
                 <v-text-field class="pt-2" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')" readonly filled></v-text-field>
-                <v-select :rules="rules.roleRules"
+                <v-select :rules="rules.roleRules" outlined
                 v-model="user.role"
                 :items="roles"
                 :label="$t('repository.screen.add.user.label.select.role')">
@@ -174,17 +174,17 @@
                     </v-card-actions>
                     <v-form v-if="creationMode == 'orcid'" v-model="validOrcid">
                         <v-card-actions>
-                            <v-text-field class="pl-4" v-model="orcid" prepend-inner-icon="mdi-identifier" :counter="19" :rules="rules.orcIdRules" label="ORCID" required></v-text-field>
-                            <v-btn class="ml-3" color="info" @click="searchOnOrcid" :disabled="!validOrcid" :loading="loadingUser">{{ $t('button.search') }}</v-btn>
+                            <v-text-field class="pl-4 required" v-model="orcid" outlined dense prepend-inner-icon="mdi-identifier" :counter="19" :rules="rules.orcIdRules" label="ORCID" required></v-text-field>
+                            <v-btn class="ml-3 mb-6" color="info" @click="searchOnOrcid" :disabled="!validOrcid" :loading="loadingUser">{{ $t('button.search') }}</v-btn>
                         </v-card-actions>
                     </v-form>
                     <v-card-text v-if="creationMode == 'orcid'">
-                        <v-text-field class="pt-2" :rules="rules.userNameOrcidRules" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')" readonly filled></v-text-field>
-                        <v-text-field class="pt-2" v-model="user.email" prepend-inner-icon="mdi-email" :label="$t('repository.screen.create.user.email')"></v-text-field>
+                        <v-text-field class="pt-2" :rules="rules.userNameOrcidRules" outlined dense v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')" readonly filled></v-text-field>
+                        <v-text-field class="pt-2" v-model="user.email" outlined dense prepend-inner-icon="mdi-email" :label="$t('repository.screen.create.user.email')"></v-text-field>
                     </v-card-text>
                     <v-card-text v-else>
-                        <v-text-field class="pt-2" :rules="rules.userNameRules" v-model="userName" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')"></v-text-field>
-                        <v-text-field class="pt-2" v-model="email" prepend-inner-icon="mdi-email" :rules="rules.emailRules" :label="$t('repository.screen.create.user.email')" required></v-text-field>
+                        <v-text-field class="pt-2 required" :rules="rules.userNameRules" outlined dense v-model="userName" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')"></v-text-field>
+                        <v-text-field class="pt-2 required" v-model="email" outlined dense prepend-inner-icon="mdi-email" :rules="rules.emailRules" :label="$t('repository.screen.create.user.email')" required></v-text-field>
                     </v-card-text>
                     <v-divider></v-divider>
                     <v-card-actions>
@@ -206,14 +206,15 @@
                     <v-card-title class="headline grey lighten-2" primary-title>
                     {{ $t('repository.screen.add.user.title') }}
                     </v-card-title>
-                    <v-card-actions  >
+                    <v-card-text  class="py-0">
                     <v-progress-linear indeterminate v-if="loadingUsers" class="mt-3"></v-progress-linear>
                     <div style="width: 100%;" v-else>
-                        <v-text-field
+                        <v-text-field class="py-3"
                             v-model="search"
                             append-icon="mdi-magnify"
                             :label="$t('repository.screen.add.user.label.search.bar')"
                             single-line
+                            outlined dense
                             hide-details
                             @input="clearSelectedUser"
                         ></v-text-field>
@@ -232,17 +233,19 @@
                             <div v-show="selectedUser.length == 0 && rowClicked" class="v-messages__message">{{ $t('repository.screen.error.select.one.user') }}</div>
                         </div>
                     </div>
-                    </v-card-actions>
+                    </v-card-text>
                     <v-card-actions>
                         <div class="flex-grow-1"></div>
                         <v-btn class="mx-3" color="info" @click="openCreateUserDialog">{{ $t('repository.screen.create.user.title') }}</v-btn>
                     </v-card-actions>
                     <v-divider></v-divider>
-                    <v-card-actions>
+                    <v-card-text class="py-5">
                     <v-select :rules="rules.roleRules"
-                    v-model="role"
-                    :items="roles"
-                    :label="$t('repository.screen.add.user.label.select.role')">
+                        class="required"
+                        v-model="role"
+                        outlined dense
+                        :items="roles"
+                        :label="$t('repository.screen.add.user.label.select.role')">
                         <template slot="selection" slot-scope="data">
                             <!-- HTML that describe how select should render selected items -->
                             {{ $t(data.item) }} 
@@ -252,7 +255,7 @@
                             {{ $t(data.item) }}
                         </template>
                     </v-select>
-                    </v-card-actions>
+                    </v-card-text>
                     <v-divider></v-divider>
                     <v-card-actions>
                     <div class="flex-grow-1"></div>
@@ -671,6 +674,10 @@ export default {
 <style>
 tr.v-data-table__selected {
   background: #7d92f5 !important;
+}
+.required label::after {
+  content: " *";
+  color: red;
 }
 </style>
 <style scoped>

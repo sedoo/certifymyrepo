@@ -17,17 +17,16 @@
           :items-per-page="5"
           class="elevation-1"
         >
-            <template v-slot:item.validHealth="{ item }">  
-                <v-icon :color="getHealthColor(item.healthLatestValidReport)">{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
+            <template v-slot:item.repositoryCreation="{ item }">  
+                <span class="px-2" >{{ formatDate(item.repository.creationDate) }}</span>
             </template> 
-            <template v-slot:item.validDate="{ item }">  
-                <span>{{ formatDate(item.healthLatestValidReport) }}</span>
+            <template v-slot:item.validHealth="{ item }">  
+                <v-icon class="px-2" :color="getHealthColor(item.healthLatestValidReport)">{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
+                <span class="px-2" >{{ formatHealthDate(item.healthLatestValidReport) }}</span>
             </template> 
             <template v-slot:item.inProgressHealth="{ item }">  
-                <v-icon :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
-            </template> 
-            <template v-slot:item.inProgressDate="{ item }">  
-                <span>{{ formatDate(item.healthLatestInProgressReport) }}</span>
+                <v-icon class="px-2" :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
+                <span class="px-2" >{{ formatHealthDate(item.healthLatestInProgressReport) }}</span>
             </template> 
         </v-data-table>
       </template>
@@ -55,13 +54,12 @@ export default {
   },
 
   created: function() {
-    this.$i18n.locale = this.$store.getters.getLanguage;
+    this.$i18n.locale = this.language
     this.headers = [
           { text: this.$t('repository.table.column.repository.name'), value: 'repository.name' },
+          { text: this.$t('repository.table.column.repository.creation.date'), value: 'repositoryCreation' },
           { text: this.$t('repository.table.column.report.validated.health'), value: 'validHealth' },
-          { text: this.$t('repository.table.column.report.validated.date'), value: 'validDate' },
-          { text: this.$t('repository.table.column.report.inprogress.health'), value: 'inProgressHealth' },
-          { text: this.$t('repository.table.column.report.inprogress.date'), value: 'inProgressDate' }
+          { text: this.$t('repository.table.column.report.inprogress.health'), value: 'inProgressHealth' }
           ]
     var self = this;
     this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')
@@ -80,6 +78,10 @@ export default {
     service: function()  {
       return this.$store.getters.getService
     },
+
+    language: function() {
+      return this.$store.getters.getLanguage
+    }
 
   },
 
@@ -117,9 +119,18 @@ export default {
         }
     },
 
-    formatDate (health) {
+    formatHealthDate (health) {
         if(health) {
-          return moment(health.lastUpdateDate).format('DD MMM YYYY HH:mm')
+          return this.formatDate(health.lastUpdateDate)
+        } else {
+          return ''
+        }
+    },
+
+    formatDate (date) {
+      console.log(date)
+        if(date) {
+          return moment(date).lang(this.language).format('DD MMM YYYY HH:mm')
         } else {
           return ''
         }

@@ -3,42 +3,58 @@
     <div style="text-align:center " class="display-2 ma-3 font-weight-thin">
       <span v-html="$t('notlogged.screen.title')"></span>
     </div>
-    <div style="text-align:center" class="headline">
-      {{ $t('notlogged.screen.message') }}
-    </div>
     <div class=box>
-      <v-card flat>
-        <v-card-actions>
-          <v-card-action class="py-5">
+      <v-container fluid>
+      <v-row>
+        <v-col cols="12">
+         <p class="text-center">
+          {{ $t('notlogged.screen.message') }}
+          </p>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="8" md="3" offset-md="2" offset="2">
+      <v-card height="100%" elevation="2" class="card-outter">
+        <v-card-title>
             <img
               style="vertical-align:middle;"
               src="https://upload.wikimedia.org/wikipedia/fr/f/fe/Logo_Renater_2013.gif"
             />
-            <v-select 
-              :full-width="true"
-              @click="requestcode"
+        </v-card-title>
+        <v-card-text class="py-0">
+            <v-select
+              @click="requestcode" outlined dense
               :label="$t('notlogged.screnn.renater.label.providers')"
               :items="entities"
               v-model="entity">
             </v-select>
-            <v-btn @click='loginShibboleth' :disabled="code==null" color="info">{{ $t('notlogged.screnn.renater.button.login') }}</v-btn>
+        </v-card-text>
+        <v-card-actions class="card-actions">
+          <v-card-action>
+          <v-btn @click='loginShibboleth' :disabled="code==null" color="info">{{ $t('notlogged.screnn.renater.button.login') }}</v-btn>
           </v-card-action>
         </v-card-actions>
-        <v-divider></v-divider>
-            <div style="text-align:center">
-            {{ $t('notlogged.screen.message.alternative') }}
-            </div>
-            <div class="pt-5 box">
-              <v-btn plain class="pa-0" @click="loginOrcid">
-                <img
-                  style="vertical-align:middle;"
-                  src="https://orcid.org/assets/vectors/orcid.logo.svg"
-                  width="180"
-                  height="80"
-                />
-                </v-btn>
-            </div>
       </v-card>
+        </v-col>
+        <v-col cols="8" md="3" offset-md="2" offset="2">
+      <v-card height="100%" elevation="2" class="card-outter">
+        <v-card-title class="pt-10">
+          <img
+              style="vertical-align:middle;"
+              src="https://orcid.org/assets/vectors/orcid.logo.svg"
+            />
+        </v-card-title>
+         <v-card-actions class="card-actions">
+          <v-card-action>
+            <v-btn color="info" @click="loginOrcid">
+              {{ $t('notlogged.screnn.renater.button.login') }}
+              </v-btn>
+          </v-card-action>
+         </v-card-actions>
+      </v-card>
+        </v-col>
+      </v-row>
+      </v-container>
     </div>
 </div>
 </template>
@@ -115,14 +131,22 @@ export default {
 </script>
 
 <style scoped>
-.box {
+.bppox {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+.card-outter {
+  position: relative;
+  padding-bottom: 50px;
+}
+.card-actions {
+  position: absolute;
+  bottom: 10px;
+  left: 8px;
+}
 </style>
 <style>
-.v-select__selections {
-  min-width: 630px
-}
+
 </style>

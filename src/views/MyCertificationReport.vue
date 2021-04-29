@@ -314,7 +314,7 @@ export default {
             fileToDelete: null,
             deleteInProgress: false,
             uploadInProgress: false,
-            featureFlag: true,
+            featureFlag: false,
         }
     },
     computed: {
@@ -527,7 +527,7 @@ export default {
               url: this.service+'/certificationReport/v1_0/save',
               data: this.myReport
           }).then( function (response) {
-            self.$router.push({ path: '/certificationReports/'+response.data.repositoryId  })
+            self.displaySuccess(self.$t('report.screen.save.confirmation'))
           }).catch(function(error) {displayError(self, error)})
         }
 

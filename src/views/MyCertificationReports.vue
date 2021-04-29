@@ -140,9 +140,9 @@
                 >
                 {{ $t('reports.screen.create.new.report.confirmation.title') }}
                 </v-card-title>
-                <v-card-text>
+                <v-card-text class="pa-5">
                 {{ $t('reports.screen.create.new.report.confirmation.message') }}
-                <v-select :items="templateNames" v-model="templateName">
+                <v-select outlined :items="templateNames" v-model="templateName">
                 </v-select>
                 </v-card-text>
                 <v-divider></v-divider>
@@ -192,7 +192,7 @@ export default {
                 { text: this.$t('reports.screen.table.reports.column.status'), value: 'status' },
                 { text: this.$t('reports.screen.table.reports.column.actions'), value: 'actions', sortable: false }
                 ] ,
-            templateNames: ['CTS-2020-2022', 'TEST'],
+            templateNames: ['CTS-2020-2022', 'CTS-2023-2025'],
             templateName: 'CTS-2020-2022',
             // error and success notification vars
             timeout: 2000,
