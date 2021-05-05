@@ -113,7 +113,7 @@ export default {
             repositories: [],
             notDataFound: false,
             email: null,
-            text: null,
+            text: "",
             role: null,
             roles: ["EDITOR", "CONTRIBUTOR", "READER"],
             requestedRepository: {},
@@ -155,7 +155,6 @@ export default {
     methods: {
         lookup(){
             this.notDataFound = false
-            this.errored = false
             var self = this;
             this.axios.get(this.service+'/repository/v1_0/search', {
                 params: {
@@ -182,13 +181,12 @@ export default {
         },
         sendRequest() {
             var self = this;
-            this.errored = false
             this.axios({
                 method: 'post',
                 url: this.service+'/repository/v1_0/requestAccess?language='+this.$store.getters.getLanguage,
                 data: {
                     repositoryId: this.requestedRepository.id,
-                    name: this.userProfile.name,
+                    userName: this.userProfile.name,
 	                orcid: this.userProfile.orcid,
 	                text: this.text,
 	                email: this.email,
@@ -197,8 +195,7 @@ export default {
             })    
             .then(()=> {
                 self.requestedRepository = {}
-                self.email = null
-                self.text = null
+                self.text = ""
             }).catch(function(error) {self.displayError("An error has occured:" + error)})
         },
 

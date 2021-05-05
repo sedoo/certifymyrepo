@@ -68,7 +68,7 @@
                                         >
                         </v-combobox>
                     </template>
-                    <span v-if="language === 'fr'">Appuyer sur <kbd>entrée</kbd> pour créer un nouveau mot clef</span>
+                    <span v-if="language === 'fr'">Appuyer sur <kbd>entrée</kbd> pour créer un nouveau mot-clés</span>
                     <span v-else>Press <kbd>enter</kbd> to create a new keyword</span>
                     </v-tooltip>
  

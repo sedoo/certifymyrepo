@@ -22,12 +22,14 @@
             />
         </v-card-title>
         <v-card-text class="py-0">
-            <v-select
-              @click="requestcode" outlined dense
+          <v-progress-linear indeterminate v-if="loading" class="my-5"></v-progress-linear>
+            <v-combobox v-else class="required" required
+            @change="requestcode"
+              outlined dense
               :label="$t('notlogged.screnn.renater.label.providers')"
               :items="entities"
               v-model="entity">
-            </v-select>
+            </v-combobox>
         </v-card-text>
         <v-card-actions class="card-actions">
           <v-card-action>
@@ -72,7 +74,7 @@ export default {
   },
   computed: {
     loginurl() {
-      return this.root+"/Shibboleth.sso/Login?SAMLDS=1&target="+this.root+"/shibboleth/login?code="+this.code+"&entityID="+this.entity;
+      return this.root+"/Shibboleth.sso/Login?SAMLDS=1&target="+this.root+"/shibboleth/login?code="+this.code+"&entityID="+this.entity.value;
     },
     service: function()  {
       return this.$store.getters.getService
@@ -91,7 +93,8 @@ export default {
     requestcode: function() {
       this.requestingCode = true;
 
-      this.axios.get(this.root+"/shibboleth/requestcode?url=https://coso-preprod.sedoo.fr/application/?authtype=shibb").then(response => {
+      //this.axios.get(this.root+"/shibboleth/requestcode?url=https://coso-preprod.sedoo.fr/application/?authtype=shibb").then(response => {
+        this.axios.get(this.root+"/shibboleth/requestcode?url="+ window.location.origin + window.location.pathname +"?authtype=shibb").then(response => {
 
       this.code = response.data
       if(this.code) {
@@ -117,7 +120,7 @@ export default {
         entities.sort((a,b) => (a.text > b.text) ? 1 : ((b.text > a.text) ? -1 : 0))
 
         this.entities = entities;
-        this.entity = entities[0].value
+        this.entity = entities[0].text
         this.loading = false;
     })
   }
@@ -125,7 +128,7 @@ export default {
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
     this.loadEntities();
-    console.log(this.$route.query)
+    this.requestcode()
   },
 };
 </script>
@@ -148,5 +151,8 @@ export default {
 }
 </style>
 <style>
-
+.required label::after {
+  content: " *";
+  color: red;
+}
 </style>

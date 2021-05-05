@@ -244,24 +244,46 @@ export default {
           this.$router.push({name: 'repository', query: {repositoryId: item.id}});
         }
       },
+
       levelList (health) {
-            var serie = {name: 'certificationReport', data: []}
-            if(health != null) {
-              serie.data = health.requirementLevelList
-            }
-            return [serie];
-        },
+        let serie = {name: 'certificationReport', data: []}
+        if(health != null) {
+        let array = [];
+        for (var j = 0; j < health.latestReport.items.length; j++){
+          let r = health.latestReport.items[j]
+          if(r.levelActive) {
+              if(r.levelCode) {
+                  array.push(r.levelCode)
+              } else {
+                  array.push(null)
+              }
+          }
+        }
+        serie.data = array
+        }
+        return [serie];
+      },
+
       chartOptions (health) {   
         let option = {labels: null, title: {text: ''}, yaxis:{max: 0, forceNiceScale: true, tickAmount: 0}}   
         if(health != null) {
           let levelsNumber = 0
-          if(health.numberOfLevel) {
-            levelsNumber = health.numberOfLevel
+          if(health.latestReport && health.latestReport.levelMaxValue) {
+            levelsNumber = health.latestReport.levelMaxValue
           }
           option.labels = health.requirementCodeList
           option.yaxis.min = 0
           option.yaxis.max = levelsNumber
           option.yaxis.tickAmount = levelsNumber
+
+          let array = [];
+          for (let j = 0; j < health.latestReport.items.length; j++){
+              let r = health.latestReport.items[j]
+              if(r.code && r.levelActive) {
+                  array.push('R'+r.code)
+              }
+          }
+          option.labels = array
         }
         return option
       },

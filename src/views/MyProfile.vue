@@ -13,24 +13,20 @@
     <v-form class="ma-5" ref="form" v-model="valid" lazy-validation>
       <v-row>
         <v-col cols="12">
-          <v-text-field v-model="username" prepend-inner-icon="mdi-account" :label="$t('profile.screen.label.name')" readonly filled></v-text-field>
+          <v-text-field v-model="profile.name" prepend-inner-icon="mdi-account" :label="$t('profile.screen.label.name')" readonly filled outlined dense></v-text-field>
         </v-col>
-        <v-col cols="12">
-          <v-text-field v-model="orcid" prepend-inner-icon="mdi-identifier" label="ORCID" readonly filled></v-text-field>
+        <v-col cols="11">
+          <v-text-field v-model="profile.orcid" prepend-inner-icon="mdi-identifier" label="ORCID" readonly filled outlined dense></v-text-field>
         </v-col>
-        <v-col cols="12">
-          <v-text-field v-model="profile.email"  :label="$t('profile.screen.label.email')" prepend-inner-icon="mdi-email"  :rules="emailRules" required></v-text-field>
-        </v-col>
-
-        <template v-if="featureFlag" >
-          <v-col cols="12" v-for="(phone, index) in profile.phones" :key="index">
-            <v-text-field  v-model="profile.phones[index]" :label="$t('profile.screen.label.phone')" prepend-inner-icon="mdi-phone" v-if="index==0"></v-text-field>
-            <v-text-field  v-model="profile.phones[index]" :label="$t('profile.screen.label.phone')" prepend-inner-icon="mdi-phone" v-else append-icon="mdi-delete" @click:append="deletePhone(index)"></v-text-field>
-          </v-col>
-          <v-btn class="ml-3 " x-small :title="A$t('profile.screen.label.add.phone')" @click="profile.phones.push('')"  fab color="accent"> 
-            <v-icon >mdi-plus</v-icon> 
+        <v-col cols="1">
+          <v-btn class="ml-3 " x-small :title="$t('profile.screen.label.search.orcid')" @click="dialogEditOrcid=true"  fab color="info"> 
+            <v-icon >mdi-pencil-outline</v-icon> 
           </v-btn>
-        </template>
+        </v-col>
+        <v-col cols="12">
+          <v-text-field class="required" v-model="profile.email"  :label="$t('profile.screen.label.email')" prepend-inner-icon="mdi-email"  :rules="rules.emailRules" outlined dense required></v-text-field>
+          <span class="text">{{ $t('profile.screen.message.email') }}</span>
+        </v-col>
       </v-row>
     </v-form>
 
@@ -52,6 +48,66 @@
 
     </div>
     </v-flex>
+
+        <v-form v-model="validOrcid">
+            <v-dialog v-model="dialogEditOrcid" :width="$store.getters.getDialogWidth">
+                <v-card>
+                    <v-card-title class="headline grey lighten-2" primary-title>
+                    {{ $t('profile.screen.dialog.edit.orcid.title') }}
+                    </v-card-title>
+                    <v-card-text>
+                      <v-container fuild>
+                        <v-row>
+                          <v-col cols="12">
+                            <v-form v-model="wellFormedOrcid">
+                            <v-row>
+                              <v-col cols="10">
+                                <v-text-field class="required" 
+                                  v-model="orcidOrganisation.orcid" outlined dense 
+                                  prepend-inner-icon="mdi-identifier" :counter="19" 
+                                  :rules="rules.orcIdRules" label="ORCID" required>
+                                </v-text-field>
+                              </v-col>
+                              <v-col cols="2">
+                                <v-btn color="info" @click="searchOnOrcid" :disabled="!wellFormedOrcid" :loading="loadingUser">
+                                  {{ $t('button.search') }}
+                                </v-btn>
+                              </v-col>
+                            </v-row>
+                            </v-form>
+                          </v-col>
+                          <v-col cols="12">
+                            {{ $t('profile.screen.dialog.edit.orcid.message')}}
+                          </v-col>
+                          <v-col cols="12">
+                            <v-text-field class="required" :rules="rules.userNameOrcidRules" outlined dense 
+                              v-model="orcidOrganisation.name" prepend-inner-icon="mdi-account" 
+                              :label="$t('repository.screen.label.user.name')" readonly filled>
+                            </v-text-field>
+                          </v-col>
+                          <v-col cols="12">
+                            <v-text-field v-model="orcidOrganisation.email" outlined dense :rules="rules.emailRules"
+                              prepend-inner-icon="mdi-email" :label="$t('repository.screen.create.user.email')">
+                            </v-text-field>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions>
+                    <div class="flex-grow-1"></div>
+                    <v-btn @click="cancelCreateUser">
+                        {{ $t("button.cancel") }}
+                    </v-btn>
+                    <v-btn color="info" :disabled="!validOrcid" @click="confirmOrcid">
+                        {{ $t("button.confirm") }}
+                    </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </v-form>
+
   </v-layout>
 
 </template>
@@ -72,13 +128,6 @@ export default {
 
   computed: {
 
-    emailRules: function() {
-      const rules = []
-      rules.push(v => !!v || this.$t('email.error'))
-      rules.push(v => /.+@.+\..+/.test(v) || this.$t('profile.screen.error.email.validation'))
-      return rules
-    },
-
     language: function() {
       return this.$store.getters.getLanguage
     },
@@ -87,37 +136,6 @@ export default {
       return this.service + "/profile/v1_0/profile";
     },
 
-    username: function() {
-      let name = null
-      if(this.$store.getters.getUser != null) {
-        name = this.$store.getters.getUser.profile.name
-      }
-      return name
-    },
-
-    userId: function() {
-      let id = null
-      if(this.$store.getters.getUser != null) {
-        id = this.$store.getters.getUser.profile.id
-      }
-      return id
-    },
-
-    user: function() {
-      let user = null
-      if(this.$store.getters.getUser != null) {
-        user = this.$store.getters.getUser
-      }
-      return user
-    },
-
-    orcid: function() {
-      let orcid
-      if(this.$store.getters.getUser != null) {
-        orcid = this.$store.getters.getUser.profile.orcid
-      }
-      return orcid
-    },
     service: function()  {
       return this.$store.getters.getService
     },
@@ -150,23 +168,18 @@ export default {
       
       if (this.$refs.form.validate()) {
         this.saving = true;
-        this.profile.name = this.username
-        this.profile.orcid = this.orcid
-        this.profile.id = this.userId
-        this.axios.post(this.service + "/profile/v1_0/saveProfile", this.profile).then(function(response) {
+        this.axios.post(this.service + "/profile/v1_0/saveProfile?language=" + this.language, this.profile).then(function(response) {
           // save the profile in the store
           let tmpuser = self.user
           tmpuser.profile = response.data
           self.$store.commit("setUser", tmpuser);
-          self.displaySuccess(self.$t('confirmation'));
-          self.loadProfile();
+          self.$router.push("/information").catch(() => {});
         })
         .catch(function(error) {
           displayError(self, error)
         })
         .finally(function() {
           self.saving = false;
-          self.$router.push("/information").catch(() => {});
         });
 
       }
@@ -181,9 +194,6 @@ export default {
         .then(function(response) {
           if(response.data != null && response.data != '') {
             self.profile = response.data
-            if (!self.profile.phones) {
-              self.profile.phones = [''];
-            }
           }
           if(self.profile.email == null) {
             displayError(self, self.$t('repository.screen.required.email.error'))
@@ -197,6 +207,37 @@ export default {
         });
     },
 
+    searchOnOrcid() {
+        var self = this;
+        this.loadingUser = true
+        this.axios.get(this.service+'/orcid/v1_0/getUserByOrcId/'+this.orcidOrganisation.orcid)
+        .then(function (response) {
+            if(response.data.id == null) {
+                self.orcidOrganisation.name = response.data.name
+                self.orcidOrganisation.email = response.data.email
+            } else {
+                displayError(self, self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
+            }
+        }).catch(function(error) {displayError(self, error)})
+        .finally(() => this.loadingUser = false)
+    },
+
+    confirmOrcid() {
+      this.dialogEditOrcid = false
+      this.profile.orcid = this.orcidOrganisation.orcid
+      this.profile.name = this.orcidOrganisation.name
+      if(this.orcidOrganisation.email) {
+        this.profile.email = this.orcidOrganisation.email
+      }
+    },
+
+    cancelCreateUser() {
+      this.dialogEditOrcid = false
+      this.orcidOrganisation.orcid = null
+      this.orcidOrganisation.name = null
+      this.orcidOrganisation.email = null
+    },
+
     displaySuccess: function(message) {
       this.notifierMessage = message;
       this.notifierColor = "success";
@@ -206,8 +247,9 @@ export default {
 
   },
 
-  data: () => ({
-    featureFlag : false,
+    data() {
+        return {
+    dialogEditOrcid: false,
     loading: false,
     saving: false,
     timeout: 2000,
@@ -215,6 +257,8 @@ export default {
     notifierMessage: "",
     notifierColor: "success",
     valid: false,
+    validOrcid: false,
+    wellFormedOrcid: false,
     profile: {
         id: null,
         title: null,
@@ -226,9 +270,34 @@ export default {
     },
     loadingDelete: false,
     loadingSimulation: false,
+    loadingUser: false,
     warningMessage: null,
+    /** User to store the response of ORCID call*/
+    orcidOrganisation: {
+      orcid: null,
+      name: null,
+      email: null
+    },
+    /** Rules */
+    rules: {
+        userNameOrcidRules: [v => !!v || this.$t('repository.screen.error.user.name.required.orcid.error')],
+        userNameRules: [v => !!v || this.$t('repository.screen.error.user.name.required.renater.error')],
+        nameRules: [
+            v => !!v || this.$t('repository.screen.error.repository.name.madatory'),
+            v => !!v && v.length <= 20 || this.$t('repository.screen.error.repository.name.validation'),
+        ],
+        orcIdRules: [
+            v => !!v || 'ORCID is required',
+            v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{3,3}[0-9Xx])/.test(v) || 'ORCID must be valid',
+            v => !!v && v.length <= 19 || 'ORCID length must be exactly 20 characters',
+        ],
+        emailRules: [
+            v => !!v || this.$t('email.error'),
+            v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || this.$t('profile.screen.error.email.validation'),
+        ],
+    },
 
-  })
+  }}
 
 };
 
@@ -240,6 +309,15 @@ export default {
 
   padding: 1px !important;
 
+}
+
+.required label::after {
+  content: " *";
+  color: red;
+}
+
+.text {
+  font-size: .875rem;
 }
 
 </style>

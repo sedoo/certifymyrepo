@@ -25,10 +25,10 @@
                 class="reply--text" 
                 :placeholder="$t('comment.placeholder')"
                 maxlength="250"
-                required
+                :disabled="disabled"
                 @keyup.enter="submitComment"
             />
-            <button class="reply--button" @click.prevent="submitComment"><i class="fa fa-paper-plane"></i> Send</button>
+            <button class="reply--button" @click.prevent="submitComment" :disabled="disabled"><i class="fa fa-paper-plane"></i> Send</button>
         </div>
     </div>
 </template>
@@ -57,7 +57,7 @@ import singleComment from './SingleComment'
         created() {
             this.$i18n.locale = this.$store.getters.getLanguage;
         },
-        props: ['comments', 'requirementCode', 'comments_wrapper_classes', 'isreadonly']
+        props: ['comments', 'requirementCode', 'comments_wrapper_classes', 'isreadonly', 'disabled']
     }
 </script>
 

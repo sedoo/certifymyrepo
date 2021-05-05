@@ -322,21 +322,23 @@ export default {
 
             for (var j = 0; j < report.items.length; j++){
                 var r = report.items[j]
-                if(r.level) {
-                    array.push(r.level)
-                } else {
-                    array.push(null)
+                if(r.levelActive) {
+                    if(r.levelCode) {
+                        array.push(r.levelCode)
+                    } else {
+                        array.push(null)
+                    }
                 }
             }
             serie.data = array
             return [serie];
         },
         chartOptions (report) {
-            var option = {labels: null, title: {text: this.$t('reports.screen.table.reports.radar.chart.title')}, yaxis:{max: 4, forceNiceScale: true, tickAmount: 4} }
+            var option = {labels: null, title: {text: this.$t('reports.screen.table.reports.radar.chart.title')}, yaxis:{max: report.levelMaxValue, forceNiceScale: true, tickAmount: report.levelMaxValue} }
             var array = [];
             for (var j = 0; j < report.items.length; j++){
                 var r = report.items[j]
-                if(r.code) {
+                if(r.code && r.levelActive) {
                     array.push('R'+r.code)
                 }
             }

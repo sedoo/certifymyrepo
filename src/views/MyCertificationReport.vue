@@ -15,21 +15,7 @@
                 :rules="rules.versionRules"
             ></v-text-field>
             <p v-if="!editExistingAllowed"><span class="font-weight-bold">Version:  </span><span>{{ myReport.version }} </span></p>
-         
-            <v-select v-show="editExistingAllowed"
-                :items="status"
-                v-model="myReport.status"
-                >
-              <template slot="selection" slot-scope="data">
-                  <!-- HTML that describe how select should render selected items -->
-                  {{ $t(data.item) }} 
-              </template>
-              <template slot="item" slot-scope="data">
-                  <!-- HTML that describe how select should render items when the select is open -->
-                  {{ $t(data.item) }}
-              </template>
-            </v-select>
-            <p v-if="!editExistingAllowed"><span class="font-weight-bold">{{ $t('report.screen.label.status') }} </span><span>{{ $t(myReport.status) }} </span></p>
+            <p><span class="font-weight-bold">{{ $t('report.screen.label.status') }} </span><span>{{ $t(myReport.status) }} </span></p>
            
 
               <v-stepper v-model="e1" vertical >
@@ -45,9 +31,10 @@
                               color="grey lighten-3"
                               height="auto"
                           >
+                          <v-card-text>
                             <!-- start user detailed response -->
                             <v-textarea v-if="editExistingAllowed"
-                                outlined class="ma-3"
+                                outlined
                                 :label="$t('report.screen.label.edit.response')"
                                 v-model="item.response"
                             >
@@ -56,7 +43,7 @@
 
                             <div v-if="featureFlag">
                             <v-list-item dense v-for="(file, i) in item.files" :key="i">
-                              <div class="link-file pr-3" v-html="getHtmlHRefLink(myReport.id, item.code, file)">
+                              <div class="link-file" v-html="getHtmlHRefLink(myReport.id, item.code, file)">
                               </div>
                               <v-tooltip bottom>
                                 <template v-slot:activator="{ on }">
@@ -70,20 +57,20 @@
                                   <v-icon>mdi-delete-forever-outline</v-icon>    
                               </v-btn>  
                             </v-list-item>
-                            <v-card-actions>
-                               <v-tooltip :disabled="!reportNotSavedYet" bottom>
-                                <template v-slot:activator="{ on }">
-                                  <div v-on="on" class="pa-2">
-                                    <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" color="info" :disabled="reportNotSavedYet" @click="openUploadFilesPopup(item.code)">
-                                        {{ $t('report.screen.label.add.files') }}
-                                    </v-btn>
-                                  </div>
-                                  </template>
-                                  <span>{{ $t('report.screen.button.add.files.help') }}</span>
-                              </v-tooltip>
-                            </v-card-actions>
-                            </div>
-                            <v-select filled v-if="editExistingAllowed" class="ma-3"
+                            <v-tooltip :disabled="!reportNotSavedYet" bottom>
+                            <template v-slot:activator="{ on }">
+                              <div v-on="on">
+                                <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" color="info" :disabled="reportNotSavedYet" @click="openUploadFilesPopup(item.code)">
+                                    {{ $t('report.screen.label.add.files') }}
+                                </v-btn>
+                              </div>
+                              </template>
+                              <span>{{ $t('report.screen.button.add.files.help') }}</span>
+                          </v-tooltip>
+                          </div>
+                          <template v-if="item.levelActive">
+                            <v-select filled v-if="editExistingAllowed"
+                              class="pt-3"
                               :items="levelsTemplate"
                               :label="$t('report.screen.label.level')"
                               v-model="item.level"
@@ -91,17 +78,25 @@
                               item-value="code"
                             ></v-select>
                             <p v-else>
-                              <span class="font-weight-bold">{{ $t('report.screen.label.level') }}: </span>
-                              <span v-if="item.level != null">{{ getLevelLabel(item.level) }}</span> 
+                              <span class="font-weight-bold pt-3">{{ $t('report.screen.label.level') }}: </span>
+                              <span class="pt-3" v-if="item.level != null">{{ getLevelLabel(item.level) }}</span> 
                             </p>
+                          </template>
 
-                            <v-expansion-panels flat class="pa-3" v-if="!hideCommentBloc(item)">
+                            <v-expansion-panels flat class="py-3">
                             <v-expansion-panel>
                                 <v-expansion-panel-header class="px-3">
-                                  {{ $t('report.screen.label.comments')}}  
-                                  <span class="pl-3" v-if="item.comments != null && item.comments.length > 0">
-                                    <i class="fa fa-comment"></i> {{ item.comments.length }}
-                                  </span>
+                                  <v-tooltip :disabled="!hideCommentBloc(item)" bottom>
+                                    <template v-slot:activator="{ on }">
+                                        <div v-on="on">
+                                          {{ $t('report.screen.label.comments')}}  
+                                          <span class="pl-3" v-if="item.comments != null && item.comments.length > 0">
+                                            <i class="fa fa-comment"></i> {{ item.comments.length }}
+                                          </span>
+                                        </div>
+                                    </template>
+                                    <span>{{ $t('report.screen.button.add.comments.help') }}</span>
+                                  </v-tooltip>
                                 </v-expansion-panel-header>
                                 <v-expansion-panel-content>
                                     <comments 
@@ -109,12 +104,13 @@
                                         :comments="item.comments"
                                         :requirementCode="item.code"
                                         :isreadonly="isReadOnlyComment"
+                                        :disabled="hideCommentBloc(item)"
                                         @submit-comment="submitItemComment"
                                     ></comments>
                                 </v-expansion-panel-content>
                             </v-expansion-panel>
                             </v-expansion-panels>
-
+                          </v-card-text>
                             <v-card-actions>
                               <v-btn @click="previousStep(index1)">
                                   {{ $t('button.previous') }}
@@ -133,13 +129,19 @@
 
             <div class="text-right save-button">
                      <v-btn @click="goToMyCertificationReports" class="mr-5">
-                        {{ $t('button.cancel') }}
+                        {{ $t('button.return') }}
+                    </v-btn>
+                     <v-btn v-show="editExistingAllowed" class="mr-5"
+                        color="info"
+                        @click="saveReportWithCurrentVersion"
+                        >
+                        {{ $t('button.save') }}
                     </v-btn>
                      <v-btn v-show="editExistingAllowed"
                         color="info"
-                        @click="save"
+                        @click="saveReportIncreaseVersion"
                         >
-                        {{ $t('button.save') }}
+                        {{ $t('button.save') }} et versionner 
                     </v-btn>
             </div>
 
@@ -240,14 +242,12 @@
           <v-card-actions>
           <div class="flex-grow-1"></div>
           <v-btn
-              color="primary"
-              text
               @click="dialogDeleteFile = false"
           >
               {{ $t('button.cancel') }}
           </v-btn>
           <v-btn
-              color="primary"
+              color="info"
               @click="deleteFile()"
               :loading="deleteInProgress"
           >
@@ -295,9 +295,8 @@ export default {
             notifierMessage: "",
             notifierColor: "success",
             index: 0,
-            status: ["NEW","IN_PROGRESS"],
-            e1: 0,
-            steps: 17,
+            e1: 1,
+            steps: null,
             rules: {
               versionRules: [
                   v => !!v || this.$t('version.required.error'),
@@ -478,6 +477,7 @@ export default {
 
       // Display comment in chat box + save it in mongoDB
       submitItemComment: function(requirementCode, comments, reply) {
+        console.log('here'+reply)
         let self = this
         comments.push({
             userId: this.userId,
@@ -516,7 +516,7 @@ export default {
       },
 
       // Save report
-      save () {
+      saveReport () {
         if(!this.valid) {
           displayError(this, this.$t('report.screen.error.version.madatory'))
         } else {
@@ -545,10 +545,23 @@ export default {
         }
       },
 
+      saveReportWithCurrentVersion() {
+        this.myReport.status = 'IN_PROGRESS'
+        this.saveReport ()
+      },
+
+      saveReportIncreaseVersion() {
+        this.myReport.status = 'IN_PROGRESS'
+        let versionArray = this.myReport.version.split('.')
+        let decimal = parseInt(versionArray[1], 10) + 1
+        this.myReport.version = versionArray[0] + '.' + decimal
+        this.saveReport ()
+      },
+
       releaseTheReport() {
         this.dialog = false
         this.myReport.status = 'RELEASED'
-        this.save ()
+        this.saveReport ()
       },
 
       displaySuccess: function(message) {
@@ -584,7 +597,6 @@ export default {
           if(response.data.template.description && response.data.template.description[self.$store.getters.getLanguage]) {
             self.templateDiscription = response.data.template.description[self.$store.getters.getLanguage]
           }
-
           let commentsCollection = response.data.requirementComments
           let requirementsTemplate = response.data.template.requirements
           let requirementsAttachments = response.data.attachments
@@ -611,6 +623,7 @@ export default {
               for (let requirementItemCode in requirementsTemplate) {
                 if(itemCode == requirementItemCode) {
                   self.myReport.items[i].requirement = requirementsTemplate[requirementItemCode].requirement[self.language]
+                  self.myReport.items[i].levelActive = requirementsTemplate[requirementItemCode].levelActive
                 }
               }
               // END add labels into report object from template
@@ -657,7 +670,6 @@ export default {
         this.axios
         .get(this.service+'/certificationReport/v1_0/getCertificationReportTemplate?name='+this.$route.query.template)
         .then( function (response) {
-
           // Add requirements label for user language into myReport object
           let requirementsLocal = []
           let rItem = null
@@ -666,10 +678,15 @@ export default {
               requirement: null,
               code: null,
               response: null,
-              level: null
+              level: null,
+              levelActive: false
             }
             requirementLocal.requirement = rItem.requirement[self.language]
+            if(rItem.response && rItem.response[self.language]) {
+              requirementLocal.response = rItem.response[self.language]
+            }
             requirementLocal.code = rItem.code
+            requirementLocal.levelActive = rItem.levelActive
             requirementsLocal.push(requirementLocal)
           }
           self.myReport.items = requirementsLocal

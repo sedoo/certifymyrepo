@@ -32,7 +32,7 @@
                 <v-icon v-if="item.adminId != null">mdi-check</v-icon>
             </template>
             <template v-slot:item.actions="{ item, index }">
-              <div v-if="item.adminId == null">
+              <template v-if="item.adminId == null">
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
                   <v-btn  icon v-on="on" :loading="loadingGiveRole[index]" class="mx-0 pa-3" @click="giveRole(item, index)">     
@@ -41,8 +41,8 @@
                   </template>
                   <span>{{ $t('administration.screen.edit.help.message') }}</span>
               </v-tooltip>
-              </div>
-              <div v-else>
+              </template>
+              <template v-else>
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
                   <v-btn icon v-on="on" :loading="loadingRemonveRole[index]" class="mx-0 pa-3" @click="openDialogConfirmationRemoveAdmin(item, index)">     
@@ -51,7 +51,15 @@
                   </template>
                   <span>{{ $t('administration.screen.delete.help.message') }}</span>
               </v-tooltip>
-              </div>
+              </template>
+              <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" :loading="loadingRemonveRole[index]" class="mx-0 pa-3" @click="openDialogEditUser(item, index)">     
+                      <v-icon>mdi-email-edit-outline</v-icon>    
+                  </v-btn>
+                  </template>
+                  <span>{{ $t('administration.screen.edit.email.help.message') }}</span>
+              </v-tooltip>
             </template> 
         </v-data-table>
       </v-card>
@@ -76,6 +84,35 @@
         </v-card-actions>
     </v-card>
     </v-dialog>
+
+ 
+    <v-form v-model="validEditUser">
+        <v-dialog v-model="dialogEditUser" :width="$store.getters.getDialogWidth">
+            <v-card>
+                <v-card-title class="headline grey lighten-2" primary-title>
+                {{ $t('administration.scree.edit.user.title', {'msg': item.name}) }}
+                </v-card-title>
+                <v-card-text>
+                  <v-text-field class="pt-5 required" v-model="editedUser.email" 
+                    outlined dense prepend-inner-icon="mdi-email" 
+                    :label="$t('repository.screen.create.user.email')"
+                    :rules="rules.emailRules">
+                  </v-text-field>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                <div class="flex-grow-1"></div>
+                <v-btn @click="cancelEditUser">
+                    {{ $t("button.cancel") }}
+                </v-btn>
+                <v-btn color="info" :disabled="!validEditUser" @click="saveUser">
+                    {{ $t("button.confirm") }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+    </v-form>
+
     </v-flex>
   </v-layout>
 
@@ -99,8 +136,23 @@ export default {
       loadingRemonveRole: [],
       search: null,
       dialogRemoveAdmin: false,
-      item: null,
+      item: {},
       index: null,
+      validEditUser: false,
+      dialogEditUser: false,
+      editedUser: {
+        	id: null,
+        	adminId: null,
+        	orcid: null,
+        	name: null,
+        	email: null
+      },
+      rules: {
+          emailRules: [
+              v => !!v || this.$t('repository.screen.error.repository.email.mandatory'),
+              v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || this.$t('repository.screen.error.repository.email.validation'),
+          ],
+      },
     }
   },
 
@@ -154,6 +206,40 @@ export default {
       this.dialogRemoveAdmin = true
     },
 
+    openDialogEditUser(item, index) {
+      this.editedUser = JSON.parse(JSON.stringify(item))
+      this.index= index;
+      this.dialogEditUser = true
+    },
+
+    cancelEditUser() {
+      this.index= null;
+      this.editedUser = {
+        	id: null,
+        	adminId: null,
+        	orcid: null,
+        	name: null,
+        	email: null
+      }
+      this.dialogEditUser = false
+    },
+
+    saveUser() {
+      this.saving = true
+      self = this
+      this.axios.post(this.service + "/profile/v1_0/saveProfile?language=" + this.language, this.editedUser).then(function(response) {
+        self.dialogEditUser = false
+        self.users.splice(self.index, 1, self.editedUser)
+
+      })
+      .catch(function(error) {
+        displayError(self, error)
+      })
+      .finally(function() {
+        self.saving = false;
+      });
+    },
+
     titleDialogConfirmationRemoveAdmin() {
       if(this.item && this.userId == this.item.userId) {
         return this.$t('administration.scree.remove.admin.ownrole.confirmation.title')
@@ -180,7 +266,7 @@ export default {
     giveRole(item, index) {
       var self = this;
       this.loadingGiveRole[this.index] = true
-      this.axios.post(this.service+'/admin/v1_0/save/'+item.userId)
+      this.axios.post(this.service+'/admin/v1_0/save/'+item.id)
       .then(response => {
         if(response.data) {
           self.refeshData()
@@ -220,6 +306,11 @@ export default {
 
   padding: 1px !important;
 
+}
+
+.required label::after {
+  content: " *";
+  color: red;
 }
 
 </style>
