@@ -4,10 +4,11 @@
       {{ notifierMessage }}
       <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
     </v-snackbar>
-
-    <v-dialog hide-overlay persistent max-width="600" v-model="visible">
+    <v-dialog hide-overlay persistent :max-width="$store.getters.getDialogWidth" v-model="visible">
       <v-card>
-        <v-card-title class="headline indigo font-weight-light white--text">{{ $t('affiliation.dialog.title') }}</v-card-title>
+        <v-card-title v-if="mode === 'creation'" class="headline indigo font-weight-light white--text">{{ $t('affiliation.dialog.title.creation') }}</v-card-title>
+        <v-card-title v-else class="headline indigo font-weight-light white--text">{{ $t('affiliation.dialog.title.edition') }}</v-card-title>
+        
         <v-card-text>
           <v-form
             class="ma-5 dense"
@@ -21,7 +22,18 @@
                   v-model="affiliation.institute"
                   prepend-inner-icon="mdi-bank"
                   :label="$t('affiliation.dialog.label.institute')"
+                  class="required pt-5"
+                  outlined dense
+                  :rules="mandatoryRules"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="affiliation.acronym"
+                  prepend-inner-icon="mdi-bank"
+                  :label="$t('affiliation.dialog.label.acronym')"
                   class="required"
+                  outlined dense
                   :rules="mandatoryRules"
                 ></v-text-field>
               </v-col>
@@ -29,41 +41,27 @@
                 <v-text-field
                   v-model="affiliation.department"
                   prepend-inner-icon="mdi-sitemap"
+                  outlined dense
                   :label="$t('affiliation.dialog.label.department')"
                 ></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field
+                <v-textarea
                   v-model="affiliation.address"
                   prepend-inner-icon="mdi-road"
                   :label="$t('affiliation.dialog.label.address')"
-                  :rules="mandatoryRules"
-                  class="required"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field v-model="affiliation.zipcode" :label="$t('affiliation.dialog.label.zipcode')"></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  class="required"
-                  v-model="affiliation.city"
-                  :rules="mandatoryRules"
-                  prepend-inner-icon="mdi-city"
-                  :label="$t('affiliation.dialog.label.city')"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field v-model="affiliation.state" :label="$t('affiliation.dialog.label.state')"></v-text-field>
+                  outlined
+                ></v-textarea>
               </v-col>
               <v-col cols="12">
                 <v-autocomplete
                   v-model="affiliation.country"
                   :items="countries"
-                  prepend-icon="mdi-flag"
+                  prepend-inner-icon="mdi-flag"
                   :label="$t('affiliation.dialog.label.country')"
                   :rules="mandatoryRules"
                   class="required"
+                  outlined dense
                 ></v-autocomplete>
               </v-col>
               <v-col cols="12">
@@ -71,6 +69,7 @@
                   v-model="affiliation.website"
                   prepend-inner-icon="mdi-web"
                   :label="$t('affiliation.dialog.label.website')"
+                  outlined dense
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -80,8 +79,8 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="$emit('cancel')" :disabled="saving">{{ $t('button.cancel') }}</v-btn>
-          <v-btn color="info" @click="create" :loading="saving" v-if="mode=='creation'">{{ $t('button.create') }}</v-btn>
-          <v-btn color="info" @click="save" :loading="saving" v-else>{{ $t('button.update') }}</v-btn>
+          <v-btn color="info" @click="create" :loading="saving" :disabled="!validAffiliation" v-if="mode=='creation'">{{ $t('button.create') }}</v-btn>
+          <v-btn color="info" @click="save" :loading="saving" :disabled="!validAffiliation" v-else>{{ $t('button.update') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -91,14 +90,6 @@
 import constantsFile from '../resources/constants.json'
 export default {
   computed: {
-    superAdmin: function() {
-      for (let i = 0; i < this.roles.length; i++) {
-        if (this.roles[i].name == "ROLE_SUPER_ADMIN") {
-          return true;
-        }
-      }
-      return false;
-    },
 
     service: function() {
       return this.$store.getters.getService;
@@ -106,17 +97,50 @@ export default {
 
     affiliationSavingService: function() {
       return this.service + "/myaffi/v1_0/save";
+    },
+
+  },
+
+  props: {
+    visible: {
+      type: Boolean,
+      default: false
+    },
+    
+    mode: {
+      type: String,
+      default: "creation"
+    },
+
+    editedAffiliation: {
+      type: Object,
+      default: () => ({
+            website:"",
+            country: "",
+            address:"",
+            institute:"",
+            acronym: "",
+            department:""
+        })
     }
   },
 
-  watch: {
-   
+  watch: { 
+    editedAffiliation: function(newVal) { 
+      this.affiliation = newVal
+    }
   },
+
   mounted: function() {
-    
+
+  },
+
+  created: function() {
+
   },
   methods: {
     create: function() {
+      console.log('create')
       var self = this;
       if (!this.$refs.affiliationForm.validate()) {
         return;
@@ -128,10 +152,9 @@ export default {
             self.affiliation = {
               website:"",
               country: "",
-              state:"",
               address:"",
-              zipcode:"",
               institute:"",
+              acronym: "",
               department:""
             }
             self.displaySuccess(self.$t('affiliation.dialog.confirmation'));
@@ -142,13 +165,13 @@ export default {
           })
           .finally(function() {
             self.savingAffiliation = false;
-            self.saving = true;
+            self.saving = false;
           });
       }
     },
 
     save: function() {
-      
+      this.create()
     },
 
    
@@ -170,38 +193,18 @@ export default {
 
   data() {
     return {
-      validAffiliation: null,
+      validAffiliation: false,
       timeout: 2000,
       notifier: false,
       notifierMessage: "",
       notifierColor: "success",
       mandatoryRules: [v => !!v || this.$t('affiliation.dialog.error.madatory')],
-      affiliation: {
-        website:"",
-        country: "",
-        state:"",
-        address:"",
-        zipcode:"",
-        institute:"",
-        department:""
-      },
       saving: false,
       countries: constantsFile.countries,
-      }
+      affiliation: this.editedAffiliation
+    }
   },
 
-  props: {
-    visible: {
-      type: Boolean,
-      default: false
-    },
-    
-    mode: {
-      type: String,
-      default: "creation"
-    }
-    
-  }
 }
 </script>
 <style>

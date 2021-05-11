@@ -13,20 +13,23 @@
       <template v-if="users != null && users.length > 0">
       <v-card>
       <v-card-title>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        :label="$t('administration.screen.search.bar.label')"
-        single-line
-        hide-details
-      ></v-text-field>
-       </v-card-title>
+        {{ $t('administration.screen.card.users.title') }}
+      </v-card-title>
+      <v-card-text>
+        <v-text-field
+          v-model="searchUser"
+          append-icon="mdi-magnify"
+          :label="$t('administration.screen.search.bar.label')"
+          single-line
+          hide-details
+        ></v-text-field>
+      </v-card-text>
         <v-data-table
-          :headers="headers"
+          :headers="usersTableheader"
           :items="users"
           :items-per-page="5"
           class="elevation-1"
-          :search="search"
+          :search="searchUser"
         >
             <template v-slot:item.admin="{ item }">  
                 <v-icon v-if="item.adminId != null">mdi-check</v-icon>
@@ -62,6 +65,67 @@
               </v-tooltip>
             </template> 
         </v-data-table>
+      </v-card>
+      </template>
+    </div>
+
+    <div v-if="!loadingUsers" class="pa-5">
+      <template v-if="users != null && users.length > 0">
+      <v-card>
+      <v-card-title>
+        {{ $t('administration.screen.card.affiliations.title') }}
+      </v-card-title>
+      <v-card-text>
+            <v-row>
+            <v-col cols="11">
+              <v-text-field
+                v-model="searchAffiliation"
+                append-icon="mdi-magnify"
+                :label="$t('administration.screen.search.bar.label')"
+                single-line
+                hide-details
+              ></v-text-field>
+            </v-col>
+            <v-col cols="1">
+                <v-btn 
+                  fab color="info"
+                  small
+                  title="Create an affiliation"
+                  @click="openCreateAffiliation">
+                    <v-icon >mdi-plus</v-icon> 
+                </v-btn>
+            </v-col>
+            </v-row>
+      </v-card-text>
+        <v-data-table
+          :headers="affiliationsTableheader"
+          :items="affiliations"
+          :items-per-page="5"
+          class="elevation-1"
+          :search="searchAffiliation"
+        >
+            <template v-slot:item.actions="{ item, index }">
+              <template>
+              <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                  <v-btn  icon v-on="on" class="mx-0 pa-3" @click="openEditAffiliation(item, index)">     
+                      <v-icon>mdi-pencil-outline</v-icon>    
+                  </v-btn>
+                  </template>
+                  <span>{{ $t('administration.screen.edit.affiliation.help.message') }}</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                  <v-btn  icon v-on="on" class="mx-0 pa-3" @click="openDeleteAffiliation(item, index)">     
+                      <v-icon>mdi-delete-forever-outline</v-icon>    
+                  </v-btn>
+                  </template>
+                  <span>{{ $t('administration.screen.delete.affiliation.help.message') }}</span>
+              </v-tooltip>
+              </template>
+            </template> 
+        </v-data-table>
+
       </v-card>
       </template>
     </div>
@@ -114,28 +178,64 @@
     </v-form>
 
     </v-flex>
+
+    <AffiliationCreationEditionDialog
+      @cancel="editingAffiliation = false"
+      @created="affiliationCreated"
+      :visible="editingAffiliation"
+      :mode="mode"
+      :editedAffiliation="editedAffiliation"
+    ></AffiliationCreationEditionDialog>
+
+    <v-dialog v-model="dialogDeleteAffiliation" :width="$store.getters.getDialogWidth">
+    <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title>
+        {{ $t('administration.screen.delete.affiliation.title') }}
+        </v-card-title>
+        <v-card-text>{{ $t('administration.screen.delete.affiliation.message') }}</v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+        <div class="flex-grow-1"></div>
+        <v-btn @click="dialogDeleteAffiliation = false">
+            {{ $t('button.cancel') }}
+        </v-btn>
+        <v-btn color="info" @click="deleteAffiliationHasBeenConfirmed()">
+            {{ $t('button.confirm') }}
+        </v-btn>
+        </v-card-actions>
+    </v-card>
+    </v-dialog>
+
   </v-layout>
 
 </template>
 
 <script>
+import AffiliationCreationEditionDialog from "../components/AffiliationCreationEditionDialog";
 import moment from 'moment';
 import {displayError} from '../utils.js'
 export default {
-
+  components: {
+      AffiliationCreationEditionDialog
+  },
   data() {
     return {
       users: [],
-      loading: false,
+      affiliations:[],
+      loadingUsers: false,
+      loadingAffiliation: false,
       timeout: 2000,
       notifier: false,
       notifierMessage: "",
       notifierColor: "success",
-      headers: [] ,
+      usersTableheader: [] ,
+      affiliationsTableheader: [] ,
       loadingGiveRole: [],
       loadingRemonveRole: [],
-      search: null,
+      searchUser: null,
+      searchAffiliation: null,
       dialogRemoveAdmin: false,
+      dialogDeleteAffiliation: false,
       item: {},
       index: null,
       validEditUser: false,
@@ -153,18 +253,34 @@ export default {
               v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || this.$t('repository.screen.error.repository.email.validation'),
           ],
       },
+      editingAffiliation: false,
+      mode: "edition", // edition or creation
+      affiliationIndex: null,
+      editedAffiliation: {              
+        website:"",
+        country: "",
+        address:"",
+        institute:"",
+        department:""},
     }
   },
 
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
-    this.headers = [
+    this.usersTableheader = [
           { text: this.$t('user.table.column.user.name'), value: 'name' },
           { text: this.$t('user.table.column.user.email'), value: 'email' },
           { text: this.$t('user.table.column.user.admin'), value: 'admin', sortable: false  },
           { text: this.$t('user.table.column.user.actions'), value: 'actions', sortable: false  }
           ] ,
+    this.affiliationsTableheader = [
+          { text: this.$t('affiliation.table.column.institute'), value: 'institute' },
+          { text: this.$t('affiliation.table.column.acronym'), value: 'acronym' },
+          { text: this.$t('affiliation.table.column.department'), value: 'department' },
+          { text: this.$t('affiliation.table.column.actions'), value: 'actions', sortable: false  }
+          ] ,
     this.refeshData();
+    this.loadAffiliations();
   },
 
   props: {
@@ -172,6 +288,10 @@ export default {
   },
 
   computed: {
+
+    loading: function() {
+      return this.loadingUsers || this.loadingAffiliation
+    },
 
     service: function()  {
       return this.$store.getters.getService
@@ -185,19 +305,18 @@ export default {
       return id
     },
 
-
   },
 
   methods: {
 
     refeshData() {
       var self = this;
-      self.loading = true
+      self.loadingUsers = true
       this.axios.get(this.service+'/admin/v1_0/listAllUsers')
       .then(response => {
         self.users = response.data
       }).catch(function(error) {displayError(self, error)})
-      .finally(() => self.loading = false)
+      .finally(() => self.loadingUsers = false)
     },
 
     openDialogConfirmationRemoveAdmin(item, index) {
@@ -285,6 +404,70 @@ export default {
         }
       }).catch(function(error) {displayError(self, error)})
       .finally(() => self.loadingRemonveRole = [])
+    },
+
+    openEditAffiliation(item, index) {
+      this.editedAffiliation = JSON.parse(JSON.stringify(item))
+      this.mode = "edition"
+      this.editingAffiliation = true
+    },
+
+    openCreateAffiliation() {
+      this.mode = "creation"
+      this.editingAffiliation = true
+    },
+
+    openDeleteAffiliation(item, index) {
+      this.dialogDeleteAffiliation = true
+      this.affiliationIndex = index
+      this.editedAffiliation = item
+    },
+
+    cancelEditAffiliation() {
+      this.editingAffiliation = false
+      this.editedAffiliation = {              
+        website:"",
+        country: "",
+        address:"",
+        institute:"",
+        department:""}
+    },
+
+    affiliationCreated: function() {
+        this.editingAffiliation = false;
+        this.loadAffiliations()
+    },
+
+    loadAffiliations: function() {
+
+        var self = this;
+        this.loadingAffiliation = true;
+        this.axios
+            .get(this.service + "/myaffi/v1_0/list")
+            .then(function(response) {
+            self.affiliations = response.data;
+            })
+            .catch(function(error) {
+                displayError(self, error);
+            })
+            .finally(function() {
+                self.loadingAffiliation = false;
+            });
+    },
+
+    deleteAffiliationHasBeenConfirmed: function() {
+      self = this
+      this.axios
+          .delete(this.service + "/myaffi/v1_0/delete/"+this.editedAffiliation.id)
+          .then(function(response) {
+            self.affiliations.splice(self.affiliationIndex, 1);
+          })
+          .catch(function(error) {
+              displayError(self, error);
+          }).finally(function() {
+            self.affiliationIndex = null
+            self.dialogDeleteAffiliation = false
+          });
     },
 
     displaySuccess: function(message) {

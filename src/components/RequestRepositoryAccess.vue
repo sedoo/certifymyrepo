@@ -8,17 +8,46 @@
             class="mx-auto pa-5"
         >
             <v-card-title>{{ $t('repository.screen.repository.access.title') }}</v-card-title>
-            <v-card-text class="grey--text text--lighten-1">{{$t('repository.screen.repository.access.label.search')}}</v-card-text >
-            <v-card-actions>
-                    <v-text-field v-model="keywords" @keyup.enter="lookup"></v-text-field>
+            <v-card-text>
+                <v-row>
+                <v-col
+                    cols="12"
+                    sm="12"
+                    md="6"
+                    lg="4"
+                >
+
+                    <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <v-text-field 
+                            v-on="on"
+                            v-model="keywords"
+                            @keyup.enter="lookup"
+                            clearable
+                            flat outlined dense
+                            hide-details
+                            prepend-inner-icon="mdi-magnify"
+                            :label="$t('repository.screen.repository.access.label.search')"
+                        ></v-text-field>
+                    </template>
+                    <span v-html="$t('repository.screen.repository.access.help')"></span>
+                    </v-tooltip>
+                </v-col>
+                <v-col
+                    cols="12"
+                    sm="12"
+                    md="6"
+                    lg="4">
                     <v-btn
-                        @click="lookup"
-                        icon
+                        @click="lookup" color="info"
                         :disabled="isSearchButtonDisable"
                         >
-                        <v-icon>mdi-magnify</v-icon> 
+                        {{ $t('button.search')}}
                     </v-btn>
-            </v-card-actions>
+                </v-col>
+                </v-row>
+                    
+            </v-card-text>
             <v-simple-table v-if="repositories!=null && repositories.length > 0">
                 <template v-slot:default>
                 <thead>
@@ -57,13 +86,13 @@
             <v-text-field
                 :label="$t('profile.screen.error.email.mandatory')"
                 v-model="email"
-                :rules="emailRules"
+                :rules="emailRules" outlined dense class="pt-5"
                 required
             ></v-text-field>
-            <v-select :rules="roleRules"
+            <v-select :rules="roleRules" outlined dense
             v-model="role"
             :items="roles"
-            label="Select a role">
+            :label="$t('repository.screen.repository.access.popup.field.role')">
                 <template slot="selection" slot-scope="data">
                     <!-- HTML that describe how select should render selected items -->
                     {{ $t(data.item) }} 

@@ -20,7 +20,7 @@
         <v-data-table
             :headers="headers"
             :items="reports"
-            :sort-by="['version']"
+            :sort-by="['updateDate']"
             :sort-desc="[true]"
             hide-default-footer
             show-expand
@@ -142,7 +142,7 @@
                 </v-card-title>
                 <v-card-text class="pa-5">
                 {{ $t('reports.screen.create.new.report.confirmation.message') }}
-                <v-select outlined :items="templateNames" v-model="templateName">
+                <v-select outlined dense :items="templateNames" v-model="templateName">
                 </v-select>
                 </v-card-text>
                 <v-divider></v-divider>
@@ -192,7 +192,7 @@ export default {
                 { text: this.$t('reports.screen.table.reports.column.status'), value: 'status' },
                 { text: this.$t('reports.screen.table.reports.column.actions'), value: 'actions', sortable: false }
                 ] ,
-            templateNames: ['CTS-2020-2022', 'CTS-2023-2025'],
+            templateNames: ['CTS-2020-2022', 'GO-FAIR'],
             templateName: 'CTS-2020-2022',
             // error and success notification vars
             timeout: 2000,
@@ -339,7 +339,7 @@ export default {
             for (var j = 0; j < report.items.length; j++){
                 var r = report.items[j]
                 if(r.code && r.levelActive) {
-                    array.push('R'+r.code)
+                    array.push(r.code)
                 }
             }
             option.labels = array
@@ -366,11 +366,15 @@ export default {
         }, 
         copyItem (item) {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: item.id, copy: true }  });
-        }, 
-        formatDate (timestamp) {
-            return moment(timestamp).format('DD MMM YYYY HH:mm')
         },
-
+        formatDate (date) {
+            if(date) {
+                let localizedDate = moment(date).locale(this.$store.getters.getLanguage)
+                return localizedDate.format('DD MMM YYYY HH:mm')
+            } else {
+                return ''
+            }
+        },
         displaySuccess: function(message) {
             this.notifierMessage = message;
             this.notifierColor = "success";

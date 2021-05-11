@@ -41,33 +41,33 @@
                             </v-textarea>
                             <p v-if="!editExistingAllowed" class="text-justify">{{ item.response }}</p>
 
-                            <div v-if="featureFlag">
-                            <v-list-item dense v-for="(file, i) in item.files" :key="i">
-                              <div class="link-file" v-html="getHtmlHRefLink(myReport.id, item.code, file)">
-                              </div>
-                              <v-tooltip bottom>
-                                <template v-slot:activator="{ on }">
-                                <v-btn v-on="on" icon class="mx-0" @click="copyText(myReport.id, item.code, file)">     
-                                    <v-icon>mdi-content-copy</v-icon>    
-                                </v-btn>
-                                  </template>
-                                  <span>{{ $t('report.screen.button.clipboard.help') }}</span>
-                              </v-tooltip> 
-                              <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" icon class="mx-0" @click="openDeleteFilePopup(item.code, file)">     
-                                  <v-icon>mdi-delete-forever-outline</v-icon>    
-                              </v-btn>  
-                            </v-list-item>
+                            <div v-if="item.files">
+                              <v-list-item dense v-for="(file, i) in item.files" :key="i">
+                                <div class="link-file" v-html="getHtmlHRefLink(myReport.id, item.code, file)">
+                                </div>
+                                <v-tooltip bottom>
+                                  <template v-slot:activator="{ on }">
+                                  <v-btn v-on="on" icon class="mx-0" @click="copyText(myReport.id, item.code, file)">     
+                                      <v-icon>mdi-content-copy</v-icon>    
+                                  </v-btn>
+                                    </template>
+                                    <span>{{ $t('report.screen.button.clipboard.help') }}</span>
+                                </v-tooltip> 
+                                <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" icon class="mx-0" @click="openDeleteFilePopup(item.code, file, index)">     
+                                    <v-icon>mdi-delete-forever-outline</v-icon>    
+                                </v-btn>  
+                              </v-list-item>
+                            </div>
                             <v-tooltip :disabled="!reportNotSavedYet" bottom>
                             <template v-slot:activator="{ on }">
                               <div v-on="on">
-                                <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" color="info" :disabled="reportNotSavedYet" @click="openUploadFilesPopup(item.code)">
+                                <v-btn v-if="editExistingAllowed && myReport.status != 'RELEASED'" color="info" :disabled="reportNotSavedYet" @click="openUploadFilesPopup(item.code, index)">
                                     {{ $t('report.screen.label.add.files') }}
                                 </v-btn>
                               </div>
                               </template>
                               <span>{{ $t('report.screen.button.add.files.help') }}</span>
                           </v-tooltip>
-                          </div>
                           <template v-if="item.levelActive">
                             <v-select filled v-if="editExistingAllowed"
                               class="pt-3"
@@ -310,10 +310,11 @@ export default {
             loadingReport: false,
             itemFiles: null,
             currentRequirementCode: null,
+            currentRequirementIndex: null,
             fileToDelete: null,
             deleteInProgress: false,
             uploadInProgress: false,
-            featureFlag: false,
+            featureFlag: true,
         }
     },
     computed: {
@@ -392,23 +393,25 @@ export default {
         }
       },
 
-      openUploadFilesPopup(itemCode) {
+      openUploadFilesPopup(itemCode, index) {
         this.uploadInProgress = false
         this.dialogUploadFiles = true;
         this.currentRequirementCode=itemCode;
+        this.currentRequirementIndex=index
         this.itemFiles=[]
       },
 
-      openDeleteFilePopup(itemCode, file) {
+      openDeleteFilePopup(itemCode, file, index) {
         this.deleteInProgress = false
-        this.dialogDeleteFile = true;
-        this.currentRequirementCode=itemCode;
+        this.dialogDeleteFile = true
+        this.currentRequirementCode=itemCode
+        this.currentRequirementIndex=index
         this.fileToDelete=file;
       },
 
       updateUploadedFiles(filesToUpload) {
-        if(!this.myReport.items[this.currentRequirementCode].files) {
-          this.myReport.items[this.currentRequirementCode].files = [];
+        if(!this.myReport.items[this.currentRequirementIndex].files) {
+          this.myReport.items[this.currentRequirementIndex].files = [];
         }
         let formData = new FormData();
         for(let i=0 ; i<filesToUpload.length ; i++) {
@@ -426,11 +429,11 @@ export default {
             })
             .then(response => {
               if(response && response.data) {
-                let filesName = self.myReport.items[this.currentRequirementCode].files
+                let filesName = self.myReport.items[this.currentRequirementIndex].files
                 for(let i=0 ; i<response.data.length ; i++) {
                   filesName.push(response.data[i])
                 }
-                self.myReport.items[this.currentRequirementCode].files = Array.from(new Set(filesName))
+                self.myReport.items[this.currentRequirementIndex].files = Array.from(new Set(filesName))
               }
 
             })
@@ -452,9 +455,9 @@ export default {
                   "&fileName="+this.fileToDelete,
             })
             .then(response => {
-                for(let i=0 ; i<self.myReport.items[self.currentRequirementCode].files.length ; i++) {
-                  if(self.myReport.items[self.currentRequirementCode].files[i] === self.fileToDelete) {
-                    self.myReport.items[self.currentRequirementCode].files.splice(i, 1);
+                for(let i=0 ; i<self.myReport.items[self.currentRequirementIndex].files.length ; i++) {
+                  if(self.myReport.items[self.currentRequirementIndex].files[i] === self.fileToDelete) {
+                    self.myReport.items[self.currentRequirementIndex].files.splice(i, 1);
                   }
                 }
             })
@@ -602,7 +605,7 @@ export default {
           let requirementsAttachments = response.data.attachments
 
           if(self.myReport.items != null && self.myReport.items.length > 0 ) {
-            for (var i = 0; i < self.myReport.items.length; i++) {
+            for (let i = 0; i < self.myReport.items.length; i++) {
 
               let itemCode = self.myReport.items[i].code
 
@@ -621,16 +624,20 @@ export default {
 
               // BEGINNING add labels into report object from template
               for (let requirementItemCode in requirementsTemplate) {
-                if(itemCode == requirementItemCode) {
+                if(i == requirementItemCode) {
                   self.myReport.items[i].requirement = requirementsTemplate[requirementItemCode].requirement[self.language]
                   self.myReport.items[i].levelActive = requirementsTemplate[requirementItemCode].levelActive
                 }
               }
               // END add labels into report object from template
-
               // BEGINNING add attachments into report object
-              if(requirementsAttachments && requirementsAttachments[itemCode]) {
-                self.myReport.items[i].files = requirementsAttachments[itemCode]
+              if(requirementsAttachments) {
+                for (let attachmentsItem in requirementsAttachments) {
+                  if(itemCode == attachmentsItem) {
+                    self.myReport.items[i].files = requirementsAttachments[attachmentsItem]
+                  }
+                }
+                
               }
               // END add attachments into report object
 

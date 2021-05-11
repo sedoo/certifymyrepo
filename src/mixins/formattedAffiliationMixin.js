@@ -10,19 +10,16 @@ export default {
 
         formatAffiliation(affiliation) {
             let item = {};
-            let dpt = affiliation.institute;
-            if (affiliation.departement) {
-            dpt = affiliation.institute + "/" + affiliation.departement;
+
+            let dpt = ""
+            if(affiliation.institute) {
+                dpt = affiliation.institute + " (" + affiliation.acronym + ")";
             }
-            item.institute = affiliation.institute;
-            item.department = affiliation.departement;
             
-            let countryName = this.findCountryLabelFromCode(affiliation.country)
-            item.countryName = countryName;
-
-            item.text =
-            dpt + " (" + countryName + ")";
-
+            if (affiliation.department) {
+                dpt = dpt + " / " + affiliation.department;
+            }
+            item.text = dpt;
             item.value = affiliation.id;
             return item
         },

@@ -120,20 +120,21 @@ export default {
     },
 
     formatHealthDate (health) {
-        if(health) {
-          return this.formatDate(health.lastUpdateDate)
+
+        if(health && health.latestReport && health.latestReport.updateDate) {
+          return this.formatDate(health.latestReport.updateDate)
         } else {
           return ''
         }
     },
 
     formatDate (date) {
-      console.log(date)
-        if(date) {
-          return moment(date).lang(this.language).format('DD MMM YYYY HH:mm')
-        } else {
-          return ''
-        }
+      if(date) {
+        let localizedDate = moment(date).locale(this.language)
+        return localizedDate.format('DD MMM YYYY HH:mm')
+      } else {
+        return ''
+      }
     },
 
     displaySuccess: function(message) {

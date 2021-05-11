@@ -1,12 +1,12 @@
 <template>
     <div class="repository">
 
-    <AffiliationCreationDialog
+    <AffiliationCreationEditionDialog
       @cancel="creatingAffiliation = false"
       @created="affiliationCreated"
       :visible="creatingAffiliation"
       mode="creation"
-    ></AffiliationCreationDialog>
+    ></AffiliationCreationEditionDialog>
 
     <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
       {{ notifierMessage }}
@@ -36,7 +36,7 @@
                     ></v-text-field>
                 </v-col>
             <v-col cols="11" class="pa-0">
-              <v-select outlined dense
+              <v-autocomplete outlined dense
                 :rules="affiliationRules"
                 v-model="editedAffiliation"
                 :items="affiliations"
@@ -44,7 +44,7 @@
                 prepend-inner-icon="mdi-bank"
                 :label="$t('repository.screen.label.repository.affiliation')"
                 :loading="affiliationLoading"
-              ></v-select>
+              ></v-autocomplete>
             </v-col>
             <v-col cols="1" class="py-0">
                 <v-btn 
@@ -68,8 +68,7 @@
                                         >
                         </v-combobox>
                     </template>
-                    <span v-if="language === 'fr'">Appuyer sur <kbd>entrée</kbd> pour créer un nouveau mot-clés</span>
-                    <span v-else>Press <kbd>enter</kbd> to create a new keyword</span>
+                    <span v-html="$t('repository.screen.label.repository.keywords.help')"></span>
                     </v-tooltip>
  
                 </v-col> 
@@ -296,12 +295,12 @@
 <script>
 import {displayError} from '../utils.js'
 import {displaySuccess} from '../utils.js'
-import AffiliationCreationDialog from "../components/AffiliationCreationDialog";
+import AffiliationCreationEditionDialog from "../components/AffiliationCreationEditionDialog";
 import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
     mixins: [formattedAffiliationMixin],
     components: {
-        AffiliationCreationDialog
+        AffiliationCreationEditionDialog
     },
     data() {
         return {

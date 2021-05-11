@@ -26,14 +26,17 @@
             <v-combobox v-else class="required" required
             @change="requestcode"
               outlined dense
-              :label="$t('notlogged.screnn.renater.label.providers')"
+              :label="$t('notlogged.screen.renater.label.providers')"
               :items="entities"
               v-model="entity">
             </v-combobox>
         </v-card-text>
+        <v-card-text class="pt-0">
+          {{ $t('notlogged.screen.renater.help.message')}}
+        </v-card-text>
         <v-card-actions class="card-actions">
           <v-card-action>
-          <v-btn @click='loginShibboleth' :disabled="code==null" color="info">{{ $t('notlogged.screnn.renater.button.login') }}</v-btn>
+          <v-btn @click='loginShibboleth' :disabled="code==null" color="info">{{ $t('notlogged.screen.button.login') }}</v-btn>
           </v-card-action>
         </v-card-actions>
       </v-card>
@@ -49,7 +52,7 @@
          <v-card-actions class="card-actions">
           <v-card-action>
             <v-btn color="info" @click="loginOrcid">
-              {{ $t('notlogged.screnn.renater.button.login') }}
+              {{ $t('notlogged.screen.button.login') }}
               </v-btn>
           </v-card-action>
          </v-card-actions>
