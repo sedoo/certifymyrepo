@@ -8,7 +8,8 @@
     - 2.2 [Administrators](#administrators)
     - 2.3 [Application toolbar](#application-toolbar)
 3. [Notifications](#notifications)   
-4. [Packing and deployement](#packing-and-deployement)
+4. [Report template](#report-template)   
+5. [Packing and deployement](#packing-and-deployement)
 
 ## Architecture
 
@@ -85,6 +86,43 @@ The toolbar of the application gives access to 4 pages and to logout button
 | Add an user on a repository	| An Editor can add users on a repository. The users will receive a notification. |
 | Remove an user from a repository	| An Editor can remove users on a repository. The users will receive a notification. |
 | Request access on a repository 	| An user can search for a repositoy by name, keywords etc and request access. The users with Editor role on the given repository will receive a notification  |
+
+## Report template
+
+Certification reports are based on JSON template. The list of existing template is [Report template](https://github.com/sedoo/certifymyrepo-back/tree/main/src/main/resources/certificationReportTemplate)
+
+To create a new template to have create a new JSON file base on the same model and the same locale. The front call the endpoint ``/certificationReport/v1_0/getTemplatesList`` to display the list of existing template.
+
+Example:
+````JSON
+{
+	"name": "CTS-2020-2022",
+	"description": {"en": "CoreTrustSeal Trustworthy Data Repositories Requirements 2020–2022", 
+	                "fr": "Exigences CoreTrustSeal 2020-2022 relatives aux référentiels de données"},              
+    "levels":  [
+            {"code": 0, "label": {"en": "0 - Not applicable", "fr": "0 ‐ Sans objet"}},
+            {"code": 1, "label": {"en": "1 - The repository has not considered this yet", "fr": "1 ‐ L’entrepôt n'en a pas encore tenu compte"}},
+            {"code": 2, "label": {"en": "2 - The repository has a theoretical concept", "fr": "2 - L’entrepôt maîtrise le concept de façon théorique"}},
+            {"code": 3, "label": {"en": "3 - The repository is in the implementation phase ", "fr": "3 - L’entrepôt est en phase d’implémentation"}},
+            {"code": 4, "label": {"en": "4 - The guideline has been fully implemented in the repository", "fr": "4 - La spécification a été entièrement implémentée"}}
+        ],
+    "requirements" : [ 
+    {
+        "code" : "R0",
+        "requirement": {"en": "R0. Please provide context for your repository.", 
+                        "fr": "R0. Veuillez fournir les éléments de contexte de votre entrepôt."},
+        "levelActive" : false,
+        "response": {"en": "– Repository Type. Select all relevant types from:\n● Domain or subject-based repository\n● Institutional repository\n● National repository system, including governmental\n● Publication repository\n● Library\n● Museum\n● Archive\n● Research project repository\n● Other (Please describe)\n– Brief Description of Repository\n\n– Brief Description of the Designated Community\n\n– Level of Curation Performed. Select all relevant types from:\nA. Content distributed as deposited\nB. Basic curation – e.g., brief checking, addition of basic metadata or documentation\nC. Enhanced curation – e.g., conversion to new formats, enhancement of documentation \nD. Data-level curation – as in C above, but with additional editing of deposited data for accuracy\n\nComments\n\n– Insource/Outsource Partners. If applicable, please list them.\n\n– Summary of Significant Changes Since Last Application (if applicable)\n\n– Other Relevant Information\n\n", 
+                     "fr": "– Type d’entrepôt. Sélectionnez tous les types pertinents :\n● Entrepôt disciplinaire ou thématique\n● Entrepôt institutionnel\n● Système national d'archivage, y compris les archives gouvernementales\n● Dépôt de publicationons\n● Bibliothèque\n● Musée\n● Archives\n● Entrepôt de projet de recherche\n● Autre (précisez)\n\n– Brève description de l’entrepôt de données\n\n– Brève description de la communauté cible concernée\n\n– Niveau de curation. Sélectionnez tous les types pertinents :\nA. Contenu mis en accès tel que déposé\nB. Curation de base – p. ex. vérification rapide, ajout de métadonnées de base ou de documentation\nC. Curation avancée – p. ex. conversion vers de nouveaux formats, mélioration de la qualité de la documentation\nD. Curation au niveau des données ? comme dans C ci?dessus, mais avec une édition supplémentaire des données déposées pour améliorer l’exactitude\n\nCommentaires\n\n– Partenaires internes et sous-traitants. S'il y a lieu, veuillez les énumérer.\n\n– Résumé des changements significatifs depuis la dernière soumission (s'il y a lieu)\n\n– Autres renseignements pertinents\n\n"}
+    },
+    {
+        "code" : "R1",
+        "requirement": {"en": "R1. The repository has an explicit mission to provide access to and preserve data in its domain.",
+                        "fr": "R1. L’entrepôt de données a pour mission explicite de donner accès à des données dans son domaine et de les préserver"},
+        "levelActive" : true
+    }]
+ }
+````
 
 ## Packing and deployement
 
