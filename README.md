@@ -7,6 +7,7 @@
     - 2.1 [User roles](#user-roles)
     - 2.2 [Administrators](#administrators)
     - 2.3 [Application toolbar](#application-toolbar)
+3. [Notifications](#notifications)   
 4. [Packing and deployement](#packing-and-deployement)
 
 ## Architecture
@@ -75,6 +76,14 @@ The toolbar of the application gives access to 4 pages and to logout button
 | Administration  		| Liste tous les utilisateurs dans un tableau filtrable par nom ou email. Permet de donner ou d'enlever des droits administrateur et de supprimer un utilisateur      | Visible only to administrators |
 | Logout button  		| Used to disconnect properly from the application.      | |
 
+
+## Notifications
+
+| Case  | Recipients |
+| :--------------- | :---------------: |
+| Create a new profile while adding an user on a repository	| TODO |
+| Save a repository	| TODO |
+| Request access on a repository 	| TODO |
 
 ## Packing and deployement
 
