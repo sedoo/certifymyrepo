@@ -80,10 +80,11 @@ The toolbar of the application gives access to 4 pages and to logout button
 ## Notifications
 
 | Case  | Recipients |
-| :--------------- | :---------------: |
-| Create a new profile while adding an user on a repository	| TODO |
-| Save a repository	| TODO |
-| Request access on a repository 	| TODO |
+| :--------------- | :--------------- |
+| Create a new user profile while adding an user on a repository	| An Editor can add users on a repository. An user can be created in the system if he does not exist. If the email has been filled in (not madatory if add from an ORCID) the user will get a notification. |
+| Add an user on a repository	| An Editor can add users on a repository. The users will receive a notification. |
+| Remove an user from a repository	| An Editor can remove users on a repository. The users will receive a notification. |
+| Request access on a repository 	| An user can search for a repositoy by name, keywords etc and request access. The users with Editor role on the given repository will receive a notification  |
 
 ## Packing and deployement
 
