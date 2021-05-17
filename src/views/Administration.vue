@@ -154,7 +154,7 @@
         <v-dialog v-model="dialogEditUser" :width="$store.getters.getDialogWidth">
             <v-card>
                 <v-card-title class="headline grey lighten-2" primary-title>
-                {{ $t('administration.scree.edit.user.title', {'msg': item.name}) }}
+                {{ $t('administration.scree.edit.user.title', {'msg': editedUser.name}) }}
                 </v-card-title>
                 <v-card-text>
                   <v-text-field class="pt-5 required" v-model="editedUser.email" 

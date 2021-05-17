@@ -123,7 +123,7 @@ export default {
         entities.sort((a,b) => (a.text > b.text) ? 1 : ((b.text > a.text) ? -1 : 0))
 
         this.entities = entities;
-        this.entity = entities[0].text
+        this.entity = null
         this.loading = false;
     })
   }

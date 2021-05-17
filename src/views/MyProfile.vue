@@ -289,7 +289,7 @@ export default {
         orcIdRules: [
             v => !!v || 'ORCID is required',
             v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{3,3}[0-9Xx])/.test(v) || 'ORCID must be valid',
-            v => !!v && v.length <= 19 || 'ORCID length must be exactly 20 characters',
+            v => !!v && v.length <= 19 || 'ORCID length must be exactly 19 characters',
         ],
         emailRules: [
             v => !!v || this.$t('email.error'),

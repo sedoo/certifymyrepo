@@ -27,6 +27,9 @@
             class="elevation-1"
         >
  
+             <template v-slot:item.templateName="{ item }">  
+                <span>{{ formatTemplateName(item) }}</span>
+            </template> 
             <template v-slot:item.updateDate="{ item }">  
                 <span>{{ formatDate(item.updateDate) }}</span>
             </template> 
@@ -142,7 +145,7 @@
                 </v-card-title>
                 <v-card-text class="pa-5">
                 {{ $t('reports.screen.create.new.report.confirmation.message') }}
-                <v-select outlined dense :items="templateNames" v-model="templateName">
+                <v-select outlined dense :items="templateIdentifierList" v-model="templateIdentifier" item-text="name" item-value="id" return-object>
                 </v-select>
                 </v-card-text>
                 <v-divider></v-divider>
@@ -192,8 +195,8 @@ export default {
                 { text: this.$t('reports.screen.table.reports.column.status'), value: 'status' },
                 { text: this.$t('reports.screen.table.reports.column.actions'), value: 'actions', sortable: false }
                 ] ,
-            templateNames: ['CTS-2020-2022', 'GO-FAIR'],
-            templateName: 'CTS-2020-2022',
+            templateIdentifierList: [],
+            templateIdentifier: null,
             // error and success notification vars
             timeout: 2000,
             notifier: false,
@@ -203,7 +206,7 @@ export default {
             isDownloadingJson: [],
             report: null,
             index: null,
-            featureFlag: false,
+            featureFlag: true,
         }
     },
     computed: {
@@ -313,7 +316,7 @@ export default {
         },
 
         getFileName(report) {
-            return this.$store.getters.getRepository.name + "_" + report.templateName + "_" + report.version
+            return this.$store.getters.getRepository.name + "_" + report.template + "_" + report.version
         },
 
         levelList (report) {
@@ -359,7 +362,7 @@ export default {
                 ).catch(function(error) {displayError(self, error)})
         },
         createReport() {
-            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null, template: this.templateName} })
+            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null, template: this.templateIdentifier.id} })
         },
         editItem (item) {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: item.id } });
@@ -374,6 +377,16 @@ export default {
             } else {
                 return ''
             }
+        },
+        formatTemplateName(item) {
+            let result = null;
+            for(let i=0 ; i<this.templateIdentifierList.length ; i++) {
+                if(this.templateIdentifierList[i].id === item.templateId) {
+                    result = this.templateIdentifierList[i].name
+                    break
+                }
+            }
+            return result
         },
         displaySuccess: function(message) {
             this.notifierMessage = message;
@@ -398,6 +411,16 @@ export default {
 	    self.creationValidationAllowed = response.data.creationValidationAllowed
       }).catch(function(error) {displayError(self, error)})
       .finally(() => this.loading = false)
+
+      this.axios
+      .get(this.service+'/certificationReport/v1_0/getTemplatesList/')
+      .then(response => {
+        self.templateIdentifierList = response.data
+        if(response.data && response.data.length > 0) {
+            self.templateIdentifier = response.data[0]
+        }
+      }).catch(function(error) {displayError(self, error)})
+
     }
 } 
 </script>

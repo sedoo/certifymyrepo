@@ -178,8 +178,8 @@
                         </v-card-actions>
                     </v-form>
                     <v-card-text v-if="creationMode == 'orcid'">
-                        <v-text-field class="pt-2" :rules="rules.userNameOrcidRules" outlined dense v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')" readonly filled></v-text-field>
-                        <v-text-field class="pt-2" v-model="user.email" outlined dense prepend-inner-icon="mdi-email" :label="$t('repository.screen.create.user.email')"></v-text-field>
+                        <v-text-field class="pt-2" :rules="rules.userNameOrcidRules" outlined dense v-model="userName" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')" readonly filled></v-text-field>
+                        <v-text-field class="pt-2" v-model="email" outlined dense prepend-inner-icon="mdi-email" :label="$t('repository.screen.create.user.email')"></v-text-field>
                     </v-card-text>
                     <v-card-text v-else>
                         <v-text-field class="pt-2 required" :rules="rules.userNameRules" outlined dense v-model="userName" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')"></v-text-field>
@@ -370,7 +370,7 @@ export default {
                 orcIdRules: [
                     v => !!v || 'ORCID is required',
                     v => /^$|(\d{4,4}[-]\d{4,4}[-]\d{4,4}[-]\d{3,3}[0-9Xx])/.test(v) || 'ORCID must be valid',
-                    v => !!v && v.length <= 19 || 'ORCID length must be exactly 20 characters',
+                    v => !!v && v.length <= 19 || 'ORCID length must be exactly 19 characters',
                 ],
                 emailRules: [
                     v => !!v || this.$t('repository.screen.error.repository.email.mandatory'),
@@ -456,7 +456,7 @@ export default {
         addUserRole() {
             this.dialogAddUser = false
             this.dialogEditUserRole = false
-            let user = {name: this.selectedUser[0].name, id:this.selectedUser[0].userId, role: this.role}
+            let user = {name: this.selectedUser[0].name, id:this.selectedUser[0].id, role: this.role}
             if(this.userIndex < 0 ) {
                 if(this.myRepository.users == null || this.myRepository.users.length == 0) {
                     let myUserList = [];
@@ -519,7 +519,7 @@ export default {
             this.axios({
                 method: 'post',
                 url: this.service + "/profile/v1_0/createNewProfile?language="+this.language,
-                data: {name: this.userName, email: this.email }
+                data: {name: this.userName, orcid: this.orcid, email: this.email }
             }).then(function(response) {
                 self.creatingUser = false
                 self.dialogCreateUser = false
@@ -540,6 +540,7 @@ export default {
             .then(function (response) {
                 if(response.data.id == null) {
                     self.user = response.data
+                    self.userName = response.data.name
                 } else {
                     displayError(self, self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
                 }

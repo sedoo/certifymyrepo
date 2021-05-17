@@ -282,7 +282,7 @@ export default {
             validationAllowed: false,
             myReport: {
                 'id': null,
-                'templateName': null,
+                'templateId': null,
                 'repositoryId': null,
                 'items': null, 
                 'status': 'NEW',
@@ -480,7 +480,6 @@ export default {
 
       // Display comment in chat box + save it in mongoDB
       submitItemComment: function(requirementCode, comments, reply) {
-        console.log('here'+reply)
         let self = this
         comments.push({
             userId: this.userId,
@@ -530,6 +529,7 @@ export default {
               url: this.service+'/certificationReport/v1_0/save',
               data: this.myReport
           }).then( function (response) {
+            self.myReport.id = response.data.id
             self.displaySuccess(self.$t('report.screen.save.confirmation'))
           }).catch(function(error) {displayError(self, error)})
         }
@@ -686,7 +686,8 @@ export default {
               code: null,
               response: null,
               level: null,
-              levelActive: false
+              levelActive: false,
+              comments: []
             }
             requirementLocal.requirement = rItem.requirement[self.language]
             if(rItem.response && rItem.response[self.language]) {
@@ -711,7 +712,7 @@ export default {
             levelsLocal.push(levelLocal)
           }
           self.levelsTemplate = levelsLocal
-          self.myReport.templateName = self.$route.query.template
+          self.myReport.templateId = self.$route.query.template
           self.myReport.repositoryId = self.$route.query.repositoryId
           self.editExistingAllowed = true
           self.validationAllowed = false

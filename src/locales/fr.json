@@ -52,7 +52,7 @@
   "notlogged.screen.title": "Bienvenue sur <span class='text-uppercase'><span class='font-weight-regular'>CRUSÖE</span></span>",
   "notlogged.screen.message": "Veuillez choisir votre système d'authentification.",
   "notlogged.screen.renater.label.providers": "Sélectionnez l'établissement auquel vous appartenez.",
-  "notlogged.screen.renater.help.message": "Si vous avez changer d'email veuillez contacter l'administrateur.",
+  "notlogged.screen.renater.help.message": "Si vous avez changé d'email veuillez contacter l'administrateur via le formulaire de contact.",
   "notlogged.screen.button.login": "Connexion",
   "dashboard.screen.title": "Tableau de bord",
   "profile.screen.title": "Profil utilisateur",
