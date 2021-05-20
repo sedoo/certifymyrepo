@@ -43,12 +43,11 @@
 
                             <div v-if="item.files">
                               <v-list-item dense v-for="(file, i) in item.files" :key="i">
-                                <div class="link-file" v-html="getHtmlHRefLink(myReport.id, item.code, file)">
-                                </div>
+                                <span class="link-file"> {{ file }}</span>
                                 <v-tooltip bottom>
                                   <template v-slot:activator="{ on }">
-                                  <v-btn v-on="on" icon class="mx-0" @click="copyText(myReport.id, item.code, file)">     
-                                      <v-icon>mdi-content-copy</v-icon>    
+                                  <v-btn v-on="on" icon class="mx-0" @click="downloadAttachment(myReport.id, item.code, file, i)" :loading="downloadAttachmentInProgress[i]">     
+                                      <v-icon>mdi-download</v-icon>    
                                   </v-btn>
                                     </template>
                                     <span>{{ $t('report.screen.button.clipboard.help') }}</span>
@@ -102,6 +101,7 @@
                                     <comments 
                                         :comments_wrapper_classes="['custom-scrollbar', 'comments-wrapper']"
                                         :comments="item.comments"
+                                        :language="language"
                                         :requirementCode="item.code"
                                         :isreadonly="isReadOnlyComment"
                                         :disabled="hideCommentBloc(item)"
@@ -314,6 +314,7 @@ export default {
             fileToDelete: null,
             deleteInProgress: false,
             uploadInProgress: false,
+            downloadAttachmentInProgress: [],
             featureFlag: true,
         }
     },
@@ -372,25 +373,26 @@ export default {
     },
     methods: {
 
-      getHtmlHRefLink(reportId, code, file) {
-        return "<a href='"+this.service+"/link/"+reportId+"/"+code+"/"+file+"' style='color: -webkit-link;' target='_blank' rel='noopener noreferrer'>"+file+"</a>"
-      },
-
-      copyText(reportId, code, file) {
-        const el = document.createElement('textarea');  
-        el.value = this.service+"/link/"+reportId+"/"+code+"/"+file;                                 
-        el.setAttribute('readonly', '');                
-        el.style.position = 'absolute';                     
-        el.style.left = '-9999px';                      
-        document.body.appendChild(el);                  
-        const selected =  document.getSelection().rangeCount > 0  ? document.getSelection().getRangeAt(0) : false;                                    
-        el.select();                                    
-        document.execCommand('copy');                   
-        document.body.removeChild(el);                  
-        if (selected) {                                 
-          document.getSelection().removeAllRanges();    
-          document.getSelection().addRange(selected);   
-        }
+      downloadAttachment(reportId, code, fileName, index) {
+        this.downloadAttachmentInProgress[index] = true
+        let self = this
+        this.axios({
+                method: 'get',
+                url: this.service+"/file/v1_0/"+reportId+"/"+code+"/"+fileName,
+                responseType: 'arraybuffer'
+            })
+            .then(response => {
+              let blob = new Blob([response.data], { type: response.headers['content-type']});
+              let link = document.createElement("a");
+              link.href = window.URL.createObjectURL(blob);
+              link.download = fileName;
+              link.click();
+            })
+            .catch(error => {
+              displayError(self, error)
+            }).finally(function() {
+              self.downloadAttachmentInProgress = []
+            })
       },
 
       openUploadFilesPopup(itemCode, index) {
@@ -741,4 +743,8 @@ export default {
    overflow-y: scroll
 }
 
+.link-file {
+  color: blue;
+  text-decoration: underline;
+}
 </style>

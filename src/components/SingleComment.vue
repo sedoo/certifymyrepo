@@ -1,16 +1,32 @@
 <template>
     <div class="comment">
         <div class="text">
-            <a class="username" href="#">@{{ comment.userName }}</a> <span>{{ comment.text }}</span>
+            <div>
+            <a class="username" href="#">@{{ comment.userName }}</a>  <span>{{ comment.text }}</span>
+            </div>
+            <div>
+                <span class="caption font-weight-thin">{{ formatDate(comment.creationDate) }}</span>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-    export default {
-        name: 'singleComment',
-        props: ['comment']
+import moment from 'moment';
+export default {
+    name: 'singleComment',
+    props: ['comment','language'],
+    methods: {
+        formatDate (date) {
+            if(date) {
+                let localizedDate = moment(date).locale(this.language)
+                return localizedDate.format('DD MMM YYYY HH:mm')
+            } else {
+                return ''
+            }
+        },
     }
+}
 </script>
 
 <style scoped>

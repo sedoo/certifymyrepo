@@ -28,7 +28,7 @@
         >
  
              <template v-slot:item.templateName="{ item }">  
-                <span>{{ formatTemplateName(item) }}</span>
+                <span>{{ formatTemplateName(item.templateId) }}</span>
             </template> 
             <template v-slot:item.updateDate="{ item }">  
                 <span>{{ formatDate(item.updateDate) }}</span>
@@ -71,29 +71,11 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn v-if="featureFlag" icon v-on="on" class="mx-0" @click="generateHiddenRadarChart(item, index)" :loading="isDownloadingPDF[index]">     
-                        <v-icon>mdi-file-pdf-box</v-icon>    
+                    <v-btn v-if="featureFlag" icon v-on="on" class="mx-0" @click="openDownloadPopup(item, index)">     
+                        <v-icon>mdi-download</v-icon>    
                     </v-btn>
                 </template>
-                <span>{{ $t('reports.screen.button.pdf.help') }}</span>
-            </v-tooltip>
-
-            <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                    <v-btn v-if="featureFlag" icon v-on="on" class="mx-0" @click="handleJSON(item, index)" :loading="isDownloadingJson[index]">     
-                        <v-icon>mdi-file-document-outline</v-icon>    
-                    </v-btn>
-                </template>
-                <span>{{ $t('reports.screen.button.json.help') }}</span>
-            </v-tooltip>
-
-            <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                    <v-btn v-if="featureFlag" icon v-on="on" class="mx-0" @click="handleXML(item, index)" :loading="isDownloadingJson[index]">     
-                        <v-icon>mdi-xml</v-icon>    
-                    </v-btn>
-                </template>
-                <span>{{ $t('reports.screen.button.xml.help') }}</span>
+                <span>{{ $t('reports.screen.button.download.help') }}</span>
             </v-tooltip>
 
         </template>   
@@ -104,7 +86,7 @@
 
         </v-data-table>
 
-        <div v-if="report != null" style="visibility: hidden; width: 500px;">
+        <div v-if="report != null && downloadPDFConfirmed" style="visibility: hidden; width: 500px;">
             <apexchart @animationEnd="handlePDF(report)" :ref="'radarchart'+report.id" type=radar height=350 :options="chartOptions(report)" :series="levelList(report)" />
         </div>
 
@@ -164,6 +146,36 @@
             </v-card>
             </v-dialog>
 
+        <v-dialog v-model="dialogDownload" :width="$store.getters.getDialogWidth">
+            <v-card>
+                <v-card-title
+                class="headline grey lighten-2"
+                primary-title
+                >
+                {{ $t('reports.screen.download.confirmation.title') }}
+                </v-card-title>
+                <v-card-text class="pt-5">
+                <v-select outlined dense :items="formats" v-model="format" :label="$t('reports.screen.download.select.format') "></v-select>
+                <v-checkbox v-model="downloadAttachments" :label="$t('reports.screen.download.isAttachments')"></v-checkbox>
+                <v-checkbox v-model="downloadComments" :label="$t('reports.screen.download.isComments')"></v-checkbox>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                <div class="flex-grow-1"></div>
+                    <v-btn
+                        @click="dialogDownload = false">
+                        {{ $t('button.cancel') }}
+                    </v-btn>
+                    <v-btn
+                        color="info"
+                        :loading="isDownloading"
+                        @click="confirmDownload">
+                        {{ $t('button.confirm') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
         </template>
 
     </v-container>
@@ -184,6 +196,7 @@ export default {
             reports: [],
             dialogDelete: false,
             dialogCreate: false,
+            dialogDownload: false,
             reportId: null,
 	        editExistingAllowed: false,
 	        creationValidationAllowed: false,
@@ -202,11 +215,15 @@ export default {
             notifier: false,
             notifierMessage: "",
             notifierColor: "success",
-            isDownloadingPDF: [],
-            isDownloadingJson: [],
+            isDownloading: false,
             report: null,
             index: null,
             featureFlag: true,
+            formats: ['pdf', 'json', 'xml'],
+            format: null,
+            downloadAttachments: false,
+            downloadComments: false,
+            downloadPDFConfirmed: false,
         }
     },
     computed: {
@@ -219,16 +236,32 @@ export default {
         /**
          * If the expanded-item for apexchart is closed the char image cannot be send to the rest api generating to pdf report
          * So an hidden chart is genereted with the given report
-         * See: <div v-if="report != null" style="visibility: hidden; width: 500px;">
+         * See: <div v-if="report != null && downloadPDFConfirmed" style="visibility: hidden; width: 500px;">
+         *           <apexchart @animationEnd="handlePDF(report)" ...
          */
-        generateHiddenRadarChart(report, index) {
+        openDownloadPopup(report, index) {
+            // open the dialog
+            this.dialogDownload = true
+            // prepare data
             this.report = report
             this.index = index
-            this.isDownloadingPDF[this.index] = true
+            // RESET form
+            this.format = null
+            this.downloadAttachments = false
+            this.downloadComments = false
+        },
+
+        confirmDownload() {
+            this.isDownloading = true
+            if(this.format === 'pdf') {
+                this.downloadPDFConfirmed = true
+            } else {
+                this.handleDownload(this.report, new Blob())
+            }
         },
 
         /**
-         * Download data in PDF file
+         * Prepare radar image in blod and call handleDownload method
          */
         handlePDF(report) {
             this.report = null
@@ -240,29 +273,42 @@ export default {
                 while(n--){
                     u8arr[n] = bstr.charCodeAt(n);
                 }
-                let blob = new Blob([u8arr], {type:mime});
+                this.handleDownload(report, new Blob([u8arr], {type:mime}))
+            });
+        },
 
+        /**
+         * Download data in pdf, json, xml file
+         * If attachments have been requested the data is a ZIP file
+         */
+        handleDownload(report, blob) {
                 let formData = new FormData();
                 formData.append("radar", blob);
-                
+                self = this
                 this.axios({
                     method: 'post',
-                    url: this.service+'/certificationReport/v1_0/getPDF?reportId='+ report.id +"&language="+this.$store.getters.getLanguage+"&service="+this.service,
+                    url: this.service+'/certificationReport/v1_0/download?reportId='+report.id+"&language="+this.$store.getters.getLanguage+"&format="+this.format+"&attachments="+this.downloadAttachments+"&comments="+this.downloadComments,
                     responseType: 'arraybuffer',
                     data: formData,
                     headers: {'Content-Type': 'multipart/form-data'}
                 }).then( function (response) {
-                    let blob = new Blob([response.data], { type: "application/pdf" });
+                    let type = "application/"+self.format
+                    let extension = self.format
+                    if(self.downloadAttachments) {
+                        type = "application/zip"
+                        extension = "zip"
+                    }
+                    let blob = new Blob([response.data], { type: type});
                     let link = document.createElement("a");
                     link.href = window.URL.createObjectURL(blob);
-                    link.download = `${self.getFileName(report)}.pdf`;
+                    link.download = `${self.getFileName(report)}` + "." + extension;
                     link.click();
                 }).catch(function(error) {displayError(self, error)})
                 .finally(function() {
-                    self.isDownloadingPDF = []
+                    self.downloadPDFConfirmed = false
+                    self.isDownloading = false
+                    self.dialogDownload = false
                 })
-
-            });
         },
 
         isReleased: function (item) {
@@ -273,50 +319,8 @@ export default {
             }
         },
 
-        /**
-         * Download json data
-         */
-        handleJSON(report, index) {
-            this.isDownloadingJson[index] = true
-            var self = this;
-            this.axios({
-                method: 'get',
-                url: this.service+'/certificationReport/v1_0/getJSON?reportId='+report.id+"&language="+this.$store.getters.getLanguage+"&service="+this.service
-            }).then( function (response) {
-                let blob = new Blob([JSON.stringify(response.data)], { type: "application/json" });
-                let link = document.createElement("a");
-                link.href = window.URL.createObjectURL(blob);
-                link.download = `${self.getFileName(report)}.json`;
-                link.click();
-            }).catch(function(error) {displayError(self, error)})
-            .finally(function() {
-            self.isDownloadingJson = []
-            })
-        },
-
-        /**
-         * Download xml data
-         */
-        handleXML(report, index) {
-            this.isDownloadingJson[index] = true
-            var self = this;
-            this.axios({
-                method: 'get',
-                url: this.service+'/certificationReport/v1_0/getXML?reportId='+report.id+"&language="+this.$store.getters.getLanguage+"&service="+this.service
-            }).then( function (response) {
-                let blob = new Blob([response.data], { type: "application/xml" });
-                let link = document.createElement("a");
-                link.href = window.URL.createObjectURL(blob);
-                link.download = `${self.getFileName(report)}.xml`;
-                link.click();
-            }).catch(function(error) {displayError(self, error)})
-            .finally(function() {
-            self.isDownloadingJson = []
-            })
-        },
-
         getFileName(report) {
-            return this.$store.getters.getRepository.name + "_" + report.template + "_" + report.version
+            return this.$store.getters.getRepository.name + "_" + this.formatTemplateName(report.templateId) + "_" + report.version
         },
 
         levelList (report) {
@@ -378,10 +382,10 @@ export default {
                 return ''
             }
         },
-        formatTemplateName(item) {
+        formatTemplateName(templateId) {
             let result = null;
             for(let i=0 ; i<this.templateIdentifierList.length ; i++) {
-                if(this.templateIdentifierList[i].id === item.templateId) {
+                if(this.templateIdentifierList[i].id === templateId) {
                     result = this.templateIdentifierList[i].name
                     break
                 }

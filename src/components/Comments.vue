@@ -14,6 +14,7 @@
             <single-comment 
                 v-for="comment in comments"
                 :comment="comment"
+                :language="language"
                 :key="comment.id"
             ></single-comment>
         </div>
@@ -57,7 +58,7 @@ import singleComment from './SingleComment'
         created() {
             this.$i18n.locale = this.$store.getters.getLanguage;
         },
-        props: ['comments', 'requirementCode', 'comments_wrapper_classes', 'isreadonly', 'disabled']
+        props: ['comments', 'requirementCode', 'comments_wrapper_classes', 'isreadonly', 'disabled', 'language']
     }
 </script>
 
