@@ -140,7 +140,6 @@ export default {
   },
   methods: {
     create: function() {
-      console.log('create')
       var self = this;
       if (!this.$refs.affiliationForm.validate()) {
         return;

@@ -125,34 +125,54 @@
                         </v-stepper-content>
 
                 </div>
-              </v-stepper>                      
+              </v-stepper>
 
             <div class="text-right save-button">
-                     <v-btn @click="goToMyCertificationReports" class="mr-5">
-                        {{ $t('button.return') }}
-                    </v-btn>
-                     <v-btn v-show="editExistingAllowed" class="mr-5"
-                        color="info"
-                        @click="saveReportWithCurrentVersion"
-                        >
-                        {{ $t('button.save') }}
-                    </v-btn>
-                     <v-btn v-show="editExistingAllowed"
-                        color="info"
-                        @click="saveReportIncreaseVersion"
-                        >
-                        {{ $t('button.save') }} et versionner 
-                    </v-btn>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                <v-btn v-on="on" @click="goToMyCertificationReports" class="mr-5">
+                    {{ $t('button.return') }}
+                </v-btn>
+                </template>
+                <span>{{ $t('report.screen.button.return.help') }}</span>
+              </v-tooltip> 
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                <v-btn v-on="on" v-show="editExistingAllowed" class="mr-5"
+                    color="info"
+                    @click="saveReportWithCurrentVersion"
+                    >
+                    {{ $t('button.save') }}
+                </v-btn>
+                </template>
+                <span>{{ $t('report.screen.button.save.help') }}</span>
+              </v-tooltip> 
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                <v-btn v-on="on" v-show="editExistingAllowed"
+                    color="info"
+                    @click="saveReportIncreaseVersion"
+                    >
+                    {{ $t('button.saveNewVersion') }}
+                </v-btn>
+                </template>
+                <span>{{ $t('report.screen.button.saveNewVersion.help') }}</span>
+              </v-tooltip>
             </div>
 
             <div class="text-right save-button">
-              <v-btn v-show="validationAllowed"
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+              <v-btn v-on="on" v-show="validationAllowed"
                 color="info"
                 @click="displayReleaseConfirmation"
                 :disabled="!valid"
                 >
                 {{ $t('button.release') }}
               </v-btn>
+              </template>
+              <span>{{ $t('report.screen.button.release.help') }}</span>
+            </v-tooltip>
             </div>
       </v-form>
     </div>

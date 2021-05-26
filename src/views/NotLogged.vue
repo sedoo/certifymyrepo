@@ -35,9 +35,7 @@
           {{ $t('notlogged.screen.renater.help.message')}}
         </v-card-text>
         <v-card-actions class="card-actions">
-          <v-card-action>
           <v-btn @click='loginShibboleth' :disabled="code==null" color="info">{{ $t('notlogged.screen.button.login') }}</v-btn>
-          </v-card-action>
         </v-card-actions>
       </v-card>
         </v-col>
@@ -50,11 +48,9 @@
             />
         </v-card-title>
          <v-card-actions class="card-actions">
-          <v-card-action>
             <v-btn color="info" @click="loginOrcid">
               {{ $t('notlogged.screen.button.login') }}
               </v-btn>
-          </v-card-action>
          </v-card-actions>
       </v-card>
         </v-col>
@@ -95,15 +91,11 @@ export default {
 
     requestcode: function() {
       this.requestingCode = true;
-
-      //this.axios.get(this.root+"/shibboleth/requestcode?url=https://coso-preprod.sedoo.fr/application/?authtype=shibb").then(response => {
-        this.axios.get(this.root+"/shibboleth/requestcode?url="+ window.location.origin + window.location.pathname +"?authtype=shibb").then(response => {
-
+      this.axios.get(this.root+"/shibboleth/requestcode?url="+ window.location.origin + window.location.pathname +"?authtype=shibb").then(response => {
       this.code = response.data
       if(this.code) {
         this.requestingCode = false;
       }
-
     })
     },
 

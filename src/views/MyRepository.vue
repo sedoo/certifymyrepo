@@ -364,8 +364,7 @@ export default {
                 userNameRules: [v => !!v || this.$t('repository.screen.error.user.name.required.renater.error')],
                 roleRules: [v => !!v || this.$t('repository.screen.error.user.role.required')],
                 nameRules: [
-                    v => !!v || this.$t('repository.screen.error.repository.name.madatory'),
-                    v => !!v && v.length <= 20 || this.$t('repository.screen.error.repository.name.validation'),
+                    v => !!v || this.$t('repository.screen.error.repository.name.madatory')
                 ],
                 orcIdRules: [
                     v => !!v || 'ORCID is required',

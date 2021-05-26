@@ -293,7 +293,6 @@ export default {
       },
 
       chartOptions (health) {   
-        console.log(health)
         let title = ''
         if(health && health.latestReport && health.latestReport.templateName) {
           title = health.latestReport.templateName
@@ -383,7 +382,6 @@ export default {
       this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')
       .then(response => {
         self.resultMyRepo = response.data
-        console.log(self.resultMyRepo )
         if(this.userEmail==null) {
           displayError(this, this.$t('repository.screen.required.email.error'))
         }

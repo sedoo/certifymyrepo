@@ -194,7 +194,6 @@ export default {
                 }
             })    
             .then(response => {
-                console.log('Response : '+JSON.stringify(response))
                 self.repositories = response.data
                 if(self.repositories==null || self.repositories.length == 0) {
                     self.notDataFound = true

@@ -1,23 +1,3 @@
-<i18n>
-{
-  "en": {
-    "login": "Login",
-    "logout": "Logout (currently logged as : '{msg}')",
-    "page.repositories" : "Repositories",
-    "page.information" : "User information",
-    "page.dashboard" : "Dashboard",
-    "page.administration" : "Administration"
-  },
-  "fr": {
-    "login": "Connexion",
-    "logout": "Déconnexion (vous êtes connecté en tant que : '{msg}'",
-    "page.repositories" : "Entrepôts",
-    "page.information" : "Information utilisateur",
-    "page.dashboard" : "Tableau de bord",
-    "page.administration" : "Administration"
-  }
-}
-</i18n>
 <template>
  <v-app class="grey lighten-4">
   <certifymyrepo-token-refresher :service="service"></certifymyrepo-token-refresher>
@@ -55,17 +35,13 @@
     <v-content class="ma-3">
       <router-view @login="login"></router-view>
     </v-content>
-  
 </v-app>
 </template>
 
 <script>
-
 import {logOut} from './utils.js'
 export default {
   name: 'App',
-  components: {
-  },
   props: {
     service: {
       type: String,
@@ -148,7 +124,6 @@ export default {
     this.$store.commit('setService', this.service)
     this.links = []
     if (this.isLogged) {
-        this.links = []
         this.links.push(this.linkRepositories)
         this.links.push(this.linkUserInformation)
         if(this.userIsAdmin || this.userIsSuperAdmin) {
@@ -221,7 +196,6 @@ export default {
     let aux = document.querySelector(this.externalselector);
     if (aux) {
       let text = aux.innerText;
-      console.log(text)
       aux.innerHTML = '<section class="toolbar-parent"><h1 class="entry-title">'+text+'</h1><div class="toolbar-fill-remaining-space"></div><div class="external-toolbar"></div></section>'
       this.updateToolbar();
       this.setExternalListeners();

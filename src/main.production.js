@@ -16,6 +16,7 @@ import { store } from './store/store'
 import {logOut} from './utils.js'
 import vueCustomElement from 'vue-custom-element'
 import i18n from './i18n'
+import ContactApp from './views/ContactApp.vue'
 
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
@@ -50,6 +51,10 @@ App.store = store;
 App.router = router;
 
 Vue.customElement('crusoe-app', App)
+
+ContactApp.vuetify = vuetify;
+ContactApp.i18n = i18n;
+Vue.customElement('contact-app', ContactApp)
 
 const urlCdnStyle = [
   "https://fonts.googleapis.com/css?family=Material+Icons",
