@@ -140,32 +140,22 @@ export default {
       return this.$store.getters.getService
     },
 
+    user: function()  {
+      let user = null
+      if(this.$store.getters.getUser != null) {
+        user = this.$store.getters.getUser
+      }
+      return user;
+    },
   },
 
   methods: {
-    deletePhone: function(index) {
-      this.profile.phones.splice(index,1);
-    },
-
     cancel: function() {
       this.$router.push("/information").catch(() => {});
     },
 
     save: function() {
       var self = this;
-      let aux = [];
-      for (let i = 0; i< this.profile.phones.length; i++) {
-        let phone = this.profile.phones[i];
-        if (phone.trim().length > 0) {
-          aux.push(phone)
-        }
-      }
-      if(aux.length > 0) {
-        this.profile.phones = aux;
-      } else {
-        this.profile.phones = [''];
-      }
-      
       if (this.$refs.form.validate()) {
         this.saving = true;
         this.axios.post(this.service + "/profile/v1_0/saveProfile?language=" + this.language, this.profile).then(function(response) {
@@ -196,7 +186,7 @@ export default {
             self.profile = response.data
           }
           if(self.profile.email == null) {
-            displayError(self, self.$t('repository.screen.required.email.error'))
+            displayError(self, self.$t('profile.screen.email.required.message'))
           }
         })
         .catch(function(error) {
@@ -261,10 +251,7 @@ export default {
     wellFormedOrcid: false,
     profile: {
         id: null,
-        title: null,
         email: null,
-        phones: [''],
-        fax: null,
         name: null,
         orcid: null,
     },
@@ -291,7 +278,7 @@ export default {
             v => !!v && v.length <= 19 || 'ORCID length must be exactly 19 characters',
         ],
         emailRules: [
-            v => !!v || this.$t('email.error'),
+            v => !!v || this.$t('profile.screen.email.error'),
             v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || this.$t('profile.screen.error.email.validation'),
         ],
     },

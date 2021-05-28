@@ -267,7 +267,7 @@ export default {
       },
       editRepository (item) {
         if(this.userEmail==null) {
-          displayError(this, this.$t('repository.screen.required.email.error'))
+          displayError(this, this.$t('repositories.screen.required.email.error'))
         } else {
           this.$router.push({name: 'repository', query: {repositoryId: item.id}});
         }
@@ -321,7 +321,7 @@ export default {
       },
       routeToMyReports(repository) {
         if(this.userEmail==null) {
-          displayError(this, this.$t('repository.screen.required.email.error'))
+          displayError(this, this.$t('repositories.screen.required.email.error'))
         } else {
           this.$store.commit('setRepository', repository)
           this.$router.push({path: '/certificationReports/' + repository.id })
@@ -383,7 +383,7 @@ export default {
       .then(response => {
         self.resultMyRepo = response.data
         if(this.userEmail==null) {
-          displayError(this, this.$t('repository.screen.required.email.error'))
+          displayError(this, this.$t('repositories.screen.required.email.error'))
         }
       }).catch(function(error) {displayError(self, error)})
       .finally(() => this.loadingReports = false)

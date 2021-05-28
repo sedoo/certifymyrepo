@@ -2,7 +2,7 @@
     <div class="comment">
         <div class="text">
             <div>
-            <a class="username" href="#">@{{ comment.userName }}</a>  <span>{{ comment.text }}</span>
+            <a class="username" href="#">@{{ getUserName() }}</a>  <span>{{ comment.text }}</span>
             </div>
             <div>
                 <span class="caption font-weight-thin">{{ formatDate(comment.creationDate) }}</span>
@@ -16,7 +16,17 @@ import moment from 'moment';
 export default {
     name: 'singleComment',
     props: ['comment','language'],
+    created: function() {
+        this.$i18n.locale = this.language
+    },
     methods: {
+        getUserName() {
+            if(this.comment.userName) {
+                return this.comment.userName
+            } else {
+                return this.$t('repository.screen.comment.user.deleted')
+            }
+        },
         formatDate (date) {
             if(date) {
                 let localizedDate = moment(date).locale(this.language)

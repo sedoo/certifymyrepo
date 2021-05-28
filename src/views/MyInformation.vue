@@ -321,7 +321,7 @@ export default {
       repoList: [],
       headers: [],
       expanded: [],
-      featureFlag: false,
+      featureFlag: true,
     }
   }
 

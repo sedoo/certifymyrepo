@@ -1,7 +1,7 @@
 <template>
 <v-app class="grey lighten-4">
   <v-container fluid>
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
+    <v-snackbar v-model="notifier" :color="notifierColor" :timeout="timeout" centered>
       {{ notifierMessage }}
       <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
     </v-snackbar>
@@ -97,18 +97,23 @@ export default {
           })
           .then(response => {
             if(response && response.data) {
-              self.displaySuccess('En cours de développement. Pas d\'envoi de message pour le moment.')
+              self.displaySuccess(self.$t('contact.screen.success'))
+              self.name = null
+              self.email = null
+              self.subject = null
+              self.message = null
+              self.$refs.form.reset()
             }
           })
           .catch(error => {
             displayError(self, error)
-          })
+          }).finally(() => self.$refs.form.reset())
       }
     },
 
     displaySuccess: function(message) {
       this.notifierMessage = message;
-      this.notifierColor = "warning";
+      this.notifierColor = "success";
       this.timeout = 4000;
       this.notifier = true;
     }

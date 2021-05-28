@@ -68,13 +68,13 @@
   "profile.screen.label.name": "Name",
   "profile.screen.label.email": "Email",
   "profile.screen.message.email": "Please note if you want to login using Renater, this email must be your Renater email. If you only use ORCID login you can enter any valid email to receive notifications.",
-  "profile.screen.label.phone": "Phone",
-  "profile.screen.label.add.phone": "Add a phone number",
   "profile.screen.error.email.mandatory": "Please enter your email",
   "profile.screen.error.email.validation": "E-mail must be valid",
   "profile.screen.confirmation.message": "The profile has been saved",
   "profile.screen.dialog.edit.orcid.title": "Add an ORCID",
   "profile.screen.dialog.edit.orcid.message": "The following informations are found in ORCID organization. The email if present is the primary email in ORCID it the visibility has been set to public. Please note you can edit this email. If you want to login either way from ORCID or Renater the email must be your Renater email.",
+  "profile.screen.email.error": "Please enter a valid email",
+  "profile.screen.email.required.message": "Please enter an email address",
   "userinformation.screen.title": "User informartion",
   "userinformation.screen.profile.bloc.title": "My profile",
   "userinformation.screen.repositories.bloc.title": "My repositories",
@@ -205,5 +205,6 @@
   "contact.screen.error.name.required.error": "Please enter your name",
   "contact.screen.email.error": "Please enter a valid email",
   "contact.screen.error.subject.required.error": "Please enter a suject",
-  "contact.screen.error.message.required.error": "Please enter your message"
+  "contact.screen.error.message.required.error": "Please enter your message",
+  "contact.screen.success": "Your message has been sent."
 }
