@@ -132,6 +132,7 @@
   "repository.screen.repository.access.access.granded": "Access granted",
   "repository.screen.repository.access.popup.title": "Request {msg} epository file access",
   "repository.screen.repository.access.popup.field.role": "Select a role",
+  "repository.screen.comment.user.deleted": "Deleted user",
   "report.screen.title": "{msg} certification report",
   "report.screen.version.number": "Version number",
   "report.screen.error.version.madatory": "Version is required",
