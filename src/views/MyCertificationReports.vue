@@ -405,6 +405,7 @@ export default {
     },
     
     created: function() {
+      window.scrollTo(0, 0);
       this.$i18n.locale = this.$store.getters.getLanguage;
       var self = this
       this.axios
