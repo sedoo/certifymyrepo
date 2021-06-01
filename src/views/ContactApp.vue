@@ -1,7 +1,7 @@
 <template>
 <v-app class="grey lighten-4">
   <v-container fluid>
-    <v-snackbar v-model="notifier" :color="notifierColor" :timeout="timeout" centered>
+    <v-snackbar v-model="notifier" :color="notifierColor" :timeout="timeout" top>
       {{ notifierMessage }}
       <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
     </v-snackbar>
@@ -125,10 +125,10 @@ export default {
 };
 </script>
 
-<style scoped>
-
-</style>
-<style>
+<style scope>
+.v-snack:not(.v-snack--absolute) {
+  z-index: 2000;
+}
 .required label::after {
   content: " *";
   color: red;
