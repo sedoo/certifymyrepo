@@ -32,9 +32,9 @@
           </v-btn>
       </v-toolbar-items>
     </v-toolbar>
-    <v-content class="ma-3">
+    <v-main class="ma-3">
       <router-view @login="login"></router-view>
-    </v-content>
+    </v-main>
 </v-app>
 </template>
 

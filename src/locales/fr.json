@@ -135,6 +135,7 @@
   "repository.screen.repository.access.popup.title": "Demande d'accès au dossier de l'entrepôt {msg}",
   "repository.screen.repository.access.popup.field.role": "Sélectionner un rôle",
   "repository.screen.comment.user.deleted": "Utilisateur supprimé",
+  "repository.screen.comment.placeholder" : "Laissez un commentaire",
   "report.screen.title": "Fiche {msg}",
   "report.screen.version.number": "Numéro de version",
   "report.screen.error.version.madatory": "La version est obligatoire",
