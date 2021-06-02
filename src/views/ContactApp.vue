@@ -1,10 +1,8 @@
 <template>
+<div id="contact-app">
 <v-app class="grey lighten-4">
   <v-container fluid>
-    <v-snackbar v-model="notifier" :color="notifierColor" :timeout="timeout" top>
-      {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
-    </v-snackbar>
+    <unidoo-alert></unidoo-alert>
     <h1 class="ml-5 subheading grey--text">{{ $t('contact.screen.title') }}</h1>
     <v-form class="ma-5" ref="form" v-model="valid" lazy-validation>
       <v-row>
@@ -32,11 +30,13 @@
     </v-form>
   </v-container>
 </v-app>
+</div>
 </template>
 <script>
-import {displayError} from '../utils.js'
+import formatErrorMessage from "../mixins/formatErrorMessage";
 export default {
   name: 'contact-app',
+  mixins: [formatErrorMessage],
   props: {
     service: {
       type: String,
@@ -69,10 +69,6 @@ export default {
             v => !!v || this.$t('contact.screen.error.message.required.error'),
         ],
       },
-      timeout: 2000,
-      notifier: false,
-      notifierMessage: "",
-      notifierColor: "success",
     }
   },
 
@@ -97,26 +93,20 @@ export default {
           })
           .then(response => {
             if(response && response.data) {
-              self.displaySuccess(self.$t('contact.screen.success'))
+              self.$unidooAlert.showSuccess(self.$t('contact.screen.success'))
               self.name = null
               self.email = null
               self.subject = null
               self.message = null
-              self.$refs.form.reset()
+            } else {
+              self.$unidooAlert.showError(self.$t('contact.screen.error'))
             }
           })
           .catch(error => {
-            displayError(self, error)
+            self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
           }).finally(() => self.$refs.form.reset())
       }
     },
-
-    displaySuccess: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "success";
-      this.timeout = 4000;
-      this.notifier = true;
-    }
   },
 
   created: function() {
@@ -126,9 +116,6 @@ export default {
 </script>
 
 <style scope>
-.v-snack:not(.v-snack--absolute) {
-  z-index: 2000;
-}
 .required label::after {
   content: " *";
   color: red;

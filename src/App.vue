@@ -58,6 +58,10 @@ export default {
     externalselector: {
       Type: String,
       default: "header.entry-header"
+    },
+    devEnv: {
+      Type: Boolean,
+      default: false
     }
   },
   data: () => ({
@@ -70,6 +74,7 @@ export default {
     linkUserInformation: {label:"page.information", route: "/information", icon: 'mdi-account-details-outline'},
     linkDashoard: {label:"page.dashboard", route: '/dashboard', icon: 'mdi-view-dashboard'},
     linkAdministration: {label:"page.administration", route: '/administration', icon: 'mdi-cogs' },
+    linkContact: {label:"page.contact", route: '/contact', icon: 'mdi-email' },
     // error and success notification vars
     timeout: 2000,
     notifier: false,
@@ -123,6 +128,10 @@ export default {
     this.$store.commit('setLanguage', this.language)
     this.$store.commit('setService', this.service)
     this.links = []
+    debugger
+    if(this.devEnv) {
+      this.links.push(this.linkContact)
+    }
     if (this.isLogged) {
         this.links.push(this.linkRepositories)
         this.links.push(this.linkUserInformation)
@@ -240,6 +249,9 @@ export default {
       logoutFromORCID: function() {
         logOut(this.$store)
         this.links = []
+        if(this.devEnv) {
+          this.links.push(this.linkContact)
+        }
         this.$router.push("/notlogged").catch(() => {});
       },
 

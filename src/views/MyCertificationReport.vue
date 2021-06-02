@@ -33,13 +33,13 @@
                           >
                           <v-card-text>
                             <!-- start user detailed response -->
-                            <v-textarea v-if="editExistingAllowed"
+                            <v-textarea
                                 outlined
                                 :label="$t('report.screen.label.edit.response')"
                                 v-model="item.response"
+                                :readonly="!editExistingAllowed"
                             >
                             </v-textarea>
-                            <p v-if="!editExistingAllowed" class="text-justify">{{ item.response }}</p>
 
                             <div v-if="item.files">
                               <v-list-item dense v-for="(file, i) in item.files" :key="i">

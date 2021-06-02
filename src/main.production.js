@@ -6,6 +6,9 @@ import axios from "axios";
 import VueAxios from "vue-axios";
 import router from './router'
 
+// Importing the global css file
+import "@/style/global.css"
+
 Vue.config.productionTip = false
 
 import App from './App.vue'
@@ -17,7 +20,9 @@ import {logOut} from './utils.js'
 import vueCustomElement from 'vue-custom-element'
 import i18n from './i18n'
 import ContactApp from './views/ContactApp.vue'
+import Unidoo from '@sedoo/unidoo'
 
+Vue.use(Unidoo);
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
 Vue.use(vueCustomElement);

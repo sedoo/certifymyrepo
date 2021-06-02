@@ -12,6 +12,7 @@ import MyCertificationReports from './views/MyCertificationReports.vue'
 import MyCertificationReport from './views/MyCertificationReport.vue'
 import NotLogged from "./views/NotLogged.vue"
 import Logging from "./views/Logging.vue"
+import Contact from "./views/ContactApp.vue"
 
 Vue.use(VueRouter);
 
@@ -74,6 +75,11 @@ const router = new VueRouter({
           path: "/notlogged",
           name: "notlogged",
           component: NotLogged
+        },
+        {
+          path: "/contact",
+          name: "contact",
+          component: Contact
         },
         { path: '/', redirect: '/notlogged' }
     ]

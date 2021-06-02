@@ -43,7 +43,8 @@
     "vue-template-compiler": "^2.6.12",
     "vuetify-loader": "^1.6.0",
     "webpack": "^4.46.0",
-    "webpack-cdn-upload-plugin": "^2.2.1"
+    "webpack-cdn-upload-plugin": "^2.2.1",
+    "@sedoo/unidoo": "^0.0.3"
   },
   "eslintConfig": {
     "root": true,

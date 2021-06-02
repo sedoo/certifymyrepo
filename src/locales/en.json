@@ -6,7 +6,7 @@
   "page.dashboard" : "Dashboard",
   "page.administration" : "Administration",
   "page.contact": "Contact",
-  "error.notification": "An error has occured: ",
+  "error.notification": "An error has occured:",
   "button.confirm": "Confirm",
   "button.cancel": "Cancel",
   "button.return": "Return",
@@ -208,5 +208,6 @@
   "contact.screen.email.error": "Please enter a valid email",
   "contact.screen.error.subject.required.error": "Please enter a suject",
   "contact.screen.error.message.required.error": "Please enter your message",
-  "contact.screen.success": "Your message has been sent."
+  "contact.screen.success": "Your message has been sent.",
+  "contact.screen.error": "Your message could not been sent. Please try later."
 }

@@ -6,7 +6,7 @@
   "page.dashboard" : "Tableau de bord",
   "page.administration" : "Administration",
   "page.contact": "Contact",
-  "error.notification": "Une erreur est survenue: ",
+  "error.notification": "Une erreur est survenue ",
   "button.confirm": "Confirmer",
   "button.cancel": "Annuler",
   "button.return": "Retour",
@@ -210,5 +210,6 @@
   "contact.screen.email.error": "Veuillez renseigner un courriel valide",
   "contact.screen.error.subject.required.error": "Veuillez renseigner votre un objet",
   "contact.screen.error.message.required.error": "Veuillez renseigner votre message",
-  "contact.screen.success": "Votre message a bien été envoyé."
+  "contact.screen.success": "Votre message a bien été envoyé.",
+  "contact.screen.error": "Votre message n'a pas pu être envoyé. Veuillez réessayer plus tard."
 }
