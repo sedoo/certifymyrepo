@@ -1,14 +1,9 @@
 <template>
   <v-layout>
-
+    <unidoo-alert></unidoo-alert>
     <v-flex xs12>
     <h1 class="subheading grey--text">{{ $t('administration.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
-    </v-snackbar>
-
     <div v-if="!loading" class="pa-5">
       <template v-if="users != null && users.length > 0">
       <v-card>
@@ -213,8 +208,9 @@
 <script>
 import AffiliationCreationEditionDialog from "../components/AffiliationCreationEditionDialog";
 import moment from 'moment';
-import {displayError} from '../utils.js'
+import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
+  mixins: [formatErrorMessageMixin],
   components: {
       AffiliationCreationEditionDialog
   },
@@ -224,10 +220,6 @@ export default {
       affiliations:[],
       loadingUsers: false,
       loadingAffiliation: false,
-      timeout: 2000,
-      notifier: false,
-      notifierMessage: "",
-      notifierColor: "success",
       usersTableheader: [] ,
       affiliationsTableheader: [] ,
       loadingGiveRole: [],
@@ -315,7 +307,9 @@ export default {
       this.axios.get(this.service+'/admin/v1_0/listAllUsers')
       .then(response => {
         self.users = response.data
-      }).catch(function(error) {displayError(self, error)})
+      }).catch(function(error) {
+        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+      })
       .finally(() => self.loadingUsers = false)
     },
 
@@ -352,7 +346,7 @@ export default {
 
       })
       .catch(function(error) {
-        displayError(self, error)
+        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
       })
       .finally(function() {
         self.saving = false;
@@ -390,7 +384,9 @@ export default {
         if(response.data) {
           self.refeshData()
         }
-      }).catch(function(error) {displayError(self, error)})
+      }).catch(function(error) {
+        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+      })
       .finally(() => self.loadingGiveRole = [])
     },
 
@@ -402,7 +398,9 @@ export default {
         if(response.data) {
           self.refeshData()
         }
-      }).catch(function(error) {displayError(self, error)})
+      }).catch(function(error) {
+        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+      })
       .finally(() => self.loadingRemonveRole = [])
     },
 
@@ -448,7 +446,7 @@ export default {
             self.affiliations = response.data;
             })
             .catch(function(error) {
-                displayError(self, error);
+                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
             })
             .finally(function() {
                 self.loadingAffiliation = false;
@@ -463,19 +461,12 @@ export default {
             self.affiliations.splice(self.affiliationIndex, 1);
           })
           .catch(function(error) {
-              displayError(self, error);
+              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
           }).finally(function() {
             self.affiliationIndex = null
             self.dialogDeleteAffiliation = false
           });
     },
-
-    displaySuccess: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "success";
-      this.timeout = 4000;
-      this.notifier = true;
-    }
 
   },
 

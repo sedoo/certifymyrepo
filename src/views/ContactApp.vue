@@ -33,10 +33,10 @@
 </div>
 </template>
 <script>
-import formatErrorMessage from "../mixins/formatErrorMessage";
+import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
   name: 'contact-app',
-  mixins: [formatErrorMessage],
+  mixins: [formatErrorMessageMixin],
   props: {
     service: {
       type: String,

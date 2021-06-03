@@ -1,11 +1,8 @@
 <template>
     <div>
+    <unidoo-alert></unidoo-alert>
     <h1 class="subheading grey--text">{{ $t('report.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
     <v-progress-linear indeterminate v-if="loadingReport" class="mt-3"></v-progress-linear>
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">{{ $t('button.close' )}}</v-btn>
-    </v-snackbar>
     <div v-if="!loadingReport" class="report">
     <h4 class="subheading grey--text pt-5 pb-5">{{ templateDescription }}</h4>
       <v-form v-model="valid">
@@ -284,8 +281,9 @@
 
 <script>
 import Comments from '../components/Comments.vue'
-import {displayError} from '../utils.js'
+import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
+    mixins: [formatErrorMessageMixin],
     components: {
         Comments
     },
@@ -309,11 +307,6 @@ export default {
                 'updateDate': null,
                 'version': 0.1
                 },
-            // error and success notification vars
-            timeout: 2000,
-            notifier: false,
-            notifierMessage: "",
-            notifierColor: "success",
             index: 0,
             e1: 1,
             steps: null,
@@ -409,7 +402,7 @@ export default {
               link.click();
             })
             .catch(error => {
-              displayError(self, error)
+              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
             }).finally(function() {
               self.downloadAttachmentInProgress = []
             })
@@ -460,7 +453,7 @@ export default {
 
             })
             .catch(error => {
-              displayError(self, error)
+              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
             }).finally(function() {
               self.uploadInProgress = false
               self.dialogUploadFiles = false
@@ -484,7 +477,7 @@ export default {
                 }
             })
             .catch(error => {
-              displayError(self, error)
+              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
             }).finally(function() {
               self.deleteInProgress = true
               self.dialogDeleteFile = false
@@ -497,7 +490,6 @@ export default {
             return this.levelsTemplate[i].label
           }
         }
-
       },
 
       // Display comment in chat box + save it in mongoDB
@@ -514,7 +506,9 @@ export default {
             method: 'post',
             url: this.service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&requirementCode='+requirementCode,
             data: comments
-        }).catch(function(error) {displayError(self, error)})
+        }).catch(function(error) {
+          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+        })
       },
 
       nextStep (n) {
@@ -552,7 +546,7 @@ export default {
               data: this.myReport
           }).then( function (response) {
             self.myReport.id = response.data.id
-            self.displaySuccess(self.$t('report.screen.save.confirmation'))
+            self.$unidooAlert.showSuccess(self.$t('report.screen.save.confirmation'))
           }).catch(function(error) {displayError(self, error)})
         }
 
@@ -564,7 +558,7 @@ export default {
 
       displayReleaseConfirmation() {
         if(this.myReport.status != 'IN_PROGRESS') {
-          displayError(this, this.$t('release.erreor.message'))
+          self.$unidooAlert.showError(this.$t('report.screen.release.error'))
         } else {
           this.dialog = true
         }
@@ -587,13 +581,6 @@ export default {
         this.dialog = false
         this.myReport.status = 'RELEASED'
         this.saveReport ()
-      },
-
-      displaySuccess: function(message) {
-          this.notifierMessage = message;
-          this.notifierColor = "success";
-          this.timeout = 4000;
-          this.notifier = true;
       },
 
     },
@@ -691,7 +678,9 @@ export default {
             self.validationAllowed = true
           }
 
-        }).catch(function(error) {displayError(self, error)})
+        }).catch(function(error) {
+          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+        })
         .finally(function() { self.loadingReport = false})
 
       } else {
@@ -738,6 +727,8 @@ export default {
           self.myReport.repositoryId = self.$route.query.repositoryId
           self.editExistingAllowed = true
           self.validationAllowed = false
+        }).catch(function(error) {
+          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
         }).finally(function() { self.loadingReport = false})
 
       }

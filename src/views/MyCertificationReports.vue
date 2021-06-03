@@ -1,9 +1,6 @@
 <template>
     <div class="reports">
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">Close</v-btn>
-    </v-snackbar>
+    <unidoo-alert></unidoo-alert>
     <h1 class="subheading grey--text">{{ $t('reports.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
     <v-container class="my-3">
 
@@ -186,8 +183,9 @@
 
 <script>
 import moment from 'moment';
-import {displayError} from '../utils.js'
+import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
+    mixins: [formatErrorMessageMixin],
     props: {
         item: null
   	},
@@ -210,11 +208,6 @@ export default {
                 ] ,
             templateIdentifierList: [],
             templateIdentifier: null,
-            // error and success notification vars
-            timeout: 2000,
-            notifier: false,
-            notifierMessage: "",
-            notifierColor: "success",
             isDownloading: false,
             report: null,
             index: null,
@@ -303,7 +296,9 @@ export default {
                     link.href = window.URL.createObjectURL(blob);
                     link.download = `${self.getFileName(report)}` + "." + extension;
                     link.click();
-                }).catch(function(error) {displayError(self, error)})
+                }).catch(function(error) {
+                    self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                })
                 .finally(function() {
                     self.downloadPDFConfirmed = false
                     self.isDownloading = false
@@ -363,7 +358,9 @@ export default {
 	                        self.creationValidationAllowed = response.data.creationValidationAllowed
                             self.reports = response.data.reports
                         })
-                ).catch(function(error) {displayError(self, error)})
+                ).catch(function(error) {
+                    self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                })
         },
         createReport() {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: null, template: this.templateIdentifier.id} })
@@ -392,12 +389,7 @@ export default {
             }
             return result
         },
-        displaySuccess: function(message) {
-            this.notifierMessage = message;
-            this.notifierColor = "success";
-            this.timeout = 4000;
-            this.notifier = true;
-        }
+
     },
 
     mounted: function() {
@@ -414,7 +406,9 @@ export default {
         self.reports = response.data.reports
         self.editExistingAllowed = response.data.editExistingAllowed
 	    self.creationValidationAllowed = response.data.creationValidationAllowed
-      }).catch(function(error) {displayError(self, error)})
+      }).catch(function(error) {
+        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+      })
       .finally(() => this.loading = false)
 
       this.axios
@@ -424,7 +418,9 @@ export default {
         if(response.data && response.data.length > 0) {
             self.templateIdentifier = response.data[0]
         }
-      }).catch(function(error) {displayError(self, error)})
+      }).catch(function(error) {
+        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+      })
 
     }
 } 

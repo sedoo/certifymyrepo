@@ -1,13 +1,9 @@
 <template>
   <v-layout>
-
-    <v-flex xs12>
-      <h1 class="subheading grey--text">{{ $t('userinformation.screen.title') }}</h1>
+  <v-flex xs12>
+    <unidoo-alert></unidoo-alert>
+    <h1 class="subheading grey--text">{{ $t('userinformation.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loadingProfile || loadingRepo" class="mt-3"></v-progress-linear>
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      <span v-html="notifierMessage"></span>
-      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
-    </v-snackbar>
 
     <div v-if="!loadingProfile && !loadingRepo">
       <v-card class="ma-5">
@@ -119,10 +115,10 @@
 
 <script>
 import {logOut} from '../utils.js'
-import {displayError} from '../utils.js'
+import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
-  mixins: [formattedAffiliationMixin],
+  mixins: [formattedAffiliationMixin, formatErrorMessageMixin],
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
     this.headers = [
@@ -211,7 +207,7 @@ export default {
           }
         })
         .catch(function(error) {
-          displayError(self, error)
+          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.loadingSimulation = false
@@ -226,13 +222,13 @@ export default {
         .delete(this.service + "/profile/v1_0/deleteProfile/"+this.language+"/"+this.userId)
         .then(function(response) {
           if(response.data != null && response.data != '') {
-            self.displaySuccess(response.data)
+            self.$unidooAlert.showSuccess(response.data)
           }
           logOut(self.$store)
           self.$router.push("/notlogged").catch(() => {});
         })
         .catch(function(error) {
-          displayError(self, error)
+          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.loadingDelete = false
@@ -254,7 +250,7 @@ export default {
           }
         })
         .catch(function(error) {
-          displayError(self, error)
+          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.loadingProfile = false;
@@ -273,7 +269,7 @@ export default {
           }
         })
         .catch(function(error) {
-          displayError(self, error)
+          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.loadingRepo = false;
@@ -288,23 +284,12 @@ export default {
       }
     },
 
-    displaySuccess: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "success";
-      this.timeout = 4000;
-      this.notifier = true;
-    }
-
   },
 
   data() {
     return {
       loadingProfile: false,
       loadingRepo: false,
-      timeout: 2000,
-      notifier: false,
-      notifierMessage: "",
-      notifierColor: "success",
       profile: {
           id: null,
           title: null,

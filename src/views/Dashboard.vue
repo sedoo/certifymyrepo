@@ -1,6 +1,6 @@
 <template>
   <v-layout>
-
+    <unidoo-alert></unidoo-alert>
     <v-flex xs12>
     <h1 class="subheading grey--text">{{ $t('dashboard.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
@@ -38,17 +38,13 @@
 
 <script>
 import moment from 'moment';
-import {displayError} from '../utils.js'
+import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
-
+  mixins: [formatErrorMessageMixin],
   data() {
     return {
       repoList: [],
       loading: false,
-      timeout: 2000,
-      notifier: false,
-      notifierMessage: "",
-      notifierColor: "success",
       headers: [] ,
     }
   },
@@ -65,7 +61,9 @@ export default {
     this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')
     .then(response => {
       self.repoList = response.data
-    }).catch(function(error) {displayError(self, error)})
+    }).catch(function(error) {
+      self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+    })
     .finally(() => self.loading = false)
   },
 
@@ -136,13 +134,6 @@ export default {
         return ''
       }
     },
-
-    displaySuccess: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "success";
-      this.timeout = 4000;
-      this.notifier = true;
-    }
 
   },
 

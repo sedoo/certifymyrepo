@@ -1,13 +1,9 @@
 <template>
   <v-layout>
-
     <v-flex xs12>
-      <h1 class="subheading grey--text">{{ $t('profile.screen.title') }}</h1>
+    <unidoo-alert></unidoo-alert>
+    <h1 class="subheading grey--text">{{ $t('profile.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      <span v-html="notifierMessage"></span>
-      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
-    </v-snackbar>
 
     <div v-if="!loading">
     <v-form class="ma-5" ref="form" v-model="valid" lazy-validation>
@@ -114,9 +110,9 @@
 
 <script>
 import {logOut} from '../utils.js'
-import {displayError} from '../utils.js'
+import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
-
+  mixins: [formatErrorMessageMixin],
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
     this.loadProfile();
@@ -166,7 +162,7 @@ export default {
           self.$router.push("/information").catch(() => {});
         })
         .catch(function(error) {
-          displayError(self, error)
+          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.saving = false;
@@ -186,11 +182,11 @@ export default {
             self.profile = response.data
           }
           if(self.profile.email == null) {
-            displayError(self, self.$t('profile.screen.email.required.message'))
+            self.$unidooAlert.showError(self.$t('profile.screen.email.required.message'))
           }
         })
         .catch(function(error) {
-          displayError(self, error)
+          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.loading = false;
@@ -206,9 +202,11 @@ export default {
                 self.orcidOrganisation.name = response.data.name
                 self.orcidOrganisation.email = response.data.email
             } else {
-                displayError(self, self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
+              self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
             }
-        }).catch(function(error) {displayError(self, error)})
+        }).catch(function(error) {
+          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+        })
         .finally(() => this.loadingUser = false)
     },
 
@@ -228,13 +226,6 @@ export default {
       this.orcidOrganisation.email = null
     },
 
-    displaySuccess: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "success";
-      this.timeout = 4000;
-      this.notifier = true;
-    }
-
   },
 
     data() {
@@ -242,10 +233,6 @@ export default {
     dialogEditOrcid: false,
     loading: false,
     saving: false,
-    timeout: 2000,
-    notifier: false,
-    notifierMessage: "",
-    notifierColor: "success",
     valid: false,
     validOrcid: false,
     wellFormedOrcid: false,

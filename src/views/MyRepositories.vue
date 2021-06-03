@@ -1,10 +1,6 @@
 <template>
     <div class="repositories">
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">Close</v-btn>
-    </v-snackbar>
-    
+    <unidoo-alert></unidoo-alert>
     <h1 class="grey--text">{{ $t('repositories.screen.title') }}</h1>
     
     <v-progress-linear indeterminate v-if="loadingReports" class="mt-3"></v-progress-linear>
@@ -168,10 +164,10 @@
 
 <script>
 import requestRepositoryAccess from '../components/RequestRepositoryAccess.vue'
-import {displayError} from '../utils.js'
+import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
-  mixins: [formattedAffiliationMixin],
+  mixins: [formattedAffiliationMixin, formatErrorMessageMixin],
   components: {
       requestRepositoryAccess
   },
@@ -184,11 +180,6 @@ export default {
           loadingReports: false,
           repositoryId: null,
           resultMyRepo: [],
-          // error and success notification vars
-          timeout: 2000,
-          notifier: false,
-          notifierMessage: "",
-          notifierColor: "success",
           emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
           search: null,
           sortBy: 'name',
@@ -263,11 +254,13 @@ export default {
                     .then(response => {
                         self.resultMyRepo = response.data
                     })
-            ).catch(function(error) {displayError(self, error)})
+            ).catch(function(error) {
+              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+            })
       },
       editRepository (item) {
         if(this.userEmail==null) {
-          displayError(this, this.$t('repositories.screen.required.email.error'))
+          this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'))
         } else {
           this.$router.push({name: 'repository', query: {repositoryId: item.id}});
         }
@@ -321,7 +314,7 @@ export default {
       },
       routeToMyReports(repository) {
         if(this.userEmail==null) {
-          displayError(this, this.$t('repositories.screen.required.email.error'))
+          this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'))
         } else {
           this.$store.commit('setRepository', repository)
           this.$router.push({path: '/certificationReports/' + repository.id })
@@ -383,9 +376,11 @@ export default {
       .then(response => {
         self.resultMyRepo = response.data
         if(this.userEmail==null) {
-          displayError(this, this.$t('repositories.screen.required.email.error'))
+          this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'))
         }
-      }).catch(function(error) {displayError(self, error)})
+      }).catch(function(error) {
+        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+      })
       .finally(() => this.loadingReports = false)
       }
 } 

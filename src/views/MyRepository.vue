@@ -293,12 +293,11 @@
 
 
 <script>
-import {displayError} from '../utils.js'
-import {displaySuccess} from '../utils.js'
+import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 import AffiliationCreationEditionDialog from "../components/AffiliationCreationEditionDialog";
 import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
-    mixins: [formattedAffiliationMixin],
+    mixins: [formattedAffiliationMixin, formatErrorMessageMixin],
     components: {
         AffiliationCreationEditionDialog
     },
@@ -434,7 +433,9 @@ export default {
                 .then(response => {       
                     self.myRepository = response.data
                     self.editedAffiliation = response.data.affiliation.id
-                }).catch(function(error) {displayError(self, error)})
+                }).catch(function(error) {
+                    self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                })
         } else {
             let localUser = {id: this.userProfile.id , name: this.userProfile.name , role: 'EDITOR'}
             this.myRepository.users.push(localUser)
@@ -507,10 +508,11 @@ export default {
                 method: 'post',
                 url: this.service+'/repository/v1_0/save?language='+this.language,
                 data: this.myRepository
-            }).then ( function () {self.goToRepositories()})
-            .catch(function(error) {
-                displayError(self, error)
-                })
+            }).then ( function () {
+                self.goToRepositories()
+            }).catch(function(error) {
+               self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+            })
         },
 
         saveUser() {
@@ -524,7 +526,7 @@ export default {
                 self.dialogCreateUser = false
                 displaySuccess(self, self.$t('repository.screen.create.user.successful'))
             }).catch(function(error) {
-                displayError(self, error)
+                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
             }).finally(() => {
                 this.userName = null
                 this.email = null
@@ -541,9 +543,11 @@ export default {
                     self.user = response.data
                     self.userName = response.data.name
                 } else {
-                    displayError(self, self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
+                    self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
                 }
-            }).catch(function(error) {displayError(self, error)})
+            }).catch(function(error) {
+                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+            })
             .finally(() => this.loadingUser = false)
         },
 
@@ -558,7 +562,9 @@ export default {
                 } else {
                     displayError(self, self.$t('repository.screen.create.user.error.duplicate.email', {'msg':response.data.name } ))
                 }
-            }).catch(function(error) {displayError(self, error)})
+            }).catch(function(error) {
+                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+            })
             .finally(() => this.loadingUser = false)
         },
 
@@ -570,9 +576,8 @@ export default {
             .then(function (response) {
                 self.foundUsers = response.data
             }).catch(function(error) {
-                displayError(self, error)
-                })
-            .finally(() => this.loadingUsers = false)
+                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+            }).finally(() => this.loadingUsers = false)
         },
 
         /**
