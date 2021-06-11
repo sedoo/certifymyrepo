@@ -14,30 +14,37 @@
       </v-row>
       <v-row>
         <v-col cols="8" md="3" offset-md="2" offset="2">
-      <v-card height="100%" elevation="2" class="card-outter">
-        <v-card-title>
-            <img
-              style="vertical-align:middle;"
-              src="https://upload.wikimedia.org/wikipedia/fr/f/fe/Logo_Renater_2013.gif"
-            />
-        </v-card-title>
-        <v-card-text class="py-0">
-          <v-progress-linear indeterminate v-if="loading" class="my-5"></v-progress-linear>
-            <v-combobox v-else class="required" required
-            @change="requestcode"
-              outlined dense
-              :label="$t('notlogged.screen.renater.label.providers')"
-              :items="entities"
-              v-model="entity">
-            </v-combobox>
-        </v-card-text>
-        <v-card-text class="pt-0">
-          {{ $t('notlogged.screen.renater.help.message')}}
-        </v-card-text>
-        <v-card-actions class="card-actions">
-          <v-btn @click='loginShibboleth' :disabled="code==null" color="info">{{ $t('notlogged.screen.button.login') }}</v-btn>
-        </v-card-actions>
-      </v-card>
+          <v-form v-model="validRenater">
+            <v-card height="100%" elevation="2" class="card-outter">
+              <v-card-title>
+                  <img
+                    style="vertical-align:middle;"
+                    src="https://upload.wikimedia.org/wikipedia/fr/f/fe/Logo_Renater_2013.gif"
+                  />
+              </v-card-title>
+              <v-card-text class="py-0">
+                <v-progress-linear indeterminate v-if="loading" class="my-5"></v-progress-linear>
+                  <v-autocomplete v-else
+                    auto-select-first
+                    class="required"
+                    item-text="text"
+                    item-value="value"
+                    :rules="entityRules"
+                    @change="requestcode"
+                    outlined dense
+                    :label="$t('notlogged.screen.renater.label.providers')"
+                    :items="entities"
+                    v-model="entity">
+                  </v-autocomplete>
+              </v-card-text>
+              <v-card-text class="pt-0">
+                {{ $t('notlogged.screen.renater.help.message')}}
+              </v-card-text>
+              <v-card-actions class="card-actions">
+                <v-btn @click='loginShibboleth' :disabled="!validRenater" color="info">{{ $t('notlogged.screen.button.login') }}</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
         </v-col>
         <v-col cols="8" md="3" offset-md="2" offset="2">
       <v-card height="100%" elevation="2" class="card-outter">
@@ -68,12 +75,14 @@ export default {
       entity: null,
       root : "https://services-coso-preprod.sedoo.fr",
       code: null,
-      requestingCode: false
+      requestingCode: false,
+      validRenater: false,
+      entityRules: [v => !!v || this.$t('notlogged.screen.renater.provider.error')],
     }
   },
   computed: {
     loginurl() {
-      return this.root+"/Shibboleth.sso/Login?SAMLDS=1&target="+this.root+"/shibboleth/login?code="+this.code+"&entityID="+this.entity.value;
+      return this.root+"/Shibboleth.sso/Login?SAMLDS=1&target="+this.root+"/shibboleth/login?code="+this.code+"&entityID="+this.entity;
     },
     service: function()  {
       return this.$store.getters.getService
@@ -81,6 +90,9 @@ export default {
   },
 
   methods: {
+    test: function(message) {
+      console.log(message)
+    },
     loginOrcid: function() {
       this.$emit("login");
     },
