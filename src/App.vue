@@ -128,7 +128,6 @@ export default {
     this.$store.commit('setLanguage', this.language)
     this.$store.commit('setService', this.service)
     this.links = []
-    debugger
     if(this.devEnv) {
       this.links.push(this.linkContact)
     }
