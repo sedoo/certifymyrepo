@@ -19,7 +19,9 @@
                 :disabled="disabled"
                 @keyup.enter="submitComment"
             />
-            <button class="reply--button" @click.prevent="submitComment" :disabled="disabled"><i class="fa fa-paper-plane"></i> Send</button>
+        </div>
+        <div v-if="!isreadonly" class="pt-2 pl-1" >
+            <v-btn color="info" @click.prevent="submitComment" :disabled="disabled || reply == ''">{{ $t('button.save') }}</v-btn>
         </div>
     </div>
 </template>
@@ -128,39 +130,6 @@ import singleComment from './SingleComment'
 
 .reply input.reply--text:valid + .reply--button {
     right: 10px;
-}
-
-.reply .reply--button {
-    position: absolute;
-    right: -100px;
-    border: 1px solid #2a629c;
-    background-color: transparent;
-    color: #2a629c;
-    display: inline-block;
-    font-weight: 400;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    padding: 0.375rem 0.75rem;
-    font-size: 15px;
-    line-height: 1.5;
-    border-radius: 30px;
-    transition: color 0.25s ease-in-out, background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out, right 0.25s ease-in-out;
-    outline: 0;
-}
-
-.reply .reply--button:hover {
-    color: #fff;
-    background-color: #2a629c;
-}
-
-.reply .reply--button:focus,
-.reply .reply--button:active {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 hr {
