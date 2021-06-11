@@ -209,5 +209,8 @@
   "contact.screen.error.subject.required.error": "Please enter a suject",
   "contact.screen.error.message.required.error": "Please enter your message",
   "contact.screen.success": "Your message has been sent.",
-  "contact.screen.error": "Your message could not been sent. Please try later."
+  "contact.screen.error": "Your message could not been sent. Please try later.",
+  "data.table.items.per.page.text": "Rows per page",
+  "data.table.items.per.page.all.text": "All",
+  "data.table.page.text": "of"
 }

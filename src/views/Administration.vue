@@ -25,6 +25,10 @@
           :items-per-page="5"
           class="elevation-1"
           :search="searchUser"
+          :footer-props="{
+              'items-per-page-text':$t('data.table.items.per.page.text'),
+              'items-per-page-all-text':$t('data.table.items.per.page.all.text')
+          }"
         >
             <template v-slot:item.admin="{ item }">  
                 <v-icon v-if="item.adminId != null">mdi-check</v-icon>
@@ -59,6 +63,8 @@
                   <span>{{ $t('administration.screen.edit.email.help.message') }}</span>
               </v-tooltip>
             </template> 
+            <template v-slot:footer.page-text="items"> {{ items.pageStart }} - {{ items.pageStop }} {{ $t('data.table.page.text') }} {{ items.itemsLength }} 
+            </template>
         </v-data-table>
       </v-card>
       </template>
@@ -98,6 +104,10 @@
           :items-per-page="5"
           class="elevation-1"
           :search="searchAffiliation"
+          :footer-props="{
+              'items-per-page-text':$t('data.table.items.per.page.text'),
+              'items-per-page-all-text':$t('data.table.items.per.page.all.text')
+          }"
         >
             <template v-slot:item.actions="{ item, index }">
               <template>
@@ -119,6 +129,8 @@
               </v-tooltip>
               </template>
             </template> 
+            <template v-slot:footer.page-text="items"> {{ items.pageStart }} - {{ items.pageStop }} {{ $t('data.table.page.text') }} {{ items.itemsLength }} 
+            </template>
         </v-data-table>
 
       </v-card>

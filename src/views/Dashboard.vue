@@ -16,6 +16,10 @@
           :items="repoList"
           :items-per-page="5"
           class="elevation-1"
+          :footer-props="{
+              'items-per-page-text':$t('data.table.items.per.page.text'),
+              'items-per-page-all-text':$t('data.table.items.per.page.all.text')
+          }"
         >
             <template v-slot:item.repositoryCreation="{ item }">  
                 <span class="px-2" >{{ formatDate(item.repository.creationDate) }}</span>
@@ -28,6 +32,8 @@
                 <v-icon class="px-2" :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
                 <span class="px-2" >{{ formatHealthDate(item.healthLatestInProgressReport) }}</span>
             </template> 
+            <template v-slot:footer.page-text="items"> {{ items.pageStart }} - {{ items.pageStop }} {{ $t('data.table.page.text') }} {{ items.itemsLength }} 
+            </template>
         </v-data-table>
       </template>
     </div>
