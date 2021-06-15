@@ -100,12 +100,24 @@
                         <td>{{ userItem.name }}</td>
                         <td>{{ $t(userItem.role) }}</td>
                         <td>
-                            <v-btn v-if="displayActionsOnUser(index)" icon class="mx-0" @click="openEditUserRole(index);">     
-                                <v-icon>mdi-pencil-outline</v-icon>    
-                            </v-btn>
-                            <v-btn v-if="displayActionsOnUser(index)" icon class="mx-0" @click="userIndex = index;dialogRemoveUser=true;">     
-                                <v-icon>mdi-delete-forever-outline</v-icon>    
-                            </v-btn>
+                            <div v-if="displayActionsOnActiveUsers(index)">
+                                <v-btn icon class="mx-0" @click="openEditUserRole(index);">     
+                                    <v-icon>mdi-pencil-outline</v-icon>    
+                                </v-btn>
+                                <v-btn icon class="mx-0" @click="userIndex = index;dialogRemoveUser=true;">     
+                                    <v-icon>mdi-delete-forever-outline</v-icon>    
+                                </v-btn>
+                            </div>
+                            <div v-if="displayActionsOnPendingUsers(index)">
+                                <v-btn icon class="mx-0" @click="openEditUserRole(index);">     
+                                    <v-icon>mdi-account-plus-outline</v-icon>    
+                                </v-btn>
+                                <v-btn icon class="mx-0" @click="userIndex = index;dialogRemoveUser=true;">     
+                                    <v-icon>mdi-delete-forever-outline</v-icon>    
+                                </v-btn>
+                                <span class="red--text text-subtitle-2 pl-5">{{$t('repository.screen.join.request.pending')}}</span>
+                            </div>
+
                         </td>
                         </tr>
                     </tbody>
@@ -437,7 +449,7 @@ export default {
                     self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
                 })
         } else {
-            let localUser = {id: this.userProfile.id , name: this.userProfile.name , role: 'EDITOR'}
+            let localUser = {id: this.userProfile.id , name: this.userProfile.name , role: 'EDITOR', status: 'ACTIVE'}
             this.myRepository.users.push(localUser)
             this.myRepository.contact = this.userProfile.email
         }
@@ -603,7 +615,7 @@ export default {
             this.userIndex = -1
             this.foundUsers = []
             this.keyword = null
-            this.user={name: null, id:null, role: null}
+            this.user={name: null, id:null, role: null, status: 'ACTIVE'}
             this.loadUsers()
         },
 
@@ -637,8 +649,12 @@ export default {
             this.user={name: null, id:null, role: null}
         },
 
-        displayActionsOnUser: function(index) {
-            return !(this.isLastManager && this.myRepository.users[index].role == 'EDITOR')
+        displayActionsOnActiveUsers: function(index) {
+            return !(this.isLastManager && this.myRepository.users[index].role == 'EDITOR') && !(this.myRepository.users[index].status == 'PENDING')
+        },
+
+        displayActionsOnPendingUsers: function(index) {
+            return (this.myRepository.users[index].status == 'PENDING')
         },
 
         affiliationCreated: function() {

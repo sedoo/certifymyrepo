@@ -214,6 +214,7 @@ export default {
                 url: this.service+'/repository/v1_0/requestAccess?language='+this.$store.getters.getLanguage,
                 data: {
                     repositoryId: this.requestedRepository.id,
+                    userId: this.userProfile.id,
                     userName: this.userProfile.name,
 	                orcid: this.userProfile.orcid,
 	                text: this.text,

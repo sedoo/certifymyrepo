@@ -20,7 +20,6 @@
             :sort-by="['updateDate']"
             :sort-desc="[true]"
             hide-default-footer
-            show-expand
             class="elevation-1"
         >
  
@@ -75,17 +74,45 @@
                 <span>{{ $t('reports.screen.button.download.help') }}</span>
             </v-tooltip>
 
-        </template>   
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                    <v-btn v-if="featureFlag" icon v-on="on" class="mx-0" @click="openRadarPopup(item, index)">     
+                        <v-icon>mdi-spider-web</v-icon>    
+                    </v-btn>
+                </template>
+                <span>{{ $t('reports.screen.button.radar.help') }}</span>
+            </v-tooltip>
 
-        <template v-slot:expanded-item="{ headers, item }">
-            <td :colspan="headers.length"><apexchart type=radar height=350 :options="chartOptions(item)" :series="levelList(item)" /></td>
-        </template>      
-
+        </template>
         </v-data-table>
 
         <div v-if="report != null && downloadPDFConfirmed" style="visibility: hidden; width: 500px;">
             <apexchart @animationEnd="handlePDF(report)" :ref="'radarchart'+report.id" type=radar height=350 :options="chartOptions(report)" :series="levelList(report)" />
         </div>
+
+        <v-dialog v-model="dialogRadar" :width="$store.getters.getDialogWidth">
+            <v-card>
+                <v-card-title
+                class="headline grey lighten-2"
+                primary-title
+                >
+                {{ $t('reports.screen.table.reports.radar.chart.title') }}
+                </v-card-title>
+                <v-card-text>
+                    <div  v-if="report != null">
+                        <apexchart :ref="'radarchart'+report.id" type=radar height=350 :options="chartOptions(report)" :series="levelList(report)" />
+                    </div>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                <div class="flex-grow-1"></div>
+                    <v-btn
+                        @click="dialogRadar = false;report = null">
+                        {{ $t('button.close') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
 
         <v-dialog v-model="dialogDelete" :width="$store.getters.getDialogWidth">
             <v-card>
@@ -112,7 +139,7 @@
                     </v-btn>
                 </v-card-actions>
             </v-card>
-            </v-dialog>
+        </v-dialog>
 
         <v-dialog v-model="dialogCreate" :width="$store.getters.getDialogWidth">
             <v-card>
@@ -195,6 +222,7 @@ export default {
             dialogDelete: false,
             dialogCreate: false,
             dialogDownload: false,
+            dialogRadar: false,
             reportId: null,
 	        editExistingAllowed: false,
 	        creationValidationAllowed: false,
@@ -251,6 +279,14 @@ export default {
             } else {
                 this.handleDownload(this.report, new Blob())
             }
+        },
+
+        openRadarPopup(report, index) {
+            // open the dialog
+            this.dialogRadar = true
+            // prepare data
+            this.report = report
+            this.index = index
         },
 
         /**
@@ -336,7 +372,7 @@ export default {
             return [serie];
         },
         chartOptions (report) {
-            var option = {labels: null, title: {text: this.$t('reports.screen.table.reports.radar.chart.title')}, yaxis:{max: report.levelMaxValue, forceNiceScale: true, tickAmount: report.levelMaxValue} }
+            var option = {labels: null, yaxis:{max: report.levelMaxValue, forceNiceScale: true, tickAmount: report.levelMaxValue} }
             var array = [];
             for (var j = 0; j < report.items.length; j++){
                 var r = report.items[j]
