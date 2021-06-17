@@ -101,20 +101,35 @@
                         <td>{{ $t(userItem.role) }}</td>
                         <td>
                             <div v-if="displayActionsOnActiveUsers(index)">
-                                <v-btn icon class="mx-0" @click="openEditUserRole(index);">     
-                                    <v-icon>mdi-pencil-outline</v-icon>    
-                                </v-btn>
-                                <v-btn icon class="mx-0" @click="userIndex = index;dialogRemoveUser=true;">     
-                                    <v-icon>mdi-delete-forever-outline</v-icon>    
-                                </v-btn>
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn v-on="on" icon class="mx-0" @click="openEditUserRole(index);">     
+                                            <v-icon>mdi-pencil-outline</v-icon>    
+                                        </v-btn>
+                                    </template>
+                                    <span>{{ $t('report.screen.button.edit.user.help') }}</span>
+                                </v-tooltip>
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn v-on="on" icon class="mx-0" @click="userIndex = index;dialogRemoveUser=true;">     
+                                            <v-icon>mdi-delete-forever-outline</v-icon>    
+                                        </v-btn>
+                                    </template>
+                                    <span>{{ $t('report.screen.button.remove.user.help') }}</span>
+                                </v-tooltip>
                             </div>
                             <div v-if="displayActionsOnPendingUsers(index)">
                                 <v-btn icon class="mx-0" @click="openEditUserRole(index);">     
                                     <v-icon>mdi-account-plus-outline</v-icon>    
                                 </v-btn>
-                                <v-btn icon class="mx-0" @click="userIndex = index;dialogRemoveUser=true;">     
-                                    <v-icon>mdi-delete-forever-outline</v-icon>    
-                                </v-btn>
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn v-on="on" icon class="mx-0" @click="userIndex = index;dialogRemoveUser=true;">     
+                                            <v-icon>mdi-delete-forever-outline</v-icon>    
+                                        </v-btn>
+                                    </template>
+                                    <span>{{ $t('report.screen.button.remove.user.help') }}</span>
+                                </v-tooltip>
                                 <span class="red--text text-subtitle-2 pl-5">{{$t('repository.screen.join.request.pending')}}</span>
                             </div>
 
