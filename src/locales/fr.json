@@ -108,6 +108,7 @@
   "repository.screen.label.user.role": "Rôle",
   "repository.screen.label.actions": "Actions",
   "repository.screen.edit.user.role.title": "Editer",
+  "repository.screen.validate.user.request.title": "Validater la demande",
   "repository.screen.error.repository.name.required": "Le nom est obligatoire",
   "repository.screen.error.user.role.required": "Role is required",
   "repository.screen.error.user.name.required.orcid.error": "Le nom est obligatoire. Entrer un ORCID valid",

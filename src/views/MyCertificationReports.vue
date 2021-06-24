@@ -2,7 +2,8 @@
     <div class="reports">
     <unidoo-alert></unidoo-alert>
     <h1 class="subheading grey--text">{{ $t('reports.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
-    <v-container class="my-3">
+    <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
+    <v-container v-else class="my-3">
 
         <template>
         <div class="text-center">
@@ -134,7 +135,8 @@
                     </v-btn>
                     <v-btn
                         color="info"
-                        @click="dialogDelete = false; deleteItem()">
+                        @click="deleteItem()"
+                        :loading="isDeletingReport">
                         {{ $t('button.confirm') }}
                     </v-btn>
                 </v-card-actions>
@@ -245,6 +247,7 @@ export default {
             downloadAttachments: false,
             downloadComments: false,
             downloadPDFConfirmed: false,
+            isDeletingReport: false
         }
     },
     computed: {
@@ -385,6 +388,7 @@ export default {
         },
         deleteItem () {
             var self = this;
+            self.isDeletingReport = true
             this.axios.delete(this.service+'/certificationReport/v1_0/delete/'+this.reportId)
                 .then( response =>
                     this.axios
@@ -396,6 +400,9 @@ export default {
                         })
                 ).catch(function(error) {
                     self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                }).finally(() => {
+                    self.dialogDelete = false
+                    self.isDeletingReport = false
                 })
         },
         createReport() {

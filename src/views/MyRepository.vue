@@ -86,25 +86,22 @@
                     ></v-textarea>
                 </v-col>
                 <v-col cols="12">
-                <v-simple-table v-if="myRepository.users != null && myRepository.users.length > 0">
-                    <template v-slot:default>
-                    <thead>
-                        <tr>
-                        <th class="text-left">{{$t('repository.screen.label.user.name')}}</th>
-                        <th class="text-left">{{$t('repository.screen.label.user.role')}}</th>
-                        <th class="text-left">{{$t('repository.screen.label.actions')}}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(userItem, index) in myRepository.users" :key="index">
-                        <td>{{ userItem.name }}</td>
-                        <td>{{ $t(userItem.role) }}</td>
-                        <td>
-                            <div v-if="displayActionsOnActiveUsers(index)">
+                    <v-data-table
+                        :headers="headersUsersTable"
+                        :items="myRepository.users"
+                        :items-per-page="5"
+                        class="elevation-1"
+                    >
+                        <template v-slot:item.role="{ item }">  
+                            {{ $t(item.role) }}
+                        </template> 
+                        <template v-slot:item.actions="{ item, index }">  
+                            <div v-if="displayActions(index)">
                                 <v-tooltip bottom>
                                     <template v-slot:activator="{ on }">
-                                        <v-btn v-on="on" icon class="mx-0" @click="openEditUserRole(index);">     
-                                            <v-icon>mdi-pencil-outline</v-icon>    
+                                        <v-btn v-on="on" icon class="mx-0" @click="openEditUserRole(index);">
+                                            <v-icon v-if="hasPendingRequest(index)">mdi-account-plus-outline</v-icon>
+                                             <v-icon v-else>mdi-pencil-outline</v-icon>
                                         </v-btn>
                                     </template>
                                     <span>{{ $t('report.screen.button.edit.user.help') }}</span>
@@ -117,30 +114,13 @@
                                     </template>
                                     <span>{{ $t('report.screen.button.remove.user.help') }}</span>
                                 </v-tooltip>
+                                <span v-if="hasPendingRequest(index)" class="red--text text-subtitle-2 pl-5">{{$t('repository.screen.join.request.pending')}}</span>
                             </div>
-                            <div v-if="displayActionsOnPendingUsers(index)">
-                                <v-btn icon class="mx-0" @click="openEditUserRole(index);">     
-                                    <v-icon>mdi-account-plus-outline</v-icon>    
-                                </v-btn>
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn v-on="on" icon class="mx-0" @click="userIndex = index;dialogRemoveUser=true;">     
-                                            <v-icon>mdi-delete-forever-outline</v-icon>    
-                                        </v-btn>
-                                    </template>
-                                    <span>{{ $t('report.screen.button.remove.user.help') }}</span>
-                                </v-tooltip>
-                                <span class="red--text text-subtitle-2 pl-5">{{$t('repository.screen.join.request.pending')}}</span>
-                            </div>
-
-                        </td>
-                        </tr>
-                    </tbody>
-                    </template>
-                </v-simple-table>
-                <v-btn class="ml-3 " x-small :title="$t('repository.screen.add.user.title')" @click="openAddUserDialog()"  fab color="info"> 
-                    <v-icon >mdi-plus</v-icon> 
-                </v-btn>
+                        </template> 
+                    </v-data-table>
+                    <v-btn class="ma-3 " small :title="$t('repository.screen.add.user.title')" @click="openAddUserDialog()"  fab color="info"> 
+                        <v-icon >mdi-plus</v-icon> 
+                    </v-btn>
                 </v-col>
             </v-row>
             <v-layout justify-end>
@@ -155,7 +135,7 @@
         <v-dialog v-model="dialogEditUserRole" :width="$store.getters.getDialogWidth">
             <v-card>
                 <v-card-title class="headline grey lighten-2" primary-title>
-                {{ $t('repository.screen.edit.user.role.title') }}
+                {{ dialogEditUserTitle }}
                 </v-card-title>
                 <v-card-text>
                 <v-text-field class="pt-2" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')" readonly filled></v-text-field>
@@ -413,6 +393,11 @@ export default {
             affiliationRules: [v => !!v || "Affiliation is mandatory"],
             affiliationLoading: false,
             affiliations: [],
+            headersUsersTable: [
+                    { text: this.$t('repository.screen.label.user.name'), value: 'name'},
+                    { text: this.$t('repository.screen.label.user.role'), value: 'role' },
+                    { text: this.$t('repository.screen.label.actions'), sortable: false, value: 'actions' },
+                    ],
         }
     },
 
@@ -449,6 +434,14 @@ export default {
       affiliationService: function() {
         return this.$store.getters.getService + "/myaffi/v1_0/list";
       },
+
+      dialogEditUserTitle() {
+          if(this.user && this.user.status && this.user.status == 'PENDING') {
+              return this.$t('repository.screen.validate.user.request.title')
+          } else {
+              return this.$t('repository.screen.edit.user.role.title')
+          }
+      }
     },
     
     created: function() {
@@ -507,6 +500,7 @@ export default {
             this.dialogAddUser = false
             this.dialogEditUserRole = false
             let user = JSON.parse(JSON.stringify(this.user))
+            user.status = 'ACTIVE'
             if(this.userIndex < 0 ) {
                 if(this.myRepository.users == null || this.myRepository.users.length == 0) {
                     let myUserList = [];
@@ -664,12 +658,12 @@ export default {
             this.user={name: null, id:null, role: null}
         },
 
-        displayActionsOnActiveUsers: function(index) {
-            return !(this.isLastManager && this.myRepository.users[index].role == 'EDITOR') && !(this.myRepository.users[index].status == 'PENDING')
+        displayActions: function(index) {
+            return !(this.isLastManager && this.myRepository.users[index].role == 'EDITOR')
         },
 
-        displayActionsOnPendingUsers: function(index) {
-            return (this.myRepository.users[index].status == 'PENDING')
+        hasPendingRequest: function(index) {
+            return this.myRepository.users[index].status == 'PENDING'
         },
 
         affiliationCreated: function() {

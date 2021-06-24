@@ -504,7 +504,7 @@ export default {
         });
         this.axios({
             method: 'post',
-            url: this.service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&requirementCode='+requirementCode,
+            url: this.service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&repositoryId='+this.myReport.repositoryId+'&requirementCode='+requirementCode+'&language='+this.language,
             data: comments
         }).catch(function(error) {
           self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
@@ -542,10 +542,11 @@ export default {
           var self = this;
           this.axios({
               method: 'post',
-              url: this.service+'/certificationReport/v1_0/save',
+              url: this.service+'/certificationReport/v1_0/save?language='+this.language,
               data: this.myReport
           }).then( function (response) {
             self.myReport.id = response.data.id
+            self.$store.commit('setIdReport', response.data.id)
             self.$unidooAlert.showSuccess(self.$t('report.screen.save.confirmation'))
           }).catch(function(error) {displayError(self, error)})
         }
@@ -595,7 +596,11 @@ export default {
       // case 1 id != null AND copy undefined or false => update the report
       // case 2 id != null AND copy == true => make a copy of the report
       // case 3 id == null AND template contains a templateName => create a new report with the requested template
-      var id = this.$route.query.reportId
+      debugger
+      let id = this.$route.query.reportId
+      if(id == null) {
+        id = this.$store.getters.getIdReport
+      }
       if(id != null) {
         var self = this
         // getReport return as result the report, the comments by requirement, a boolean ISREADONLY and the certification report template

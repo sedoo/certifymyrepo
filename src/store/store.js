@@ -10,6 +10,7 @@ export const store = new Vuex.Store(
           user: null,
           logged: false,
           repository: null,
+          idReport: null,
           language: null,
           service: null,
           dialogWidth: '900px'
@@ -24,6 +25,9 @@ export const store = new Vuex.Store(
           },
           setRepository(state, repository) {
             state.repository = repository
+          },
+          setIdReport(state, idReport) {
+            state.idReport = idReport
           },
           setLanguage(state, language) {
             state.language = language
@@ -44,6 +48,9 @@ export const store = new Vuex.Store(
           },
           getRepository(state) {
             return state.repository;
+          },
+          getIdReport(state) {
+            return state.idReport;
           },
           getLanguage(state) {
             return state.language;
