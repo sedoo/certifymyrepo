@@ -212,9 +212,7 @@
 
 <script>
 import moment from 'moment';
-import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
-    mixins: [formatErrorMessageMixin],
     props: {
         item: null
   	},

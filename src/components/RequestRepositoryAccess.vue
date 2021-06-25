@@ -1,9 +1,6 @@
 <template>
     <div class="accessRequest">
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
-    </v-snackbar>
+    <unidoo-alert></unidoo-alert>
         <v-card
             class="mx-auto pa-5"
         >
@@ -63,8 +60,9 @@
                     <td><span v-for="(keyword, index) in item.keywords" :key=index>{{ keyword }} </span></td>
                     <td v-if="userIsAdmin">A/N</td>
                     <td v-else-if="isAccessGranted(item.users)">{{ $t('repository.screen.repository.access.access.granded') }}</td>
+                    <td v-else-if="isAccessPending(item.users)">{{ $t('repository.screen.repository.access.access.pending') }}</td>
                     <td v-else> 
-                        <v-btn color="info" text @click="requestedRepository=item;dialog=true">{{ $t('repository.screen.repository.access.button.join') }}</v-btn>
+                        <v-btn color="info" @click="requestedRepository=item;dialog=true">{{ $t('repository.screen.repository.access.button.join') }}</v-btn>
                     </td>
                     </tr>
                 </tbody>
@@ -198,11 +196,30 @@ export default {
                 if(self.repositories==null || self.repositories.length == 0) {
                     self.notDataFound = true
                 }
-            }).catch(function(error) {self.displayError("An error has occured:" + error)})
+            }).catch(function(error) {
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+            })
         },
         isAccessGranted(users) {
             if(JSON.stringify(users).includes(this.userProfile.id)) {
-                return true
+                for(let i=0; i<users.length; i++) {
+                    if(users[i].id == this.userProfile.id && users[i].status != 'PENDING') {
+                        return true
+                    }
+                }
+                return false
+            } else {
+                return false
+            }
+        },
+        isAccessPending(users) {
+            if(JSON.stringify(users).includes(this.userProfile.id)) {
+                for(let i=0; i<users.length; i++) {
+                    if(users[i].id == this.userProfile.id && users[i].status == 'PENDING') {
+                        return true
+                    }
+                }
+                return false
             } else {
                 return false
             }
@@ -225,7 +242,9 @@ export default {
             .then(()=> {
                 self.requestedRepository = {}
                 self.text = ""
-            }).catch(function(error) {self.displayError("An error has occured:" + error)})
+            }).catch(function(error) {
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+            })
         },
 
         resquestPopupTitle: function(requestedRepository) {

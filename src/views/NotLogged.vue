@@ -41,7 +41,7 @@
                 {{ $t('notlogged.screen.renater.help.message')}}
               </v-card-text>
               <v-card-actions class="card-actions">
-                <v-btn @click='loginShibboleth' :disabled="!validRenater" color="info">{{ $t('notlogged.screen.button.login') }}</v-btn>
+                <v-btn @click='loginShibboleth' :disabled="!validRenater || loading" color="info">{{ $t('notlogged.screen.button.login') }}</v-btn>
               </v-card-actions>
             </v-card>
           </v-form>

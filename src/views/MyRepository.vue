@@ -8,10 +8,7 @@
       mode="creation"
     ></AffiliationCreationEditionDialog>
 
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
-    </v-snackbar>
+    <unidoo-alert></unidoo-alert>
 
     <h1 class="subheading grey--text">{{$t('repository.screen.title')}}</h1>
 
@@ -234,6 +231,14 @@
                             class="elevation-1 mb-2"
                             :search="search"
                         >
+                            <template v-slot:item.data-table-select="{ item, isSelected, select }">
+                            <v-simple-checkbox
+                                :value="isSelected"
+                                :readonly="item.disabled"
+                                :disabled="item.disabled"
+                                @input="select($event)"
+                            ></v-simple-checkbox>
+                            </template>
                         </v-data-table>
                         <div class="error--text v-messages">
                             <div v-show="selectedUser.length == 0 && rowClicked" class="v-messages__message">{{ $t('repository.screen.error.select.one.user') }}</div>
@@ -300,11 +305,10 @@
 
 
 <script>
-import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 import AffiliationCreationEditionDialog from "../components/AffiliationCreationEditionDialog";
 import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
-    mixins: [formattedAffiliationMixin, formatErrorMessageMixin],
+    mixins: [formattedAffiliationMixin],
     components: {
         AffiliationCreationEditionDialog
     },
@@ -454,7 +458,7 @@ export default {
                     self.myRepository = response.data
                     self.editedAffiliation = response.data.affiliation.id
                 }).catch(function(error) {
-                    self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
                 })
         } else {
             let localUser = {id: this.userProfile.id , name: this.userProfile.name , role: 'EDITOR', status: 'ACTIVE'}
@@ -532,7 +536,7 @@ export default {
             }).then ( function () {
                 self.goToRepositories()
             }).catch(function(error) {
-               self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+               self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             })
         },
 
@@ -547,7 +551,7 @@ export default {
                 self.dialogCreateUser = false
                 displaySuccess(self, self.$t('repository.screen.create.user.successful'))
             }).catch(function(error) {
-                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             }).finally(() => {
                 this.userName = null
                 this.email = null
@@ -567,7 +571,7 @@ export default {
                     self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
                 }
             }).catch(function(error) {
-                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             })
             .finally(() => this.loadingUser = false)
         },
@@ -584,7 +588,7 @@ export default {
                     displayError(self, self.$t('repository.screen.create.user.error.duplicate.email', {'msg':response.data.name } ))
                 }
             }).catch(function(error) {
-                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             })
             .finally(() => this.loadingUser = false)
         },
@@ -596,8 +600,15 @@ export default {
             this.axios.get(this.service+'/profile/v1_0/listAllUsers')
             .then(function (response) {
                 self.foundUsers = response.data
+                for(let i=0 ; i<self.foundUsers.length ; i++) {
+                    if(JSON.stringify(self.myRepository.users).includes(self.foundUsers[i].id)) {
+                        self.foundUsers[i].disabled = true
+                    } else {
+                        self.foundUsers[i].disabled = false
+                    }
+                }
             }).catch(function(error) {
-                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             }).finally(() => this.loadingUsers = false)
         },
 

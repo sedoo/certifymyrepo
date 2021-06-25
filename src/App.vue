@@ -128,76 +128,83 @@ export default {
     this.$store.commit('setLanguage', this.language)
     this.$store.commit('setService', this.service)
     this.links = []
-    if(this.devEnv) {
-      this.links.push(this.linkContact)
-    }
-    if (this.isLogged) {
-        this.links.push(this.linkRepositories)
-        this.links.push(this.linkUserInformation)
-        if(this.userIsAdmin || this.userIsSuperAdmin) {
-          this.links.push(this.linkDashoard)
-          this.links.push(this.linkAdministration)
-        }
-        // To deal with the case: 
-        // 1/ One logged user click on another Wordpress menu and leave The VueJS App
-        // 2/ He comes back on the VueJS App. He is still logged in
-        //  then path is equal to "/", router redirect to "/notlogged" by default
-        //  The app has to redirect to the main page
-        if(this.$route.fullPath == '/notlogged') {
-          this.$router.push({path: '/repositories'})
-        }
+    let token = this.getTokenParameter()
+    if( token != null) {
+      let user = {token: token, profile: {name: 'Robot'}}
+      this.$store.commit('setUser', user)
     } else {
-      var code = this.getCodeParameter();
-      if (code) {
-        if(false && this.getAuthentificationType() && this.getAuthentificationType() == 'shibb') {
-          var self = this;
-          this.axios({
-              method: 'get',
-              url: "https://services-coso-preprod.sedoo.fr/shibboleth/userbycode?code=" + code
-          }).then( function (response) {
-              self.links.push(self.linkRepositories)
-              self.links.push(self.linkUserInformation)
-              self.$store.commit('setUser', response.data)
-              self.$store.commit('setLogged', true)
-              if(self.userIsAdmin || self.userIsSuperAdmin) {
-                self.links.push(self.linkDashoard)
-                self.links.push(self.linkAdministration)
-              }
-              if(response.data.profile.email != null) {
-                self.$router.push({path: '/repositories'})
-              } else {
-                self.$router.push({path: '/profile'})
-              }
-          }).catch(function(error) {
-            self.displayError("An error has occured:" + error)
-            })
-          this.$router.push("/logging").catch(() => {});
-        } else {
-          var self = this;
-          this.axios({
-              method: 'post',
-              url: this.service+"/login/v1_0/login?code=" + code + "&redirect_uri=" + this.redirectUri + "&type=" + this.getAuthentificationType()
-          }).then( function (response) {
-              self.links.push(self.linkRepositories)
-              self.links.push(self.linkUserInformation)
-              self.$store.commit('setUser', response.data)
-              self.$store.commit('setLogged', true)
-              if(self.userIsAdmin || self.userIsSuperAdmin) {
-                self.links.push(self.linkDashoard)
-                self.links.push(self.linkAdministration)
-              }
-              if(response.data.profile.email != null) {
-                self.$router.push({path: '/repositories'})
-              } else {
-                self.$router.push({path: '/profile'})
-              }
-            }).catch(function(error) {self.displayError("An error has occured:" + error)})
-            this.$router.push("/logging").catch(() => {});
-        }
-      } else {
-        this.logoutFromORCID()
+      if(this.devEnv) {
+        this.links.push(this.linkContact)
       }
-    }
+      if (this.isLogged) {
+          this.links.push(this.linkRepositories)
+          this.links.push(this.linkUserInformation)
+          if(this.userIsAdmin || this.userIsSuperAdmin) {
+            this.links.push(this.linkDashoard)
+            this.links.push(this.linkAdministration)
+          }
+          // To deal with the case: 
+          // 1/ One logged user click on another Wordpress menu and leave The VueJS App
+          // 2/ He comes back on the VueJS App. He is still logged in
+          //  then path is equal to "/", router redirect to "/notlogged" by default
+          //  The app has to redirect to the main page
+          if(this.$route.fullPath == '/notlogged') {
+            this.$router.push({path: '/repositories'})
+          }
+      } else {
+        var code = this.getCodeParameter();
+        if (code) {
+          if(false && this.getAuthentificationType() && this.getAuthentificationType() == 'shibb') {
+            var self = this;
+            this.axios({
+                method: 'get',
+                url: "https://services-coso-preprod.sedoo.fr/shibboleth/userbycode?code=" + code
+            }).then( function (response) {
+                self.links.push(self.linkRepositories)
+                self.links.push(self.linkUserInformation)
+                self.$store.commit('setUser', response.data)
+                self.$store.commit('setLogged', true)
+                if(self.userIsAdmin || self.userIsSuperAdmin) {
+                  self.links.push(self.linkDashoard)
+                  self.links.push(self.linkAdministration)
+                }
+                if(response.data.profile.email != null) {
+                  self.$router.push({path: '/repositories'})
+                } else {
+                  self.$router.push({path: '/profile'})
+                }
+            }).catch(function(error) {
+              self.displayError("An error has occured:" + error)
+              })
+            this.$router.push("/logging").catch(() => {});
+          } else {
+            var self = this;
+            this.axios({
+                method: 'post',
+                url: this.service+"/login/v1_0/login?code=" + code + "&redirect_uri=" + this.redirectUri + "&type=" + this.getAuthentificationType()
+            }).then( function (response) {
+                self.links.push(self.linkRepositories)
+                self.links.push(self.linkUserInformation)
+                self.$store.commit('setUser', response.data)
+                self.$store.commit('setLogged', true)
+                if(self.userIsAdmin || self.userIsSuperAdmin) {
+                  self.links.push(self.linkDashoard)
+                  self.links.push(self.linkAdministration)
+                }
+                if(response.data.profile.email != null) {
+                  self.$router.push({path: '/repositories'})
+                } else {
+                  self.$router.push({path: '/profile'})
+                }
+              }).catch(function(error) {self.displayError("An error has occured:" + error)})
+              this.$router.push("/logging").catch(() => {});
+          }
+        } else {
+          this.logoutFromORCID()
+        }
+      }
+  }
+
  },
 
   mounted: function() {
@@ -218,6 +225,10 @@ export default {
 
       getAuthentificationType: function (){
         return this.getURLParameter("authtype");
+      },
+
+      getTokenParameter: function (){
+        return this.getURLParameter("token");
       },
 
       getURLParameter: function (sParam){

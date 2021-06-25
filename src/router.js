@@ -13,6 +13,7 @@ import MyCertificationReport from './views/MyCertificationReport.vue'
 import NotLogged from "./views/NotLogged.vue"
 import Logging from "./views/Logging.vue"
 import Contact from "./views/ContactApp.vue"
+import RequestValidation from "./views/RequestValidation.vue"
 
 Vue.use(VueRouter);
 
@@ -81,6 +82,11 @@ const router = new VueRouter({
           name: "contact",
           component: Contact
         },
+        {
+          path: "/requestValidation/:repositoryId/:userId",
+          name: "requestValidation",
+          component: RequestValidation
+        },
         { path: '/', redirect: '/notlogged' }
     ]
 })
@@ -90,7 +96,7 @@ router.beforeEach((to, from, next) => {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if (!store.getters.getLogged) {
-      next({ name: 'login' })
+      next({ name: 'notlogged' })
     } else {
       next() // go to wherever I'm going
     }
