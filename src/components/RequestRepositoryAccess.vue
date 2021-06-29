@@ -242,8 +242,14 @@ export default {
             .then(()=> {
                 self.requestedRepository = {}
                 self.text = ""
+                self.role = null
+                self.$unidooAlert.showSuccess(self.$t('repository.screen.repository.access.access.pending'))
             }).catch(function(error) {
-                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                if(error && error.response && error.response.status == 412) {
+                     self.$unidooAlert.showError(self.$t('repository.screen.repository.access.access.already.pending'))
+                } else {
+                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                }
             })
         },
 

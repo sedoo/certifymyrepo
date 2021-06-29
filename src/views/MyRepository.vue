@@ -204,7 +204,7 @@
         </v-form>
 
         <v-form v-model="validPopupAddUser">
-            <v-dialog v-model="dialogAddUser" :width="$store.getters.getDialogWidth">
+            <v-dialog v-model="dialogAddUser" :width="$store.getters.getDialogWidth" persistent>
                 <v-card>
                     <v-card-title class="headline grey lighten-2" primary-title>
                     {{ $t('repository.screen.add.user.title') }}

@@ -33,7 +33,12 @@ export default {
               }
           }).catch(error => {
             // interceptor in main.js / main.production.js will intercept error 403 and will dispaly login page
-            this.$unidooAlert.showError(this.$unidooAlert.formatError(this.$t('error.notification'), error))
+                if(error && error.response && error.response.status == 412) {
+                  this.$unidooAlert.showError(this.$t('request.validation.screen.user.request.has.been.revoked'))
+                     self.$unidooAlert.showError()
+                } else {
+                    this.$unidooAlert.showError(this.$unidooAlert.formatError(this.$t('error.notification'), error))
+                }
           }).finally(() => {
             this.loading = false
           })
