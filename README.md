@@ -86,6 +86,10 @@ The toolbar of the application gives access to 4 pages and to logout button
 | Add an user on a repository	| An Editor can add users on a repository. The users will receive a notification. |
 | Remove an user from a repository	| An Editor can remove users on a repository. The users will receive a notification. |
 | Request access on a repository 	| An user can search for a repositoy by name, keywords etc and request access. The users with Editor role on the given repository will receive a notification  |
+| Save a report with a new version	| Notify all repository users  |
+| Validate a report	| Notify all repository users  |
+| Add a comment on a requirement	| Notify all repository users  |
+| No action on the report after 2 months | Notify all repository users  |
 
 ## Report template
 
