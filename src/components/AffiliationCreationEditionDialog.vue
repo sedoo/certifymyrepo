@@ -156,11 +156,11 @@ export default {
               acronym: "",
               department:""
             }
-            self.displaySuccess(self.$t('affiliation.dialog.confirmation'));
+            self.$unidooAlert.showSuccess(self.$t('affiliation.dialog.confirmation'))
             self.$emit("created");
           })
           .catch(function(error) {
-            self.displayError(self, error);
+            self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
           })
           .finally(function() {
             self.savingAffiliation = false;
@@ -173,30 +173,11 @@ export default {
       this.create()
     },
 
-   
-    displayError: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "error";
-      this.timeout = 8000;
-      this.notifier = true;
-    },
-
-    displaySuccess: function(message) {
-      this.notifierMessage = message;
-      this.notifierColor = "success";
-      this.timeout = 4000;
-      this.notifier = true;
-    }
-
    },
 
   data() {
     return {
       validAffiliation: false,
-      timeout: 2000,
-      notifier: false,
-      notifierMessage: "",
-      notifierColor: "success",
       mandatoryRules: [v => !!v || this.$t('affiliation.dialog.error.madatory')],
       saving: false,
       countries: constantsFile.countries,

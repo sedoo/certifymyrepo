@@ -75,11 +75,6 @@ export default {
     linkDashoard: {label:"page.dashboard", route: '/dashboard', icon: 'mdi-view-dashboard'},
     linkAdministration: {label:"page.administration", route: '/administration', icon: 'mdi-cogs' },
     linkContact: {label:"page.contact", route: '/contact', icon: 'mdi-email' },
-    // error and success notification vars
-    timeout: 2000,
-    notifier: false,
-    notifierMessage: "",
-    notifierColor: "success",
     // Add extra listenner on production mode
     listenersSet: false,
   }),
@@ -174,8 +169,8 @@ export default {
                   self.$router.push({path: '/profile'})
                 }
             }).catch(function(error) {
-              self.displayError("An error has occured:" + error)
-              })
+              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+            })
             this.$router.push("/logging").catch(() => {});
           } else {
             var self = this;
@@ -196,7 +191,9 @@ export default {
                 } else {
                   self.$router.push({path: '/profile'})
                 }
-              }).catch(function(error) {self.displayError("An error has occured:" + error)})
+              }).catch(function(error) {
+                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+              })
               this.$router.push("/logging").catch(() => {});
           }
         } else {
@@ -330,20 +327,6 @@ export default {
       navigate(route) {
         this.$router.push(route).catch( () => {})
       },
-
-      displayError: function(message) {
-          this.notifierMessage = message;
-          this.notifierColor = "error";
-          this.timeout = 8000;
-          this.notifier = true;
-      },
-
-      displaySuccess: function(message) {
-          this.notifierMessage = message;
-          this.notifierColor = "success";
-          this.timeout = 4000;
-          this.notifier = true;
-      }
   }
 };
 </script>

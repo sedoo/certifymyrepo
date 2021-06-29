@@ -549,7 +549,7 @@ export default {
             }).then(function(response) {
                 self.creatingUser = false
                 self.dialogCreateUser = false
-                displaySuccess(self, self.$t('repository.screen.create.user.successful'))
+                self.$unidooAlert.showSuccess(self.$t('repository.screen.create.user.successful'))
             }).catch(function(error) {
                 self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             }).finally(() => {
@@ -585,7 +585,7 @@ export default {
                     self.user.email = self.email
                     self.user.email = self.name
                 } else {
-                    displayError(self, self.$t('repository.screen.create.user.error.duplicate.email', {'msg':response.data.name } ))
+                    self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.email', {'msg':response.data.name } ))
                 }
             }).catch(function(error) {
                 self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))

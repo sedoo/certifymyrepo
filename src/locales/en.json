@@ -133,6 +133,8 @@
   "repository.screen.repository.access.label.actions": "Actions",
   "repository.screen.repository.access.button.join": "Request repository file access",
   "repository.screen.repository.access.access.granded": "Access granted",
+  "repository.screen.repository.access.access.pending": "Pending request access",
+  "repository.screen.repository.access.access.already.pending": "Pending access request has been sent already. Please wait.",
   "repository.screen.repository.access.popup.title": "Request {msg} epository file access",
   "repository.screen.repository.access.popup.field.role": "Select a role",
   "repository.screen.comment.user.deleted": "Deleted user",
@@ -185,6 +187,9 @@
   "reports.screen.delete.report.confirmation.title": "Delete",
   "reports.screen.delete.report.confirmation.message": "Do you really want to delete this report ? This operation cannot be undone.",
   "reports.screen.button.radar.help": "Requirements Radar Chart",
+  "reports.screen.create.copy.report.confirmation.title": "Copy an existing report",
+  "reports.screen.create.copy.report.select.repository.label": "Select a repository",
+  "reports.screen.create.copy.report.select.report.label": "Select a report",
   "affiliation.dialog.title.creation": "Affiliation creation",
   "affiliation.dialog.title.edition": "Affiliation edition",
   "affiliation.dialog.label.institute": "Institute",
@@ -217,5 +222,8 @@
   "contact.screen.error": "Your message could not been sent. Please try later.",
   "data.table.items.per.page.text": "Rows per page",
   "data.table.items.per.page.all.text": "All",
-  "data.table.page.text": "of"
+  "data.table.page.text": "of",
+  "request.validation.screen.user.has.been.added" : "The user has been added on the repository",
+  "request.validation.screen.user.was.already.added" : "The user had been already added on the repository",
+  "request.validation.screen.user.request.has.been.revoked": "The user request had been already declined"
 }

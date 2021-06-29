@@ -129,11 +129,6 @@ export default {
         return {
             valid: false,
             dialog: false,
-            // error and success notification vars
-            timeout: 2000,
-            notifier: false,
-            notifierMessage: "",
-            notifierColor: "success",
             //
             keywords: [],
             search: null,
@@ -260,20 +255,6 @@ export default {
                 return ''
             }
         },
-
-        displayError: function(message) {
-            this.notifierMessage = message;
-            this.notifierColor = "error";
-            this.timeout = 8000;
-            this.notifier = true;
-        },
-
-        displaySuccess: function(message) {
-            this.notifierMessage = message;
-            this.notifierColor = "success";
-            this.timeout = 4000;
-            this.notifier = true;
-        }
     },
 } 
 </script>

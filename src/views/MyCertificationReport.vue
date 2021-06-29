@@ -536,7 +536,7 @@ export default {
       // Save report
       saveReport () {
         if(!this.valid) {
-          displayError(this, this.$t('report.screen.error.version.madatory'))
+          this.$unidooAlert.showError(this.$t('report.screen.error.version.madatory'))
         } else {
           this.myReport.updateDate = new Date()
           var self = this;
@@ -548,7 +548,9 @@ export default {
             self.myReport.id = response.data.id
             self.$store.commit('setIdReport', response.data.id)
             self.$unidooAlert.showSuccess(self.$t('report.screen.save.confirmation'))
-          }).catch(function(error) {displayError(self, error)})
+          }).catch(function(error) {
+            self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          })
         }
 
       },
@@ -596,7 +598,6 @@ export default {
       // case 1 id != null AND copy undefined or false => update the report
       // case 2 id != null AND copy == true => make a copy of the report
       // case 3 id == null AND template contains a templateName => create a new report with the requested template
-      debugger
       let id = this.$route.query.reportId
       if(id == null) {
         id = this.$store.getters.getIdReport
@@ -608,6 +609,7 @@ export default {
         .get(this.service+'/certificationReport/v1_0/getReport/'+id)
         .then( function (response) {
           self.myReport = response.data.report
+          self.myReport.repositoryId = self.$route.query.repositoryId
           self.editExistingAllowed = response.data.editExistingAllowed
           self.validationAllowed = response.data.validationAllowed
           

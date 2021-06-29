@@ -26,7 +26,7 @@
         >
  
              <template v-slot:item.templateName="{ item }">  
-                <span>{{ formatTemplateName(item.templateId) }}</span>
+                <span>{{ item.templateName }}</span>
             </template> 
             <template v-slot:item.updateDate="{ item }">  
                 <span>{{ formatDate(item.updateDate) }}</span>
@@ -187,10 +187,15 @@
                     item-text="name" item-value="repository.id"
                     :label="$t('reports.screen.create.copy.report.select.repository.label')">
                 </v-select>
-                <v-select outlined dense :items="reportList" :disabled="selectedRepository == null"
-                    v-model="selectedReport" :loading="true"
-                    item-text="name" item-value="id" return-object 
+                <v-select outlined dense :items="reportsList" :disabled="selectedRepository == null"
+                    v-model="selectedReport" :loading="loadingReports"
                     :label="$t('reports.screen.create.copy.report.select.report.label')">
+                    <template v-slot:selection="{ item }">
+                        <span>{{ formatName(item) }}</span>
+                    </template>
+                    <template v-slot:item="{ item }">
+                        <span>{{ formatName(item) }}</span>
+                    </template>
                 </v-select>
                 </v-card-text>
                 <v-divider></v-divider>
@@ -202,7 +207,7 @@
                     </v-btn>
                     <v-btn
                         color="info"
-                        @click="dialogCopy = false;copyReport();">
+                        @click="copyItem(selectedReport)">
                         {{ $t('button.confirm') }}
                     </v-btn>
                 </v-card-actions>
@@ -288,7 +293,9 @@ export default {
             selectedRepository: null,
             loadingRepositories: false,
             loadingReports: false,
-            reportsList: []
+            reportsList: [],
+            selectedReport: null,
+            loading: false,
         }
     },
     computed: {
@@ -395,7 +402,7 @@ export default {
         },
 
         getFileName(report) {
-            return this.$store.getters.getRepository.name + "_" + this.formatTemplateName(report.templateId) + "_" + report.version
+            return this.$store.getters.getRepository.name + "_" + report.templateName + "_" + report.version
         },
 
         levelList (report) {
@@ -463,16 +470,6 @@ export default {
                 return ''
             }
         },
-        formatTemplateName(templateId) {
-            let result = null;
-            for(let i=0 ; i<this.templateIdentifierList.length ; i++) {
-                if(this.templateIdentifierList[i].id === templateId) {
-                    result = this.templateIdentifierList[i].name
-                    break
-                }
-            }
-            return result
-        },
 
         openCopyReport() {
             this.dialogCopy = true
@@ -494,17 +491,20 @@ export default {
         },
 
         loadReport() {
-            debugger
             this.loadingReports = true
             var self = this;
-            this.axios.get(this.service+'/listByRepositoryId/'+this.selectedRepository)
+            this.axios.get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.selectedRepository)
             .then((response) => {
-                this.reportList = response.data
+                this.reportsList = response.data.reports
             }).catch((error) => {
                 this.$unidooAlert.showError(this.formatError(this.$t('error.notification'), error))
             })
             .finally(() => this.loadingReports = false)
-        }
+        },
+
+        formatName(report) {
+            return report.templateName + ' - v' + report.version + ' - ' + this.formatDate(report.updateDate) + ' - ' + this.$t(report.status)
+        },
 
     },
 

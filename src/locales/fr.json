@@ -108,7 +108,7 @@
   "repository.screen.label.user.role": "Rôle",
   "repository.screen.label.actions": "Actions",
   "repository.screen.edit.user.role.title": "Editer",
-  "repository.screen.validate.user.request.title": "Validater la demande",
+  "repository.screen.validate.user.request.title": "Valider la demande",
   "repository.screen.error.repository.name.required": "Le nom est obligatoire",
   "repository.screen.error.user.role.required": "Role is required",
   "repository.screen.error.user.name.required.orcid.error": "Le nom est obligatoire. Entrer un ORCID valid",
@@ -134,6 +134,8 @@
   "repository.screen.repository.access.label.actions": "Actions",
   "repository.screen.repository.access.button.join": "Demander l'accès au dossier",
   "repository.screen.repository.access.access.granded": "Accès autorisé",
+  "repository.screen.repository.access.access.pending": "Demande d'accès en attente",
+  "repository.screen.repository.access.access.already.pending": "Une demande a déjà été faites. Veuillez patienter.",
   "repository.screen.repository.access.popup.title": "Demande d'accès au dossier de l'entrepôt {msg}",
   "repository.screen.repository.access.popup.field.role": "Sélectionner un rôle",
   "repository.screen.comment.user.deleted": "Utilisateur supprimé",
@@ -186,6 +188,9 @@
   "reports.screen.delete.report.confirmation.title": "Suppression",
   "reports.screen.delete.report.confirmation.message": "Voulez vous vraiment supprimer cette fiche? Veuillez noter que cette opération est irréversible.",
   "reports.screen.button.radar.help": "Graphique radar des critères",
+  "reports.screen.create.copy.report.confirmation.title": "Copier une fiche existante",
+  "reports.screen.create.copy.report.select.repository.label": "Sélectionner un entrepôt",
+  "reports.screen.create.copy.report.select.report.label": "Sélectionner une fiche",
   "affiliation.dialog.title.creation": "Création d'une affiliation",
   "affiliation.dialog.title.edition": "Edition d'une affiliation",
   "affiliation.dialog.label.institute": "Institut",
@@ -218,5 +223,8 @@
   "contact.screen.error": "Votre message n'a pas pu être envoyé. Veuillez réessayer plus tard.",
   "data.table.items.per.page.text": "Lignes par page",
   "data.table.items.per.page.all.text": "Toutes",
-  "data.table.page.text": "de"
+  "data.table.page.text": "de",
+  "request.validation.screen.user.has.been.added" : "L'utilisateur a été ajouté à l'entrepôt",
+  "request.validation.screen.user.was.already.added" : "L'utilisateur avait déjà été ajouté à l'entrepôt",
+  "request.validation.screen.user.request.has.been.revoked": "La demande de l'utilisateur a déjà été refusée"
 }
