@@ -207,7 +207,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.loadingSimulation = false
@@ -228,7 +228,7 @@ export default {
           self.$router.push("/notlogged").catch(() => {});
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.loadingDelete = false
@@ -250,7 +250,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.loadingProfile = false;
@@ -269,7 +269,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.loadingRepo = false;

@@ -137,6 +137,17 @@
                 <template v-slot:activator="{ on }">
                 <v-btn v-on="on" v-show="editExistingAllowed" class="mr-5"
                     color="info"
+                    @click="saveReportWithCurrentVersion();goToMyCertificationReports()"
+                    >
+                    {{ $t('button.save.return') }}
+                </v-btn>
+                </template>
+                <span>{{ $t('report.screen.button.save.and.return.help') }}</span>
+              </v-tooltip> 
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                <v-btn v-on="on" v-show="editExistingAllowed" class="mr-5"
+                    color="info"
                     @click="saveReportWithCurrentVersion"
                     >
                     {{ $t('button.save') }}
@@ -196,7 +207,7 @@
         <v-btn @click="dialog = false">
             {{ $t('button.cancel') }}
         </v-btn>
-        <v-btn color="info" @click="releaseTheReport">
+        <v-btn color="info" @click="releaseTheReport();goToMyCertificationReports()">
             {{ $t('button.confirm') }}
         </v-btn>
         </v-card-actions>
@@ -402,7 +413,7 @@ export default {
               link.click();
             })
             .catch(error => {
-              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             }).finally(function() {
               self.downloadAttachmentInProgress = []
             })
@@ -453,7 +464,7 @@ export default {
 
             })
             .catch(error => {
-              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             }).finally(function() {
               self.uploadInProgress = false
               self.dialogUploadFiles = false
@@ -477,7 +488,7 @@ export default {
                 }
             })
             .catch(error => {
-              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             }).finally(function() {
               self.deleteInProgress = true
               self.dialogDeleteFile = false
@@ -507,7 +518,7 @@ export default {
             url: this.service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&repositoryId='+this.myReport.repositoryId+'&requirementCode='+requirementCode+'&language='+this.language,
             data: comments
         }).catch(function(error) {
-          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
         })
       },
 
@@ -546,10 +557,13 @@ export default {
               data: this.myReport
           }).then( function (response) {
             self.myReport.id = response.data.id
-            self.$store.commit('setIdReport', response.data.id)
+            let id = self.$route.query.reportId
+            if(id != null) {
+              self.$router.push({path: '/myReport', query: { repositoryId: response.data.repositoryId, reportId: response.data.id, template: response.data.templateId} })
+            }
             self.$unidooAlert.showSuccess(self.$t('report.screen.save.confirmation'))
           }).catch(function(error) {
-            self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
           })
         }
 
@@ -599,9 +613,6 @@ export default {
       // case 2 id != null AND copy == true => make a copy of the report
       // case 3 id == null AND template contains a templateName => create a new report with the requested template
       let id = this.$route.query.reportId
-      if(id == null) {
-        id = this.$store.getters.getIdReport
-      }
       if(id != null) {
         var self = this
         // getReport return as result the report, the comments by requirement, a boolean ISREADONLY and the certification report template
@@ -686,7 +697,7 @@ export default {
           }
 
         }).catch(function(error) {
-          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
         })
         .finally(function() { self.loadingReport = false})
 
@@ -735,7 +746,7 @@ export default {
           self.editExistingAllowed = true
           self.validationAllowed = false
         }).catch(function(error) {
-          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
         }).finally(function() { self.loadingReport = false})
 
       }

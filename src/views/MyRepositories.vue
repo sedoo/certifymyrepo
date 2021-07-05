@@ -255,7 +255,7 @@ export default {
                         self.resultMyRepo = response.data
                     })
             ).catch(function(error) {
-              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             })
       },
       editRepository (item) {
@@ -379,7 +379,7 @@ export default {
           this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'))
         }
       }).catch(function(error) {
-        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
       })
       .finally(() => this.loadingReports = false)
       }

@@ -2,10 +2,7 @@
  <v-app class="grey lighten-4">
   <certifymyrepo-token-refresher :service="service"></certifymyrepo-token-refresher>
 
-  <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      {{ notifierMessage }}
-    <v-btn dark text @click="notifier = false">Close</v-btn>
-   </v-snackbar>
+    <unidoo-alert></unidoo-alert>
     <v-toolbar color="secondary" v-if="type!='external'">
       <v-toolbar-title class="text-uppercase" >
         <span class="font-weight-light">Crusöe</span>
@@ -169,7 +166,7 @@ export default {
                   self.$router.push({path: '/profile'})
                 }
             }).catch(function(error) {
-              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             })
             this.$router.push("/logging").catch(() => {});
           } else {
@@ -192,7 +189,7 @@ export default {
                   self.$router.push({path: '/profile'})
                 }
               }).catch(function(error) {
-                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
               })
               this.$router.push("/logging").catch(() => {});
           }

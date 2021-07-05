@@ -114,8 +114,8 @@ import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
   mixins: [formatErrorMessageMixin],
   created: function() {
-    this.$i18n.locale = this.$store.getters.getLanguage;
-    this.loadProfile();
+    this.$i18n.locale = this.language
+    this.loadProfile()
   } ,
 
   props: {
@@ -162,7 +162,7 @@ export default {
           self.$router.push("/information").catch(() => {});
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.saving = false;
@@ -186,7 +186,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
         })
         .finally(function() {
           self.loading = false;
@@ -205,7 +205,7 @@ export default {
               self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
             }
         }).catch(function(error) {
-          self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
         })
         .finally(() => this.loadingUser = false)
     },
@@ -228,32 +228,32 @@ export default {
 
   },
 
-    data() {
-        return {
-    dialogEditOrcid: false,
-    loading: false,
-    saving: false,
-    valid: false,
-    validOrcid: false,
-    wellFormedOrcid: false,
-    profile: {
-        id: null,
-        email: null,
-        name: null,
+  data() {
+    return {
+      dialogEditOrcid: false,
+      loading: false,
+      saving: false,
+      valid: false,
+      validOrcid: false,
+      wellFormedOrcid: false,
+      profile: {
+          id: null,
+          email: null,
+          name: null,
+          orcid: null
+      },
+      loadingDelete: false,
+      loadingSimulation: false,
+      loadingUser: false,
+      warningMessage: null,
+      /** User to store the response of ORCID call*/
+      orcidOrganisation: {
         orcid: null,
-    },
-    loadingDelete: false,
-    loadingSimulation: false,
-    loadingUser: false,
-    warningMessage: null,
-    /** User to store the response of ORCID call*/
-    orcidOrganisation: {
-      orcid: null,
-      name: null,
-      email: null
-    },
-    /** Rules */
-    rules: {
+        name: null,
+        email: null
+      },
+      /** Rules */
+      rules: {
         userNameOrcidRules: [v => !!v || this.$t('repository.screen.error.user.name.required.orcid.error')],
         userNameRules: [v => !!v || this.$t('repository.screen.error.user.name.required.renater.error')],
         nameRules: [
@@ -268,9 +268,8 @@ export default {
             v => !!v || this.$t('profile.screen.email.error'),
             v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || this.$t('profile.screen.error.email.validation'),
         ],
-    },
-
-  }}
+  }
+  }
 
 };
 

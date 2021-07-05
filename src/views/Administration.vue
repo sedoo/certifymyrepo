@@ -320,7 +320,7 @@ export default {
       .then(response => {
         self.users = response.data
       }).catch(function(error) {
-        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
       })
       .finally(() => self.loadingUsers = false)
     },
@@ -358,7 +358,7 @@ export default {
 
       })
       .catch(function(error) {
-        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
       })
       .finally(function() {
         self.saving = false;
@@ -397,7 +397,7 @@ export default {
           self.refeshData()
         }
       }).catch(function(error) {
-        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
       })
       .finally(() => self.loadingGiveRole = [])
     },
@@ -411,7 +411,7 @@ export default {
           self.refeshData()
         }
       }).catch(function(error) {
-        self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
       })
       .finally(() => self.loadingRemonveRole = [])
     },
@@ -458,7 +458,7 @@ export default {
             self.affiliations = response.data;
             })
             .catch(function(error) {
-                self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
             })
             .finally(function() {
                 self.loadingAffiliation = false;
@@ -470,10 +470,10 @@ export default {
       this.axios
           .delete(this.service + "/myaffi/v1_0/delete/"+this.editedAffiliation.id)
           .then(function(response) {
-            self.affiliations.splice(self.affiliationIndex, 1);
+            self.loadAffiliations()
           })
           .catch(function(error) {
-              self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
           }).finally(function() {
             self.affiliationIndex = null
             self.dialogDeleteAffiliation = false

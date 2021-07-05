@@ -68,7 +68,7 @@ export default {
     .then(response => {
       self.repoList = response.data
     }).catch(function(error) {
-      self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+      self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
     })
     .finally(() => self.loading = false)
   },

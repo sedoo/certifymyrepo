@@ -89,6 +89,14 @@
                         :items-per-page="5"
                         class="elevation-1"
                     >
+                        <template v-slot:item.name="{ item }">  
+                            <v-tooltip bottom>
+                                <template v-slot:activator="{ on }">
+                                    <span  v-on="on">{{ item.name }}</span>
+                                </template>
+                                <span>{{ item.email }}</span>
+                            </v-tooltip>
+                        </template> 
                         <template v-slot:item.role="{ item }">  
                             {{ $t(item.role) }}
                         </template> 
@@ -98,10 +106,11 @@
                                     <template v-slot:activator="{ on }">
                                         <v-btn v-on="on" icon class="mx-0" @click="openEditUserRole(index);">
                                             <v-icon v-if="hasPendingRequest(index)">mdi-account-plus-outline</v-icon>
-                                             <v-icon v-else>mdi-pencil-outline</v-icon>
+                                            <v-icon v-else>mdi-pencil-outline</v-icon>
                                         </v-btn>
                                     </template>
-                                    <span>{{ $t('report.screen.button.edit.user.help') }}</span>
+                                    <span v-if="hasPendingRequest(index)">{{ $t('report.screen.button.accept.user.help') }}</span>
+                                    <span v-else>{{ $t('report.screen.button.edit.user.help')}}</span>
                                 </v-tooltip>
                                 <v-tooltip bottom>
                                     <template v-slot:activator="{ on }">
@@ -365,7 +374,9 @@ export default {
             user: {
                 role: null,
                 name: null,
-                id: null
+                email: null,
+                id: null,
+                status: null
             },
             myRepository: {id:null, name: null, affiliationId: null, url: null, keywords:[], contact: null, users: []},
             repositoryId: this.$route.query.repositoryId,
@@ -461,7 +472,7 @@ export default {
                     self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
                 })
         } else {
-            let localUser = {id: this.userProfile.id , name: this.userProfile.name , role: 'EDITOR', status: 'ACTIVE'}
+            let localUser = {id: this.userProfile.id , name: this.userProfile.name, email: this.userProfile.email, role: 'EDITOR', status: 'ACTIVE'}
             this.myRepository.users.push(localUser)
             this.myRepository.contact = this.userProfile.email
         }
@@ -536,8 +547,28 @@ export default {
             }).then ( function () {
                 self.goToRepositories()
             }).catch(function(error) {
-               self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                debugger
+                let message = self.formatError(self.$t('error.notification'), error)
+               self.$unidooAlert.showError(message)
             })
+        },
+
+        /**
+         * This method return the message from an error object ResponseStatusException or RuntimeException
+         * @param {string} prefix e.g. 'An error has occured :'
+         * @param {*} error The error object from the catch(function(error)
+         * @returns {string} The error message
+         */
+        formatError(prefix, error) {
+            let message = 'An error has occured'
+            if (typeof error === 'object') {
+              if (error.response && error.response.data && error.response.data.message) {
+                message = prefix + ' ' + error.response.data.message
+              } else if (error.message) {
+                message = prefix + ' ' + error.message
+              }
+            }
+            return message
         },
 
         saveUser() {

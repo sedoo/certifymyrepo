@@ -103,7 +103,7 @@ export default {
             }
           })
           .catch(error => {
-            self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
           }).finally(() => self.$refs.form.reset())
       }
     },

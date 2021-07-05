@@ -1,9 +1,6 @@
 <template>
   <span>
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
-    </v-snackbar>
+    <unidoo-alert></unidoo-alert>
     <v-dialog hide-overlay persistent :max-width="$store.getters.getDialogWidth" v-model="visible">
       <v-card>
         <v-card-title v-if="mode === 'creation'" class="headline indigo font-weight-light white--text">{{ $t('affiliation.dialog.title.creation') }}</v-card-title>
@@ -54,15 +51,22 @@
                 ></v-textarea>
               </v-col>
               <v-col cols="12">
-                <v-autocomplete
-                  v-model="affiliation.country"
-                  :items="countries"
-                  prepend-inner-icon="mdi-flag"
-                  :label="$t('affiliation.dialog.label.country')"
-                  :rules="mandatoryRules"
-                  class="required"
-                  outlined dense
-                ></v-autocomplete>
+                <v-row>
+                  <v-col cols="8">
+                    <v-autocomplete :disabled="isInternational"
+                      v-model="affiliation.country"
+                      :items="countries"
+                      prepend-inner-icon="mdi-flag"
+                      :label="$t('affiliation.dialog.label.country')"
+                      :rules="mandatoryCountryRules"
+                      :class="countryRequiredClass"
+                      outlined dense
+                    ></v-autocomplete>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-checkbox v-model="isInternational" :label="$t('affiliation.label.international')" @click="resetCountry"></v-checkbox>
+                  </v-col>
+                </v-row>
               </v-col>
               <v-col cols="12">
                 <v-text-field
@@ -78,9 +82,8 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="$emit('cancel')" :disabled="saving">{{ $t('button.cancel') }}</v-btn>
-          <v-btn color="info" @click="create" :loading="saving" :disabled="!validAffiliation" v-if="mode=='creation'">{{ $t('button.create') }}</v-btn>
-          <v-btn color="info" @click="save" :loading="saving" :disabled="!validAffiliation" v-else>{{ $t('button.update') }}</v-btn>
+          <v-btn @click="cancel()" :disabled="saving">{{ $t('button.cancel') }}</v-btn>
+          <v-btn color="info" @click="save" :loading="saving" :disabled="!validAffiliation">{{ saveButtonTitle }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -98,6 +101,22 @@ export default {
     affiliationSavingService: function() {
       return this.service + "/myaffi/v1_0/save";
     },
+
+    countryRequiredClass() {
+      if(this.isInternational) {
+        return 'none'
+      } else {
+        return 'required'
+      }
+    },
+
+    saveButtonTitle() {
+      if(this.mode=='creation') {
+        return this.$t('button.create')
+      } else {
+        return this.$t('button.update')
+      }
+    }
 
   },
 
@@ -120,7 +139,8 @@ export default {
             address:"",
             institute:"",
             acronym: "",
-            department:""
+            department:"",
+            isInternational: false
         })
     }
   },
@@ -138,8 +158,9 @@ export default {
   created: function() {
 
   },
+
   methods: {
-    create: function() {
+    save: function() {
       var self = this;
       if (!this.$refs.affiliationForm.validate()) {
         return;
@@ -154,13 +175,14 @@ export default {
               address:"",
               institute:"",
               acronym: "",
-              department:""
+              department:"",
+              isInternational: false
             }
             self.$unidooAlert.showSuccess(self.$t('affiliation.dialog.confirmation'))
             self.$emit("created");
           })
           .catch(function(error) {
-            self.$unidooAlert.showError(self.formatError(self.$t('error.notification'), error))
+            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
           })
           .finally(function() {
             self.savingAffiliation = false;
@@ -169,19 +191,36 @@ export default {
       }
     },
 
-    save: function() {
-      this.create()
+    resetCountry() {
+      console.log('reset')
+      this.affiliation.country = null
+      this.$refs.affiliationForm.resetValidation()
     },
 
-   },
+    cancel() {
+      this.affiliation = {
+        website:"",
+        country: "",
+        address:"",
+        institute:"",
+        acronym: "",
+        department:"",
+        isInternational: false
+      }
+      this.$refs.affiliationForm.resetValidation()
+      this.$emit('cancel')
+    }
+  },
 
   data() {
     return {
       validAffiliation: false,
       mandatoryRules: [v => !!v || this.$t('affiliation.dialog.error.madatory')],
+      mandatoryCountryRules: [v => (!!v || this.isInternational)  || this.$t('affiliation.dialog.error.madatory')],
       saving: false,
       countries: constantsFile.countries,
-      affiliation: this.editedAffiliation
+      affiliation: this.editedAffiliation,
+      isInternational: false,
     }
   },
 
