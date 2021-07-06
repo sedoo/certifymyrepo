@@ -226,6 +226,8 @@
   "contact.screen.error.message.required.error": "Please enter your message",
   "contact.screen.success": "Your message has been sent.",
   "contact.screen.error": "Your message could not been sent. Please try later.",
+  "contact.screen.captcha.textfield.label": "Text",
+  "contact.screen.captcha.refreshbutton.label": "Refresh",
   "data.table.items.per.page.text": "Rows per page",
   "data.table.items.per.page.all.text": "All",
   "data.table.page.text": "of",

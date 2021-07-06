@@ -384,7 +384,7 @@ export default {
                     link.download = `${self.getFileName(report)}` + "." + extension;
                     link.click();
                 }).catch(function(error) {
-                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
                 })
                 .finally(function() {
                     self.downloadPDFConfirmed = false
@@ -447,7 +447,7 @@ export default {
                             self.reports = response.data.reports
                         })
                 ).catch(function(error) {
-                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
                 }).finally(() => {
                     self.dialogDelete = false
                     self.isDeletingReport = false
@@ -523,7 +523,7 @@ export default {
         self.editExistingAllowed = response.data.editExistingAllowed
 	    self.creationValidationAllowed = response.data.creationValidationAllowed
       }).catch(function(error) {
-        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
       })
       .finally(() => this.loading = false)
 
@@ -535,7 +535,7 @@ export default {
             self.templateIdentifier = response.data[0]
         }
       }).catch(function(error) {
-        self.$unidooAlert.showError(self.$unidooAlert.$unidooAlert.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
       })
 
     }

@@ -166,7 +166,7 @@ export default {
                   self.$router.push({path: '/profile'})
                 }
             }).catch(function(error) {
-              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             })
             this.$router.push("/logging").catch(() => {});
           } else {
@@ -189,7 +189,7 @@ export default {
                   self.$router.push({path: '/profile'})
                 }
               }).catch(function(error) {
-                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
               })
               this.$router.push("/logging").catch(() => {});
           }
@@ -267,7 +267,7 @@ export default {
         if (this.type=='external') {
         let toolbar = document.querySelector("div.external-toolbar")
         if (toolbar) {
-          let content ="<span style='font-size: 1.5rem;'>";
+          let content ="<span style='font-size: 2rem;padding-right: 70px;'>";
           for (let i=0; i < this.links.length; i++) {
             let routeclass="";
             let link = this.links[i]

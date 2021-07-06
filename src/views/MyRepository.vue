@@ -385,7 +385,7 @@ export default {
                 userNameRules: [v => !!v || this.$t('repository.screen.error.user.name.required.renater.error')],
                 roleRules: [v => !!v || this.$t('repository.screen.error.user.role.required')],
                 nameRules: [
-                    v => !!v || this.$t('repository.screen.error.repository.name.madatory')
+                    v => !!v || this.$t('repository.screen.error.repository.name.required')
                 ],
                 orcIdRules: [
                     v => !!v || 'ORCID is required',
@@ -469,7 +469,7 @@ export default {
                     self.myRepository = response.data
                     self.editedAffiliation = response.data.affiliation.id
                 }).catch(function(error) {
-                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
                 })
         } else {
             let localUser = {id: this.userProfile.id , name: this.userProfile.name, email: this.userProfile.email, role: 'EDITOR', status: 'ACTIVE'}
@@ -547,28 +547,8 @@ export default {
             }).then ( function () {
                 self.goToRepositories()
             }).catch(function(error) {
-                debugger
-                let message = self.formatError(self.$t('error.notification'), error)
-               self.$unidooAlert.showError(message)
+               self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             })
-        },
-
-        /**
-         * This method return the message from an error object ResponseStatusException or RuntimeException
-         * @param {string} prefix e.g. 'An error has occured :'
-         * @param {*} error The error object from the catch(function(error)
-         * @returns {string} The error message
-         */
-        formatError(prefix, error) {
-            let message = 'An error has occured'
-            if (typeof error === 'object') {
-              if (error.response && error.response.data && error.response.data.message) {
-                message = prefix + ' ' + error.response.data.message
-              } else if (error.message) {
-                message = prefix + ' ' + error.message
-              }
-            }
-            return message
         },
 
         saveUser() {
@@ -582,7 +562,7 @@ export default {
                 self.dialogCreateUser = false
                 self.$unidooAlert.showSuccess(self.$t('repository.screen.create.user.successful'))
             }).catch(function(error) {
-                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             }).finally(() => {
                 this.userName = null
                 this.email = null
@@ -599,10 +579,10 @@ export default {
                     self.user = response.data
                     self.userName = response.data.name
                 } else {
-                    self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
+                    self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ), self.$t('button.close'))
                 }
             }).catch(function(error) {
-                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             })
             .finally(() => this.loadingUser = false)
         },
@@ -616,10 +596,10 @@ export default {
                     self.user.email = self.email
                     self.user.email = self.name
                 } else {
-                    self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.email', {'msg':response.data.name } ))
+                    self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.email', {'msg':response.data.name }), self.$t('button.close'))
                 }
             }).catch(function(error) {
-                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             })
             .finally(() => this.loadingUser = false)
         },
@@ -639,7 +619,7 @@ export default {
                     }
                 }
             }).catch(function(error) {
-                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             }).finally(() => this.loadingUsers = false)
         },
 

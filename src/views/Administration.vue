@@ -220,9 +220,7 @@
 <script>
 import AffiliationCreationEditionDialog from "../components/AffiliationCreationEditionDialog";
 import moment from 'moment';
-import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
-  mixins: [formatErrorMessageMixin],
   components: {
       AffiliationCreationEditionDialog
   },
@@ -320,7 +318,7 @@ export default {
       .then(response => {
         self.users = response.data
       }).catch(function(error) {
-        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
       })
       .finally(() => self.loadingUsers = false)
     },
@@ -358,7 +356,7 @@ export default {
 
       })
       .catch(function(error) {
-        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
       })
       .finally(function() {
         self.saving = false;
@@ -397,7 +395,7 @@ export default {
           self.refeshData()
         }
       }).catch(function(error) {
-        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
       })
       .finally(() => self.loadingGiveRole = [])
     },
@@ -411,7 +409,7 @@ export default {
           self.refeshData()
         }
       }).catch(function(error) {
-        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
       })
       .finally(() => self.loadingRemonveRole = [])
     },
@@ -458,7 +456,7 @@ export default {
             self.affiliations = response.data;
             })
             .catch(function(error) {
-                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             })
             .finally(function() {
                 self.loadingAffiliation = false;
@@ -473,7 +471,7 @@ export default {
             self.loadAffiliations()
           })
           .catch(function(error) {
-              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
           }).finally(function() {
             self.affiliationIndex = null
             self.dialogDeleteAffiliation = false

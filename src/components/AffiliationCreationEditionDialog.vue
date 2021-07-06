@@ -182,7 +182,7 @@ export default {
             self.$emit("created");
           })
           .catch(function(error) {
-            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
           })
           .finally(function() {
             self.savingAffiliation = false;

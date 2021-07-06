@@ -192,7 +192,7 @@ export default {
                     self.notDataFound = true
                 }
             }).catch(function(error) {
-                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             })
         },
         isAccessGranted(users) {
@@ -241,9 +241,9 @@ export default {
                 self.$unidooAlert.showSuccess(self.$t('repository.screen.repository.access.access.pending'))
             }).catch(function(error) {
                 if(error && error.response && error.response.status == 412) {
-                     self.$unidooAlert.showError(self.$t('repository.screen.repository.access.access.already.pending'))
+                     self.$unidooAlert.showError(self.$t('repository.screen.repository.access.access.already.pending'), self.$t('button.close'))
                 } else {
-                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'), self.$t('button.close'))
                 }
             })
         },

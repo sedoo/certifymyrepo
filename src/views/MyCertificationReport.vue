@@ -292,9 +292,7 @@
 
 <script>
 import Comments from '../components/Comments.vue'
-import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
-    mixins: [formatErrorMessageMixin],
     components: {
         Comments
     },
@@ -413,7 +411,7 @@ export default {
               link.click();
             })
             .catch(error => {
-              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             }).finally(function() {
               self.downloadAttachmentInProgress = []
             })
@@ -464,7 +462,7 @@ export default {
 
             })
             .catch(error => {
-              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             }).finally(function() {
               self.uploadInProgress = false
               self.dialogUploadFiles = false
@@ -488,7 +486,7 @@ export default {
                 }
             })
             .catch(error => {
-              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             }).finally(function() {
               self.deleteInProgress = true
               self.dialogDeleteFile = false
@@ -518,7 +516,7 @@ export default {
             url: this.service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&repositoryId='+this.myReport.repositoryId+'&requirementCode='+requirementCode+'&language='+this.language,
             data: comments
         }).catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
         })
       },
 
@@ -561,9 +559,9 @@ export default {
             if(id != null) {
               self.$router.push({path: '/myReport', query: { repositoryId: response.data.repositoryId, reportId: response.data.id, template: response.data.templateId} })
             }
-            self.$unidooAlert.showSuccess(self.$t('report.screen.save.confirmation'))
+            self.$unidooAlert.showSuccess(self.$t('report.screen.save.confirmation'), self.$t('button.close'))
           }).catch(function(error) {
-            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
           })
         }
 
@@ -575,7 +573,7 @@ export default {
 
       displayReleaseConfirmation() {
         if(this.myReport.status != 'IN_PROGRESS') {
-          self.$unidooAlert.showError(this.$t('report.screen.release.error'))
+          self.$unidooAlert.showError(this.$t('report.screen.release.error'), self.$t('button.close'))
         } else {
           this.dialog = true
         }
@@ -620,6 +618,8 @@ export default {
         .get(this.service+'/certificationReport/v1_0/getReport/'+id)
         .then( function (response) {
           self.myReport = response.data.report
+          let originalRepositoryId = self.myReport.repositoryId 
+          let destinationRepositoryId = self.$route.query.repositoryId
           self.myReport.repositoryId = self.$route.query.repositoryId
           self.editExistingAllowed = response.data.editExistingAllowed
           self.validationAllowed = response.data.validationAllowed
@@ -658,7 +658,7 @@ export default {
               }
               // END add labels into report object from template
               // BEGINNING add attachments into report object
-              if(requirementsAttachments) {
+              if(requirementsAttachments && !self.$route.query.copy) {
                 for (let attachmentsItem in requirementsAttachments) {
                   if(itemCode == attachmentsItem) {
                     self.myReport.items[i].files = requirementsAttachments[attachmentsItem]
@@ -689,15 +689,20 @@ export default {
           if(self.$route.query.copy) {
             self.myReport.status = 'NEW'
             self.updateDate = null
-            let versionArray = self.myReport.version.split('.')
-            self.myReport.version = (parseInt(versionArray[0])+1) + '.0'
+            if(originalRepositoryId == destinationRepositoryId) {
+              let versionArray = self.myReport.version.split('.')
+              self.myReport.version = (parseInt(versionArray[0])+1) + '.0'
+            } else {
+              self.myReport.version = "0.1"
+            }
+
             self.myReport.id = null
             self.editExistingAllowed = true
             self.validationAllowed = true
           }
 
         }).catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
         })
         .finally(function() { self.loadingReport = false})
 
@@ -746,7 +751,7 @@ export default {
           self.editExistingAllowed = true
           self.validationAllowed = false
         }).catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
         }).finally(function() { self.loadingReport = false})
 
       }

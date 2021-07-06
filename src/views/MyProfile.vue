@@ -110,9 +110,7 @@
 
 <script>
 import {logOut} from '../utils.js'
-import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
-  mixins: [formatErrorMessageMixin],
   created: function() {
     this.$i18n.locale = this.language
     this.loadProfile()
@@ -162,12 +160,11 @@ export default {
           self.$router.push("/information").catch(() => {});
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
         })
         .finally(function() {
           self.saving = false;
         });
-
       }
 
     },
@@ -186,7 +183,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
         })
         .finally(function() {
           self.loading = false;
@@ -202,10 +199,10 @@ export default {
                 self.orcidOrganisation.name = response.data.name
                 self.orcidOrganisation.email = response.data.email
             } else {
-              self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ))
+              self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ), self.$t('button.close'))
             }
         }).catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
         })
         .finally(() => this.loadingUser = false)
     },
@@ -268,6 +265,7 @@ export default {
             v => !!v || this.$t('profile.screen.email.error'),
             v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || this.$t('profile.screen.error.email.validation'),
         ],
+      }
   }
   }
 

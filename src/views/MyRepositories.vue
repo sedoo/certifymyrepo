@@ -164,10 +164,9 @@
 
 <script>
 import requestRepositoryAccess from '../components/RequestRepositoryAccess.vue'
-import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
-  mixins: [formattedAffiliationMixin, formatErrorMessageMixin],
+  mixins: [formattedAffiliationMixin],
   components: {
       requestRepositoryAccess
   },
@@ -255,12 +254,12 @@ export default {
                         self.resultMyRepo = response.data
                     })
             ).catch(function(error) {
-              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+              self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             })
       },
       editRepository (item) {
         if(this.userEmail==null) {
-          this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'))
+          this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'), self.$t('button.close'))
         } else {
           this.$router.push({name: 'repository', query: {repositoryId: item.id}});
         }
@@ -376,10 +375,10 @@ export default {
       .then(response => {
         self.resultMyRepo = response.data
         if(this.userEmail==null) {
-          this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'))
+          this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'), self.$t('button.close'))
         }
       }).catch(function(error) {
-        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+        self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
       })
       .finally(() => this.loadingReports = false)
       }

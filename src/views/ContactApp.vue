@@ -18,9 +18,15 @@
         <v-col cols="12">
           <v-textarea class="required" v-model="message" :label="$t('contact.screen.label.message')" :rules="rules.messageRules" outlined dense></v-textarea>
         </v-col>
+        <v-col cols="12">
+          <UnidooCaptcha size="6" v-model="validCaptcha"
+            :textFieldLabel="$t('contact.screen.captcha.textfield.label')" 
+            :refreshButtonLabel="$t('contact.screen.captcha.refreshbutton.label')"
+          ></UnidooCaptcha>
+        </v-col>
         <v-col cols="12" class="text-right">
           <v-btn
-            :disabled="!valid"
+            :disabled="!valid || !validCaptcha"
             color="info"
             @click="send"
           >{{ $t('button.send') }}
@@ -33,10 +39,8 @@
 </div>
 </template>
 <script>
-import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 export default {
   name: 'contact-app',
-  mixins: [formatErrorMessageMixin],
   props: {
     service: {
       type: String,
@@ -53,6 +57,8 @@ export default {
       email: null,
       subject: null,
       message: null,
+      valid: false,
+      validCaptcha: false,
       /** Rules */
       rules: {
         nameRules: [
@@ -93,19 +99,27 @@ export default {
           })
           .then(response => {
             if(response && response.data) {
-              self.$unidooAlert.showSuccess(self.$t('contact.screen.success'))
+              self.$unidooAlert.showSuccess(self.$t('contact.screen.success'), self.$t('button.close'))
               self.name = null
               self.email = null
               self.subject = null
               self.message = null
             } else {
-              self.$unidooAlert.showError(self.$t('contact.screen.error'))
+              self.$unidooAlert.showError(self.$t('contact.screen.error'), self.$t('button.close'))
             }
           })
           .catch(error => {
-            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
           }).finally(() => self.$refs.form.reset())
       }
+    },
+
+    showConfirmDialog: function () {
+      this.$unidooConfirmDialog.show(this.callback);
+    },
+
+    callback: function () {
+      this.$unidooAlert.showSuccess("Confirmation !");
     },
   },
 

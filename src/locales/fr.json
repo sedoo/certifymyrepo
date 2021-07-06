@@ -227,6 +227,8 @@
   "contact.screen.error.message.required.error": "Veuillez renseigner votre message",
   "contact.screen.success": "Votre message a bien été envoyé.",
   "contact.screen.error": "Votre message n'a pas pu être envoyé. Veuillez réessayer plus tard.",
+  "contact.screen.captcha.textfield.label": "Texte",
+  "contact.screen.captcha.refreshbutton.label": "Rafraîchir",
   "data.table.items.per.page.text": "Lignes par page",
   "data.table.items.per.page.all.text": "Toutes",
   "data.table.page.text": "de",

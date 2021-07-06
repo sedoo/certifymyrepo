@@ -115,10 +115,9 @@
 
 <script>
 import {logOut} from '../utils.js'
-import formatErrorMessageMixin from "../mixins/formatErrorMessageMixin";
 import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
-  mixins: [formattedAffiliationMixin, formatErrorMessageMixin],
+  mixins: [formattedAffiliationMixin],
   created: function() {
     this.$i18n.locale = this.$store.getters.getLanguage;
     this.headers = [
@@ -207,7 +206,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
         })
         .finally(function() {
           self.loadingSimulation = false
@@ -228,7 +227,7 @@ export default {
           self.$router.push("/notlogged").catch(() => {});
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
         })
         .finally(function() {
           self.loadingDelete = false
@@ -250,7 +249,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
         })
         .finally(function() {
           self.loadingProfile = false;
@@ -269,7 +268,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error))
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
         })
         .finally(function() {
           self.loadingRepo = false;
