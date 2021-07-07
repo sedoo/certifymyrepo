@@ -137,7 +137,7 @@
                 <template v-slot:activator="{ on }">
                 <v-btn v-on="on" v-show="editExistingAllowed" class="mr-5"
                     color="info"
-                    @click="saveReportWithCurrentVersion();goToMyCertificationReports()"
+                    @click="saveReportAndReturn()"
                     >
                     {{ $t('button.save.return') }}
                 </v-btn>
@@ -543,7 +543,7 @@ export default {
       },
 
       // Save report
-      saveReport () {
+      saveReport (isReturn) {
         if(!this.valid) {
           this.$unidooAlert.showError(this.$t('report.screen.error.version.madatory'))
         } else {
@@ -560,6 +560,9 @@ export default {
               self.$router.push({path: '/myReport', query: { repositoryId: response.data.repositoryId, reportId: response.data.id, template: response.data.templateId} })
             }
             self.$unidooAlert.showSuccess(self.$t('report.screen.save.confirmation'), self.$t('button.close'))
+            if(isReturn) {
+              self.goToMyCertificationReports()
+            }
           }).catch(function(error) {
             self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
           })
@@ -579,9 +582,14 @@ export default {
         }
       },
 
+      saveReportAndReturn() {
+        this.myReport.status = 'IN_PROGRESS'
+        this.saveReport (true)
+      },
+
       saveReportWithCurrentVersion() {
         this.myReport.status = 'IN_PROGRESS'
-        this.saveReport ()
+        this.saveReport (false)
       },
 
       saveReportIncreaseVersion() {
@@ -589,13 +597,13 @@ export default {
         let versionArray = this.myReport.version.split('.')
         let decimal = parseInt(versionArray[1], 10) + 1
         this.myReport.version = versionArray[0] + '.' + decimal
-        this.saveReport ()
+        this.saveReport (false)
       },
 
       releaseTheReport() {
         this.dialog = false
         this.myReport.status = 'RELEASED'
-        this.saveReport ()
+        this.saveReport (false)
       },
 
     },

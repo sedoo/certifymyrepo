@@ -207,6 +207,7 @@
                     </v-btn>
                     <v-btn
                         color="info"
+                        :loading="isCopyingReport"
                         @click="copyItem(selectedReport)">
                         {{ $t('button.confirm') }}
                     </v-btn>
@@ -296,6 +297,7 @@ export default {
             reportsList: [],
             selectedReport: null,
             loading: false,
+            isCopyingReport: false,
         }
     },
     computed: {
@@ -460,7 +462,18 @@ export default {
             this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: item.id } });
         }, 
         copyItem (item) {
-            this.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: item.id, copy: true }  });
+            var self = this;
+            self.isCopyingReport = true
+            this.axios.get(this.service+'/certificationReport/v1_0/copy/'+item.id+'/to/'+this.repositoryId)
+                .then( response =>
+                    self.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: response.data.report.id } })
+                ).catch(function(error) {
+                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
+                }).finally(() => {
+                    self.dialogCopy = false
+                    self.isCopyingReport = false
+                })
+            
         },
         formatDate (date) {
             if(date) {
