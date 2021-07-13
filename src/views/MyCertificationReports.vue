@@ -9,7 +9,7 @@
         <div class="text-center">
         <div v-if="creationValidationAllowed" class="text-right pa-3">
             <v-btn class="mr-5" color="info" @click="dialogCreate = true">{{ $t('reports.screen.create.new.report.confirmation.title')}}</v-btn>
-            <v-btn color="info" @click="openCopyReport">{{ $t('reports.screen.create.copy.report.confirmation.title')}}</v-btn>
+            <v-btn color="info" @click="openCopyReport">{{ $t('reports.screen.make.copy.report.confirmation.title')}}</v-btn>
         </div>
 
         </div>
@@ -51,7 +51,7 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                <v-btn v-if="!editExistingAllowed || isReleased(item)" icon v-on="on" class="mx-0 pa-3" @click="editItem(item)">     
+                <v-btn v-if="!editExistingAllowed || isReleased(item)" icon v-on="on" class="mx-0" @click="editItem(item)">     
                     <v-icon>mdi-book-open-variant</v-icon>    
                 </v-btn>
                 </template>
@@ -60,7 +60,7 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn v-if="creationValidationAllowed && isReleased(item)" icon v-on="on" class="mx-0" @click="copyItem(item)">     
+                    <v-btn v-if="creationValidationAllowed && isReleased(item)" icon v-on="on" class="mx-0" @click="openCopyValidatedReport(item)">     
                         <v-icon>mdi-content-copy</v-icon>    
                     </v-btn>
                 </template>
@@ -179,17 +179,17 @@
                 class="headline grey lighten-2"
                 primary-title
                 >
-                {{ $t('reports.screen.create.copy.report.confirmation.title') }}
+                {{ $t('reports.screen.make.copy.report.confirmation.title') }}
                 </v-card-title>
                 <v-card-text class="pa-5">
                 <v-select outlined dense :items="repositoryList" 
                     v-model="selectedRepository" @change="loadReport"
                     item-text="name" item-value="repository.id"
-                    :label="$t('reports.screen.create.copy.report.select.repository.label')">
+                    :label="$t('reports.screen.make.copy.report.select.repository.label')">
                 </v-select>
                 <v-select outlined dense :items="reportsList" :disabled="selectedRepository == null"
                     v-model="selectedReport" :loading="loadingReports"
-                    :label="$t('reports.screen.create.copy.report.select.report.label')">
+                    :label="$t('reports.screen.make.copy.report.select.report.label')">
                     <template v-slot:selection="{ item }">
                         <span>{{ formatName(item) }}</span>
                     </template>
@@ -197,6 +197,35 @@
                         <span>{{ formatName(item) }}</span>
                     </template>
                 </v-select>
+                {{ $t('reports.screen.make.copy.report.information') }}
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                <div class="flex-grow-1"></div>
+                    <v-btn
+                        @click="cancelCopy">
+                        {{ $t('button.cancel') }}
+                    </v-btn>
+                    <v-btn
+                        color="info"
+                        :loading="isCopyingReport"
+                        @click="copyItem(selectedReport)">
+                        {{ $t('button.confirm') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+         <v-dialog v-model="dialogCopyValidatedReport" :width="$store.getters.getDialogWidth" persistent>
+            <v-card>
+                <v-card-title
+                class="headline grey lighten-2"
+                primary-title
+                >
+                {{ $t('reports.screen.create.copy.report.confirmation.title') }}
+                </v-card-title>
+                <v-card-text class="pa-5">
+                    
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
@@ -298,6 +327,7 @@ export default {
             selectedReport: null,
             loading: false,
             isCopyingReport: false,
+            dialogCopyValidatedReport: false
         }
     },
     computed: {
@@ -466,7 +496,7 @@ export default {
             self.isCopyingReport = true
             this.axios.get(this.service+'/certificationReport/v1_0/copy/'+item.id+'/to/'+this.repositoryId)
                 .then( response =>
-                    self.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: response.data.report.id } })
+                    self.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: response.data.id } })
                 ).catch(function(error) {
                     self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
                 }).finally(() => {
@@ -497,9 +527,18 @@ export default {
             .finally(() => this.loadingRepositories = false)
         },
 
+        openCopyValidatedReport(item) {
+            this.dialogCopyValidatedReport = true
+            this.selectedReport = item
+        },
+
         cancelCopy() {
+            // copy report from another repository
             this.dialogCopy = false
             this.repositoryList = []
+            // copy report from a validated report
+            this.dialogCopyValidatedReport = false
+            // common for both mode
             this.selectedRepository = null
         },
 

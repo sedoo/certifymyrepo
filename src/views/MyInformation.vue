@@ -91,6 +91,7 @@
                 </v-card-title>
                 <v-card-text>
                 <p>{{ $t('userinformation.screen.delete.profile.confirmation.message') }}</p>
+                <p class="font-weight-bold">{{ $t('userinformation.screen.delete.profile.confirmation.message.warning')  }}
                 <p><span v-html="warningMessage"></span></p>
                 </v-card-text>
                 <v-divider></v-divider>

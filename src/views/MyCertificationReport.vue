@@ -207,7 +207,7 @@
         <v-btn @click="dialog = false">
             {{ $t('button.cancel') }}
         </v-btn>
-        <v-btn color="info" @click="releaseTheReport();goToMyCertificationReports()">
+        <v-btn color="info" @click="releaseTheReport()">
             {{ $t('button.confirm') }}
         </v-btn>
         </v-card-actions>
@@ -542,7 +542,9 @@ export default {
         return this.isReadOnlyComment && item.comments != null && item.comments.length == 0 || this.myReport.id == null
       },
 
-      // Save report
+      /**
+       * @param isReturn if true return to the previous screen after saving (list of reports)
+       */
       saveReport (isReturn) {
         if(!this.valid) {
           this.$unidooAlert.showError(this.$t('report.screen.error.version.madatory'))
@@ -603,7 +605,7 @@ export default {
       releaseTheReport() {
         this.dialog = false
         this.myReport.status = 'RELEASED'
-        this.saveReport (false)
+        this.saveReport (true)
       },
 
     },
@@ -644,7 +646,7 @@ export default {
 
               let itemCode = self.myReport.items[i].code
 
-              if(!self.$route.query.copy) {
+              if(commentsCollection && commentsCollection.length > 0) {
                 // BEGINNING add comments into report object
                 self.myReport.items[i].comments = []
                 for (let commentItem in commentsCollection) {
@@ -666,13 +668,12 @@ export default {
               }
               // END add labels into report object from template
               // BEGINNING add attachments into report object
-              if(requirementsAttachments && !self.$route.query.copy) {
+              if(requirementsAttachments) {
                 for (let attachmentsItem in requirementsAttachments) {
                   if(itemCode == attachmentsItem) {
                     self.myReport.items[i].files = requirementsAttachments[attachmentsItem]
                   }
                 }
-                
               }
               // END add attachments into report object
 
@@ -692,22 +693,6 @@ export default {
             levelsLocal.push(levelLocal)
           }
           self.levelsTemplate = levelsLocal
-
-          // if the user is making a copy of a released report 
-          if(self.$route.query.copy) {
-            self.myReport.status = 'NEW'
-            self.updateDate = null
-            if(originalRepositoryId == destinationRepositoryId) {
-              let versionArray = self.myReport.version.split('.')
-              self.myReport.version = (parseInt(versionArray[0])+1) + '.0'
-            } else {
-              self.myReport.version = "0.1"
-            }
-
-            self.myReport.id = null
-            self.editExistingAllowed = true
-            self.validationAllowed = true
-          }
 
         }).catch(function(error) {
           self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
