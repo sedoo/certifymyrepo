@@ -45,9 +45,14 @@
                 <span>{{ $t('reports.screen.button.edit.help') }}</span>
             </v-tooltip>
 
-            <v-btn v-if="creationValidationAllowed && !isReleased(item)" icon class="mx-0" @click="dialogDelete=true;reportId=item.id">     
-                <v-icon>mdi-delete-forever-outline</v-icon>  
-            </v-btn>  
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                <v-btn v-if="creationValidationAllowed && !isReleased(item)" icon v-on="on" class="mx-0" @click="dialogDelete=true;reportId=item.id">     
+                    <v-icon>mdi-delete-forever-outline</v-icon>  
+                </v-btn>  
+                </template>
+                <span>{{ $t('reports.screen.button.delete.help') }}</span>
+            </v-tooltip>
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">

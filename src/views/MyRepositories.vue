@@ -78,10 +78,15 @@
                           </v-btn>
                           </template>
                           <span>{{ $t('repositories.screen.button.help.message.edit') }}</span>
-                      </v-tooltip>              
-                      <v-btn v-if="!item.readonly" icon @click="repositoryId = item.repository.id;dialog=true" >     
-                          <v-icon>mdi-delete-forever-outline</v-icon>    
-                      </v-btn>
+                      </v-tooltip>
+                      <v-tooltip bottom>
+                        <template v-if="!item.readonly" v-slot:activator="{ on }">     
+                        <v-btn v-on="on" icon @click="repositoryId = item.repository.id;dialog=true" >     
+                            <v-icon>mdi-delete-forever-outline</v-icon>    
+                        </v-btn>
+                        </template>
+                        <span>{{ $t('repositories.screen.button.help.message.delete') }}</span>
+                      </v-tooltip>
                     </div>
                   </v-card-title>
                   <v-card-text>
