@@ -109,7 +109,7 @@
                             </v-expansion-panels>
                           </v-card-text>
                             <v-card-actions>
-                              <v-btn @click="previousStep(index1)">
+                              <v-btn @click="previousStep(index+1)">
                                   {{ $t('button.previous') }}
                               </v-btn>
                               <v-btn color="info" @click="nextStep(index+1)">
@@ -321,8 +321,8 @@ export default {
             steps: null,
             rules: {
               versionRules: [
-                  v => !!v || this.$t('version.required.error'),
-                  v => /[0-99].[0-99]/.test(v) || this.$t('version.not.valid.error'),
+                  v => !!v || this.$t('report.screen.version.required.error'),
+                  v => /[0-99].[0-99]/.test(v) || this.$t('report.screen.version.not.valid.error'),
               ],
               filesRules: [
                 files => !files || !files.some(file => file.size > 10485760)|| this.$t('files.size.error'),
@@ -522,15 +522,13 @@ export default {
 
       nextStep (n) {
         if (n === this.steps) {
-          this.e1 = 1
+          this.e1 = this.steps
         } else {
           this.e1 = n + 1
         }
       },
       previousStep (n) {
-        if (n === this.steps) {
-          this.e1 = 1
-        } else if (n === 1) {
+        if (n === 1) {
           this.e1 = 1
         } else {
           this.e1 = n - 1
@@ -642,6 +640,10 @@ export default {
           let requirementsAttachments = response.data.attachments
 
           if(self.myReport.items != null && self.myReport.items.length > 0 ) {
+
+            // Used by the stepper
+            self.steps = self.myReport.items.length
+
             for (let i = 0; i < self.myReport.items.length; i++) {
 
               let itemCode = self.myReport.items[i].code
