@@ -108,6 +108,7 @@
   "repository.screen.label.repository.description": "Description",
   "repository.screen.error.repository.email.mandatory": "Please enter an email. It must be the email from Renater account.",
   "repository.screen.error.repository.email.validation": "The email must be valid. It must be the email from Renater account.",
+  "repository.screen.error.affiliation.madatory": "Affiliation is mandatory",
   "repository.screen.label.user.name": "Name",
   "repository.screen.label.user.role": "Role",
   "repository.screen.label.actions": "Actions",

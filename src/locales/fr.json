@@ -108,6 +108,7 @@
   "repository.screen.label.repository.description": "Description",
   "repository.screen.error.repository.email.mandatory": "Veuillez entrer un courriel. Pour une connexion via Renater, ce courriel doit correspondre à l'email du compte Renater.",
   "repository.screen.error.repository.email.validation": "Le courriel doit être valide. Pour une connexion via Renater, ce courriel doit correspondre à l'email du compte Renater.",
+  "repository.screen.error.affiliation.madatory": "L'affiliation est obligatoire",
   "repository.screen.label.user.name": "Nom",
   "repository.screen.label.user.role": "Rôle",
   "repository.screen.label.actions": "Actions",

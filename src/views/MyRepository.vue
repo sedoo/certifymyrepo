@@ -13,7 +13,7 @@
     <h1 class="subheading grey--text">{{$t('repository.screen.title')}}</h1>
 
         <template>
-        <v-form v-model="valid" class="ma-5 dense">
+        <v-form ref="form" v-model="valid" class="ma-5 dense">
             <v-row>
                 <v-col cols="12">
                 <v-text-field outlined dense
@@ -34,7 +34,7 @@
                 </v-col>
             <v-col cols="11" class="pa-0">
               <v-autocomplete outlined dense
-                :rules="affiliationRules"
+                :rules="rules.affiliationRules"
                 v-model="editedAffiliation"
                 :items="affiliations"
                 class="required"
@@ -396,6 +396,7 @@ export default {
                     v => !!v || this.$t('repository.screen.error.repository.email.mandatory'),
                     v => !!v && /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(v.toLowerCase()) || this.$t('repository.screen.error.repository.email.validation'),
                 ],
+                affiliationRules: [v => !!v || this.$t('repository.screen.error.affiliation.madatory')],
             },
             creationMode: 'orcid',
             timeout: 2000,
@@ -405,7 +406,6 @@ export default {
             // Affiliation
             editedAffiliation: null,
             creatingAffiliation: false,
-            affiliationRules: [v => !!v || "Affiliation is mandatory"],
             affiliationLoading: false,
             affiliations: [],
             headersUsersTable: [
@@ -476,7 +476,6 @@ export default {
             this.myRepository.users.push(localUser)
             this.myRepository.contact = this.userProfile.email
         }
-
     },
 
     mounted: function() {

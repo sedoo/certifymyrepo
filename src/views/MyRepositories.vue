@@ -16,6 +16,7 @@
             :search="search"
             :sort-by="sortBy.toLowerCase()"
             class="pa-5"
+            :items-per-page.sync="resultMyRepo.length"
           >
           <template v-slot:header>
             <v-toolbar
