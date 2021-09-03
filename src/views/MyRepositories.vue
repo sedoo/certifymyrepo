@@ -112,25 +112,39 @@
                       <v-list-item-content>Contact:</v-list-item-content>
                       <v-list-item-content class="align-end">{{ item.repository.contact }}</v-list-item-content>
                     </v-list-item>
-                  <v-list-group v-if="item.repository.description != null" sub-group no-action color="black--text">
+                  <v-list-group v-if="item.repository.description != null" color="black--text">
                     <template v-slot:activator>
                       <v-list-item-content>Description</v-list-item-content>
                     </template>
                     <div class="ma-5">{{ item.repository.description }}</div>
                   </v-list-group>
-                  <v-list-group v-show="item.healthLatestValidReport != null" sub-group no-action color="black--text">
+                  <v-list-group v-show="item.healthLatestValidReport != null" color="black--text">
                     <template v-slot:activator>
                     <v-list-item-content>{{ $t('repositories.screen.radar.chart.title.valid')}}</v-list-item-content>
-                    <v-icon :color="getHealthColor(item.healthLatestValidReport)">{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
+                      <v-tooltip bottom z-index="12">
+                        <template v-if="!item.readonly" v-slot:activator="{ on }">
+                           <v-icon v-on="on" :color="getHealthColor(item.healthLatestValidReport)">{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
+                          </template>
+                          <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.green">{{ $t('health.icon.legend.green') }}</span>
+                          <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.orange">{{ $t('health.icon.legend.orange') }}</span>
+                          <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.red">{{ $t('health.icon.legend.red') }}</span>
+                      </v-tooltip>
                     </template>
                     <apexchart type=radar :options="chartOptions(item.healthLatestValidReport)" :series="levelList(item.healthLatestValidReport)" />
                   </v-list-group>
-                  <v-list-group v-show="item.healthLatestInProgressReport != null" sub-group no-action color="black--text">
+                  <v-list-group v-show="item.healthLatestInProgressReport != null" color="black--text">
                     <template v-slot:activator>
                     <v-list-item-content>{{ $t('repositories.screen.radar.chart.title.inProgress')}}</v-list-item-content>
-                    <v-icon :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
+                      <v-tooltip bottom z-index="12">
+                        <template v-if="!item.readonly" v-slot:activator="{ on }">
+                           <v-icon v-on="on" :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
+                          </template>
+                          <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.green" >{{ $t('health.icon.legend.green') }}</span>
+                          <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.orange" >{{ $t('health.icon.legend.orange') }}</span>
+                          <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.red" >{{ $t('health.icon.legend.red') }}</span>
+                      </v-tooltip>
                     </template>
-                    <apexchart type=radar :options="chartOptions(item.healthLatestInProgressReport)" :series="levelList(item.healthLatestInProgressReport)" />
+                    <apexchart type=radar  :options="chartOptions(item.healthLatestInProgressReport)"  :series="levelList(item.healthLatestInProgressReport)" />
                   </v-list-group>
                   </v-list>
                   </v-card-text>
@@ -162,7 +176,7 @@
         </v-card>
       </v-dialog>
 
-      <requestRepositoryAccess class="pt-10" :service="service"></requestRepositoryAccess>
+      <requestRepositoryAccess v-if="false" class="pt-10" :service="service"></requestRepositoryAccess>
     </div>
   </div>
 </template>
@@ -292,9 +306,6 @@ export default {
 
       chartOptions (health) {   
         let title = ''
-        if(health && health.latestReport && health.latestReport.templateName) {
-          title = health.latestReport.templateName
-        }
         let option = {labels: null, title: {text: title}, yaxis:{max: 0, forceNiceScale: true, tickAmount: 0}}   
         if(health != null) {
           let levelsNumber = 0
@@ -314,6 +325,36 @@ export default {
               }
           }
           option.labels = array
+        }
+        option.subtitle = {
+          text: this.$t('radarchart.legend'),
+          align: 'left',
+          margin: 10,
+          offsetX: 6,
+          offsetY: 0,
+          floating: false,
+          style: {
+            fontSize:  '12px',
+            fontWeight:  'normal',
+            fontFamily:  undefined,
+            color:  '#9699a2'
+          },
+        } 
+        option.chart = {
+          events: {
+            updated: function (chartContext, options) {
+              console.log(' updated')
+            },
+            mouseMove: function (chartContext, options) {
+              console.log(' mouseMove')
+            },
+            mouseLeave: function(event, chartContext, config) {
+              console.log(' mouseLeave')
+            },
+            dataPointMouseLeave: function(event, chartContext, config) {
+              console.log(' dataPointMouseLeave')
+            }
+          }
         }
         return option
       },
@@ -387,7 +428,11 @@ export default {
         self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
       })
       .finally(() => this.loadingReports = false)
-      }
+
+
+    },
+
+
 } 
 </script>
 

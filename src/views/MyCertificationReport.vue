@@ -132,18 +132,7 @@
                 </v-btn>
                 </template>
                 <span>{{ $t('report.screen.button.return.help') }}</span>
-              </v-tooltip> 
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                <v-btn v-on="on" v-show="editExistingAllowed" class="mr-5"
-                    color="info"
-                    @click="saveReportAndReturn()"
-                    >
-                    {{ $t('button.save.return') }}
-                </v-btn>
-                </template>
-                <span>{{ $t('report.screen.button.save.and.return.help') }}</span>
-              </v-tooltip> 
+              </v-tooltip>
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                 <v-btn v-on="on" v-show="editExistingAllowed" class="mr-5"
@@ -658,7 +647,7 @@ export default {
                 }
                 // END add comments into report object
               } else {
-                self.myReport.items[i].comments = null
+                self.myReport.items[i].comments = []
               }
 
               // BEGINNING add labels into report object from template

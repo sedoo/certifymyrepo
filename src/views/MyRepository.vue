@@ -87,6 +87,8 @@
                         :headers="headersUsersTable"
                         :items="myRepository.users"
                         :items-per-page="5"
+                        :sort-by="['name']"
+                        :sort-asc="[true]"
                         class="elevation-1"
                     >
                         <template v-slot:item.name="{ item }">  
@@ -239,6 +241,8 @@
                             :items-per-page="5"
                             class="elevation-1 mb-2"
                             :search="search"
+                            :sort-by="['name']"
+                            :sort-asc="[true]"
                         >
                             <template v-slot:item.data-table-select="{ item, isSelected, select }">
                             <v-simple-checkbox
