@@ -3,11 +3,6 @@
     <unidoo-alert></unidoo-alert>
     <v-flex xs12>
     <h1 class="subheading grey--text">{{ $t('dashboard.screen.title') }}</h1>
-    <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
-    <v-snackbar v-model="notifier" top :color="notifierColor" :timeout="timeout">
-      {{ notifierMessage }}
-      <v-btn dark text @click="notifier = false">{{ $t('button.close') }}</v-btn>
-    </v-snackbar>
 
     <div v-if="!loading" class="pa-5">
       <template v-if="repoList != null && repoList.length > 0">
@@ -25,11 +20,25 @@
                 <span class="px-2" >{{ formatDate(item.repository.creationDate) }}</span>
             </template> 
             <template v-slot:item.validHealth="{ item }">  
-                <v-icon class="px-2" :color="getHealthColor(item.healthLatestValidReport)">{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
+                <v-tooltip bottom z-index="12">
+                  <template v-if="!item.readonly" v-slot:activator="{ on }">
+                    <v-icon v-on="on" class="px-2" :color="getHealthColor(item.healthLatestValidReport)">{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
+                  </template>
+                  <span v-if="item.healthLatestValidReport && item.healthLatestValidReport.green">{{ $t('health.icon.legend.green') }}</span>
+                  <span v-if="item.healthLatestValidReport && item.healthLatestValidReport.orange">{{ $t('health.icon.legend.orange') }}</span>
+                  <span v-if="item.healthLatestValidReport && item.healthLatestValidReport.red">{{ $t('health.icon.legend.red') }}</span>
+                </v-tooltip>
                 <span class="px-2" >{{ formatHealthDate(item.healthLatestValidReport) }}</span>
             </template> 
             <template v-slot:item.inProgressHealth="{ item }">  
-                <v-icon class="px-2" :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
+                <v-tooltip bottom z-index="12">
+                  <template v-if="!item.readonly" v-slot:activator="{ on }">
+                    <v-icon v-on="on" class="px-2" :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
+                  </template>
+                  <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.green">{{ $t('health.icon.legend.green') }}</span>
+                  <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.orange">{{ $t('health.icon.legend.orange') }}</span>
+                  <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.red">{{ $t('health.icon.legend.red') }}</span>
+                </v-tooltip>
                 <span class="px-2" >{{ formatHealthDate(item.healthLatestInProgressReport) }}</span>
             </template> 
             <template v-slot:footer.page-text="items"> {{ items.pageStart }} - {{ items.pageStop }} {{ $t('data.table.page.text') }} {{ items.itemsLength }} 

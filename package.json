@@ -9,7 +9,7 @@
     "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'"
   },
   "dependencies": {
-    "@sedoo/unidoo": "0.0.28",
+    "@sedoo/unidoo": "0.0.31",
     "apexcharts": "^3.23.1",
     "axios": "^0.21.1",
     "core-js": "^2.6.12",

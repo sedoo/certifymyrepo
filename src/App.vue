@@ -3,6 +3,8 @@
   <certifymyrepo-token-refresher :service="service"></certifymyrepo-token-refresher>
 
     <unidoo-alert></unidoo-alert>
+    <unidoo-confirm-dialog />
+
     <v-toolbar color="secondary" v-if="type!='external'">
       <v-toolbar-title class="text-uppercase" >
         <span class="font-weight-light">Crusöe</span>

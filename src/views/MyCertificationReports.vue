@@ -47,7 +47,7 @@
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                <v-btn v-if="creationValidationAllowed && !isReleased(item)" icon v-on="on" class="mx-0" @click="dialogDelete=true;reportId=item.id">     
+                <v-btn v-if="creationValidationAllowed && !isReleased(item)" icon v-on="on" class="mx-0" @click="showDeleteReportConfirmDialog(item.id)">     
                     <v-icon>mdi-delete-forever-outline</v-icon>  
                 </v-btn>  
                 </template>
@@ -116,34 +116,6 @@
                     <v-btn
                         @click="dialogRadar = false;report = null">
                         {{ $t('button.close') }}
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="dialogDelete" :width="$store.getters.getDialogWidth">
-            <v-card>
-                <v-card-title
-                class="headline grey lighten-2"
-                primary-title
-                >
-                {{ $t('reports.screen.delete.report.confirmation.title') }}
-                </v-card-title>
-                <v-card-text>
-                {{ $t('reports.screen.delete.report.confirmation.message') }}
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                <div class="flex-grow-1"></div>
-                    <v-btn
-                        @click="dialogDelete = false">
-                        {{ $t('button.cancel') }}
-                    </v-btn>
-                    <v-btn
-                        color="info"
-                        @click="deleteItem()"
-                        :loading="isDeletingReport">
-                        {{ $t('button.confirm') }}
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -296,7 +268,6 @@ export default {
     data() {
         return {
             reports: [],
-            dialogDelete: false,
             dialogCreate: false,
             dialogCopy: false,
             dialogDownload: false,
@@ -323,7 +294,6 @@ export default {
             downloadAttachments: false,
             downloadComments: false,
             downloadPDFConfirmed: false,
-            isDeletingReport: false,
             repositoryList: [],
             selectedRepository: null,
             loadingRepositories: false,
@@ -469,9 +439,23 @@ export default {
                 }
             }
             option.labels = array
+            option.subtitle = {
+            text: this.$t('radarchart.legend'),
+            align: 'left',
+            margin: 10,
+            offsetX: 6,
+            offsetY: 0,
+            floating: false,
+            style: {
+                fontSize:  '12px',
+                fontWeight:  'normal',
+                fontFamily:  undefined,
+                color:  '#9699a2'
+            },
+            } 
             return option
         },
-        deleteItem () {
+        deleteItem (reportId) {
             var self = this;
             self.isDeletingReport = true
             this.axios.delete(this.service+'/certificationReport/v1_0/delete/'+this.reportId)
@@ -485,9 +469,6 @@ export default {
                         })
                 ).catch(function(error) {
                     self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
-                }).finally(() => {
-                    self.dialogDelete = false
-                    self.isDeletingReport = false
                 })
         },
         createReport() {
@@ -562,6 +543,19 @@ export default {
         formatName(report) {
             return report.templateName + ' - v' + report.version + ' - ' + this.formatDate(report.updateDate) + ' - ' + this.$t(report.status)
         },
+
+        showDeleteReportConfirmDialog: function (reportId) {
+            this.reportId = reportId
+            this.$unidooConfirmDialog.show(this.deleteItem, 
+                this.$t('reports.screen.delete.report.confirmation.message'), 
+                this.$t('reports.screen.delete.report.confirmation.title'),
+                'headline grey lighten-2',
+                this.$store.getters.getDialogWidth,
+                this.$t('button.cancel'),
+                this.$t('button.confirm'));
+        },
+
+
 
     },
 

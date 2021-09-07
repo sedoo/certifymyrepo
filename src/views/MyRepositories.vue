@@ -36,7 +36,7 @@
                   flat outlined dense
                   hide-details
                   prepend-inner-icon="mdi-magnify"
-                  label="Search"
+                  :label="$t('repositories.screen.search.field.label')"
                 ></v-text-field>
               </v-col>
             </v-row>
