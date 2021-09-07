@@ -47,7 +47,7 @@
               <template v-else>
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" :loading="loadingRemonveRole[index]" class="mx-0 pa-3" @click="openDialogConfirmationRemoveAdmin(item, index)">     
+                  <v-btn icon v-on="on" :loading="loadingRemonveRole[index]" @click="openDialogConfirmationRemoveAdmin(item, index)">     
                       <v-icon size="20px">mdi-account-minus</v-icon>    
                   </v-btn>
                   </template>
@@ -56,7 +56,7 @@
               </template>
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" :loading="loadingRemonveRole[index]" class="mx-0 pa-3" @click="openDialogEditUser(item, index)">     
+                  <v-btn icon v-on="on" :loading="loadingRemonveRole[index]" @click="openDialogEditUser(item, index)">     
                       <v-icon>mdi-email-edit-outline</v-icon>    
                   </v-btn>
                   </template>
@@ -113,7 +113,7 @@
               <template>
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                  <v-btn  icon v-on="on" class="mx-0 pa-3" @click="openEditAffiliation(item, index)">     
+                  <v-btn  icon v-on="on" @click="openEditAffiliation(item, index)">     
                       <v-icon>mdi-pencil-outline</v-icon>    
                   </v-btn>
                   </template>
@@ -121,7 +121,7 @@
               </v-tooltip>
               <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                  <v-btn  icon v-on="on" class="mx-0 pa-3" @click="openDeleteAffiliation(item, index)">     
+                  <v-btn  icon v-on="on" @click="openDeleteAffiliation(item, index)">     
                       <v-icon>mdi-delete-forever-outline</v-icon>    
                   </v-btn>
                   </template>
