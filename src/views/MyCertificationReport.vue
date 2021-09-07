@@ -127,7 +127,7 @@
             <div class="text-right save-button">
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                <v-btn v-on="on" @click="goToMyCertificationReports" class="mr-5">
+                <v-btn v-on="on" @click="showReturnConfirmDialog" class="mr-5">
                     {{ $t('button.return') }}
                 </v-btn>
                 </template>
@@ -593,6 +593,16 @@ export default {
         this.dialog = false
         this.myReport.status = 'RELEASED'
         this.saveReport (true)
+      },
+
+      showReturnConfirmDialog: function () {
+          this.$unidooConfirmDialog.show(this.goToMyCertificationReports, 
+              this.$t('report.screen.return.confirmation.message'), 
+              this.$t('report.screen.return.confirmation.title'),
+              'headline grey lighten-2',
+              this.$store.getters.getDialogWidth,
+              this.$t('button.cancel'),
+              this.$t('button.confirm'));
       },
 
     },
