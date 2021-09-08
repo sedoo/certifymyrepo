@@ -32,7 +32,7 @@
                             <!-- start user detailed response -->
                             <v-textarea
                                 outlined
-                                :label="$t('report.screen.label.edit.response')"
+                                :label="responseTextareaLabel"
                                 v-model="item.response"
                                 :readonly="!editExistingAllowed"
                             >
@@ -82,7 +82,7 @@
                             <v-expansion-panels flat class="py-3">
                             <v-expansion-panel>
                                 <v-expansion-panel-header class="px-3">
-                                  <v-tooltip :disabled="!hideCommentBloc(item)" bottom>
+                                  <v-tooltip :disabled="!disableCommentBloc(item)" bottom>
                                     <template v-slot:activator="{ on }">
                                         <div v-on="on">
                                           {{ $t('report.screen.label.comments')}}  
@@ -101,7 +101,7 @@
                                         :language="language"
                                         :requirementCode="item.code"
                                         :isreadonly="isReadOnlyComment"
-                                        :disabled="hideCommentBloc(item)"
+                                        :disabled="disableCommentBloc(item)"
                                         @submit-comment="submitItemComment"
                                     ></comments>
                                 </v-expansion-panel-content>
@@ -373,6 +373,13 @@ export default {
           return true 
         }
         
+      },
+      responseTextareaLabel: function () {
+        if(this.myReport.status == 'RELEASED') {
+          return null
+        } else {
+          return this.$t('report.screen.label.edit.response')
+        }
       }
     },
     watch: {
@@ -524,9 +531,9 @@ export default {
         }
       },
 
-      // if ready only mode and no comment hide the comments bloc
-      hideCommentBloc(item) {
-        return this.isReadOnlyComment && item.comments != null && item.comments.length == 0 || this.myReport.id == null
+      // Disable comments bloc if the report has not been saved yet
+      disableCommentBloc(item) {
+        return this.myReport.id == null
       },
 
       /**
@@ -596,6 +603,9 @@ export default {
       },
 
       showReturnConfirmDialog: function () {
+        if(this.myReport.status = 'RELEASED') {
+          this.goToMyCertificationReports()
+        } else {
           this.$unidooConfirmDialog.show(this.goToMyCertificationReports, 
               this.$t('report.screen.return.confirmation.message'), 
               this.$t('report.screen.return.confirmation.title'),
@@ -603,6 +613,8 @@ export default {
               this.$store.getters.getDialogWidth,
               this.$t('button.cancel'),
               this.$t('button.confirm'));
+        }
+
       },
 
     },

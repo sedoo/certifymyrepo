@@ -97,7 +97,7 @@
   "repositories.screen.button.help.message.view": "View the reports",
   "repositories.screen.button.help.message.delete": "Open delete repository dialog",
   "repositories.screen.radar.chart.title.valid": "Latest valid report chart",
-  "repositories.screen.radar.chart.title.inProgress": "Latest report in progress chart",
+  "repositories.screen.radar.chart.title.inProgress": "Latest in progress report chart",
   "repositories.screen.label.affiliation": "Affiliation",
   "repositories.screen.label.keywords": "Keywords",
   "repositories.screen.label.role": "Role",
