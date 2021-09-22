@@ -1,6 +1,5 @@
 <template>
   <v-layout>
-    <unidoo-alert></unidoo-alert>
     <v-flex xs12>
     <h1 class="subheading grey--text">{{ $t('administration.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
@@ -91,7 +90,7 @@
                 <v-btn 
                   fab color="info"
                   small
-                  title="Create an affiliation"
+                  :title="$t('affiliation.create.button')"
                   @click="openCreateAffiliation">
                     <v-icon >mdi-plus</v-icon> 
                 </v-btn>
