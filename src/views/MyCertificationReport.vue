@@ -32,6 +32,7 @@
                             <!-- start user detailed response -->
                             <v-textarea
                                 outlined
+                                background-color="white"
                                 :label="responseTextareaLabel"
                                 v-model="item.response"
                                 :readonly="!editExistingAllowed"
@@ -314,7 +315,7 @@ export default {
                   v => /[0-99].[0-99]/.test(v) || this.$t('report.screen.version.not.valid.error'),
               ],
               filesRules: [
-                files => !files || !files.some(file => file.size > 10485760)|| this.$t('files.size.error'),
+                files => !files || !files.some(file => file.size > 10485760)|| this.$t('report.screen.files.size.error'),
               ]
             },
             templateDescription: null,
@@ -603,7 +604,7 @@ export default {
       },
 
       showReturnConfirmDialog: function () {
-        if(this.myReport.status = 'RELEASED') {
+        if(this.myReport.status == 'RELEASED') {
           this.goToMyCertificationReports()
         } else {
           this.$unidooConfirmDialog.show(this.goToMyCertificationReports, 
@@ -636,6 +637,7 @@ export default {
         this.axios
         .get(this.service+'/certificationReport/v1_0/getReport/'+id)
         .then( function (response) {
+          debugger
           self.myReport = response.data.report
           let originalRepositoryId = self.myReport.repositoryId 
           let destinationRepositoryId = self.$route.query.repositoryId
@@ -643,8 +645,8 @@ export default {
           self.editExistingAllowed = response.data.editExistingAllowed
           self.validationAllowed = response.data.validationAllowed
           
-          if(response.data.template.description && response.data.template.description[self.$store.getters.getLanguage]) {
-            self.templateDiscription = response.data.template.description[self.$store.getters.getLanguage]
+          if(response.data.template.description) {
+            self.templateDiscription = response.data.template.description
           }
           let commentsCollection = response.data.requirementComments
           let requirementsTemplate = response.data.template.requirements
@@ -675,7 +677,7 @@ export default {
               // BEGINNING add labels into report object from template
               for (let requirementItemCode in requirementsTemplate) {
                 if(i == requirementItemCode) {
-                  self.myReport.items[i].requirement = requirementsTemplate[requirementItemCode].requirement[self.language]
+                  self.myReport.items[i].requirement = requirementsTemplate[requirementItemCode].requirement
                   self.myReport.items[i].levelActive = requirementsTemplate[requirementItemCode].levelActive
                 }
               }
@@ -701,7 +703,7 @@ export default {
               code: null,
               label: null
             }
-            levelLocal.label = lItem.label[self.language]
+            levelLocal.label = lItem.label
             levelLocal.code = lItem.code
             levelsLocal.push(levelLocal)
           }
@@ -729,9 +731,9 @@ export default {
               levelActive: false,
               comments: []
             }
-            requirementLocal.requirement = rItem.requirement[self.language]
-            if(rItem.response && rItem.response[self.language]) {
-              requirementLocal.response = rItem.response[self.language]
+            requirementLocal.requirement = rItem.requirement
+            if(rItem.response) {
+              requirementLocal.response = rItem.response
             }
             requirementLocal.code = rItem.code
             requirementLocal.levelActive = rItem.levelActive
@@ -747,7 +749,7 @@ export default {
               code: null,
               label: null
             }
-            levelLocal.label = lItem.label[self.language]
+            levelLocal.label = lItem.label
             levelLocal.code = lItem.code
             levelsLocal.push(levelLocal)
           }

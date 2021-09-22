@@ -1,6 +1,5 @@
 <template>
     <div class="accessRequest">
-    <unidoo-alert></unidoo-alert>
         <v-card
             class="mx-auto pa-5"
         >

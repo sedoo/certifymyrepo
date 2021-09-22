@@ -16,6 +16,16 @@
           <v-text-field class="required" v-model="subject" :label="$t('contact.screen.label.subject')" :rules="rules.subjectRules" outlined dense></v-text-field>
         </v-col>
         <v-col cols="12">
+          <v-select class="required" v-model="category" :items="categories" :label="$t('contact.screen.label.category')" :rules="rules.categoryRules" outlined dense>
+             <template v-slot:item="{ item }">  
+                <span>{{ $t(item) }}</span>
+            </template> 
+             <template v-slot:selection="{ item }">  
+                <span>{{ $t(item) }}</span>
+            </template> 
+          </v-select>
+        </v-col>
+        <v-col cols="12">
           <v-textarea class="required" v-model="message" :label="$t('contact.screen.label.message')" :rules="rules.messageRules" outlined dense></v-textarea>
         </v-col>
         <v-col cols="12">
@@ -56,6 +66,8 @@ export default {
       name: null,
       email: null,
       subject: null,
+      category: null,
+      categories:[ 'contact.screen.category.access', 'contact.screen.category.functional', 'contact.screen.category.affiliation', 'contact.screen.category.other'],
       message: null,
       valid: false,
       validCaptcha: false,
@@ -70,6 +82,9 @@ export default {
         ],
         subjectRules: [
             v => !!v || this.$t('contact.screen.error.subject.required.error'),
+        ],
+        categoryRules: [
+            v => !!v || this.$t('contact.screen.error.category.required.error'),
         ],
         messageRules: [
             v => !!v || this.$t('contact.screen.error.message.required.error'),
@@ -89,6 +104,7 @@ export default {
         fromName: this.name,
         fromEmail: this.email,
         subject: this.subject,
+        category: this.category,
         message: this.message
       }
       self = this

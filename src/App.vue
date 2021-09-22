@@ -76,6 +76,7 @@ export default {
     linkContact: {label:"page.contact", route: '/contact', icon: 'mdi-email' },
     // Add extra listenner on production mode
     listenersSet: false,
+    baseUrl: 'https://coso-preprod.sedoo.fr'
   }),
 
   computed: {
@@ -106,6 +107,20 @@ export default {
         return '';
       }
     },
+    helpUrl: function() {
+      if(this.language == 'fr') {
+        return baseUrl+'/faq/'
+      } else {
+        return baseUrl+'/en/faq-2/'
+      }
+    },
+    docUrl: function() {
+      if(this.language == 'fr') {
+        return baseUrl+'/documentation/'
+      } else {
+        return baseUrl+'/en/documentation-2/'
+      }
+    }
   },
 
   watch: {
@@ -276,12 +291,16 @@ export default {
             if (this.$route.name == link.route) {
               routeclass="active"
             }
-          if (i==0) {
-            content += '<i route="'+link.route+'" id="'+prefix+'-'+i+'"  class="'+routeclass+' toolbar-button mdi '+link.icon+'" title="'+this.$t(link.label)+'"></i>'
-          } else {
-            content += '<i route="'+link.route+'" id="'+prefix+'-'+i+'" style="border-left: 1px solid #555;" class="'+routeclass+' toolbar-button mdi '+link.icon+'" title="'+this.$t(link.label)+'"></i>'
-          }
+            if (i==0) {
+              content += '<i route="'+link.route+'" id="'+prefix+'-'+i+'"  class="'+routeclass+' toolbar-button mdi '+link.icon+'" title="'+this.$t(link.label)+'"></i>'
+            } else {
+              content += '<i route="'+link.route+'" id="'+prefix+'-'+i+'" style="border-left: 1px solid #555;" class="'+routeclass+' toolbar-button mdi '+link.icon+'" title="'+this.$t(link.label)+'"></i>'
+            }
             
+          }
+          if(this.links && this.links.length > 0) {
+            content += '<i route="help" id="'+prefix+'-help" style="border-left: 1px solid #555;" class="toolbar-button mdi mdi-help-circle" title="'+this.$t('page.help')+'"></i>'
+            content += '<i route="help" id="'+prefix+'-documentation" style="border-left: 1px solid #555;" class="toolbar-button mdi mdi-information-outline" title="'+this.$t('page.documentation')+'"></i>'
           }
           if (this.isLogged) {
             content += '<i route="logout" id="'+prefix+'-logout" style="color:#fb8c00" class="toolbar-button mdi mdi-application-export" title="'+this.$t('logout', {msg: this.userName})+'"></i>'
@@ -314,6 +333,12 @@ export default {
         if (route == "logout") {
           self.logoutFromORCID();
           return;
+        } else if(route == "help"){
+          window.location = self.helpUrl;
+          return
+        } else if(route == "documentation"){
+          window.location = self.docUrl;
+          return
         } else {
           self.navigate(route)
         }

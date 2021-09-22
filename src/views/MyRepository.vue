@@ -47,7 +47,7 @@
                 <v-btn 
                   fab color="info"
                   small
-                  title="Create an affiliation"
+                  :title="$t('affiliation.create.button')"
                   @click="creatingAffiliation = true">
                     <v-icon >mdi-plus</v-icon> 
                 </v-btn>

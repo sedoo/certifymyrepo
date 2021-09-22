@@ -1,6 +1,5 @@
 <template>
   <span>
-    <unidoo-alert></unidoo-alert>
     <v-dialog hide-overlay persistent :max-width="$store.getters.getDialogWidth" v-model="visible">
       <v-card>
         <v-card-title v-if="mode === 'creation'" class="headline indigo font-weight-light white--text">{{ $t('affiliation.dialog.title.creation') }}</v-card-title>
@@ -156,7 +155,7 @@ export default {
   },
 
   created: function() {
-
+    this.$i18n.locale = this.$store.getters.getLanguage
   },
 
   methods: {
