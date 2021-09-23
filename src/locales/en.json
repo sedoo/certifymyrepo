@@ -245,7 +245,7 @@
   "contact.screen.error": "Your message could not been sent. Please try later.",
   "contact.screen.captcha.textfield.label": "Text",
   "contact.screen.captcha.refreshbutton.label": "Refresh",
-  "contact.screen.label.category": "Category",
+  "contact.screen.label.category": "Reason",
   "contact.screen.category.access": "Access issue",
   "contact.screen.category.functional": "Functional question", 
   "contact.screen.category.affiliation": "Need to update or delete an affiliation", 

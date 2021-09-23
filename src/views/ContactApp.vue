@@ -104,7 +104,7 @@ export default {
         fromName: this.name,
         fromEmail: this.email,
         subject: this.subject,
-        category: this.category,
+        category: this.$t(this.category),
         message: this.message
       }
       self = this

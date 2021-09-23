@@ -52,7 +52,7 @@
               <v-col cols="12">
                 <v-row>
                   <v-col cols="8">
-                    <v-autocomplete :disabled="isInternational"
+                    <v-autocomplete :disabled="affiliation.international"
                       v-model="affiliation.country"
                       :items="countries"
                       prepend-inner-icon="mdi-flag"
@@ -63,7 +63,7 @@
                     ></v-autocomplete>
                   </v-col>
                   <v-col cols="4">
-                    <v-checkbox v-model="isInternational" :label="$t('affiliation.label.international')" @click="resetCountry"></v-checkbox>
+                    <v-checkbox v-model="affiliation.international" :label="$t('affiliation.label.international')" @click="resetCountry"></v-checkbox>
                   </v-col>
                 </v-row>
               </v-col>
@@ -102,7 +102,7 @@ export default {
     },
 
     countryRequiredClass() {
-      if(this.isInternational) {
+      if(this.affiliation.international) {
         return 'none'
       } else {
         return 'required'
@@ -139,7 +139,7 @@ export default {
             institute:"",
             acronym: "",
             department:"",
-            isInternational: false
+            international: false
         })
     }
   },
@@ -164,6 +164,7 @@ export default {
       if (!this.$refs.affiliationForm.validate()) {
         return;
       } else {
+        debugger
         this.saving = true;
         this.axios
           .post(this.affiliationSavingService, this.affiliation)
@@ -175,7 +176,7 @@ export default {
               institute:"",
               acronym: "",
               department:"",
-              isInternational: false
+              international: false
             }
             self.$unidooAlert.showSuccess(self.$t('affiliation.dialog.confirmation'))
             self.$emit("created");
@@ -204,7 +205,7 @@ export default {
         institute:"",
         acronym: "",
         department:"",
-        isInternational: false
+        international: false
       }
       this.$refs.affiliationForm.resetValidation()
       this.$emit('cancel')
@@ -215,11 +216,10 @@ export default {
     return {
       validAffiliation: false,
       mandatoryRules: [v => !!v || this.$t('affiliation.dialog.error.madatory')],
-      mandatoryCountryRules: [v => (!!v || this.isInternational)  || this.$t('affiliation.dialog.error.madatory')],
+      mandatoryCountryRules: [v => (!!v || this.affiliation.international)  || this.$t('affiliation.dialog.error.madatory')],
       saving: false,
       countries: constantsFile.countries,
       affiliation: this.editedAffiliation,
-      isInternational: false,
     }
   },
 
