@@ -637,7 +637,6 @@ export default {
         this.axios
         .get(this.service+'/certificationReport/v1_0/getReport/'+id)
         .then( function (response) {
-          debugger
           self.myReport = response.data.report
           let originalRepositoryId = self.myReport.repositoryId 
           let destinationRepositoryId = self.$route.query.repositoryId

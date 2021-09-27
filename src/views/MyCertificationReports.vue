@@ -24,7 +24,9 @@
             hide-default-footer
             class="elevation-1"
         >
- 
+            <template slot="no-data">
+                <span>{{ $t('data.table.no.data') }}</span>
+            </template>
              <template v-slot:item.templateName="{ item }">  
                 <span>{{ item.templateName }}</span>
             </template> 
@@ -202,7 +204,7 @@
                 {{ $t('reports.screen.create.copy.report.confirmation.title') }}
                 </v-card-title>
                 <v-card-text class="pa-5">
-                    
+                {{ $t('reports.screen.create.copy.report.confirmation.message', {'msg': formatName(selectedReport)}) }} 
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
@@ -302,7 +304,7 @@ export default {
             selectedReport: null,
             loading: false,
             isCopyingReport: false,
-            dialogCopyValidatedReport: false
+            dialogCopyValidatedReport: false,
         }
     },
     computed: {
@@ -541,7 +543,12 @@ export default {
         },
 
         formatName(report) {
-            return report.templateName + ' - v' + report.version + ' - ' + this.formatDate(report.updateDate) + ' - ' + this.$t(report.status)
+            if(report) {
+                return report.templateName + ' - v' + report.version + ' - ' + this.formatDate(report.updateDate) + ' - ' + this.$t(report.status)
+            } else {
+                return ''
+            }
+            
         },
 
         showDeleteReportConfirmDialog: function (reportId) {

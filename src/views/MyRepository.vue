@@ -90,6 +90,10 @@
                         :sort-by="['name']"
                         :sort-asc="[true]"
                         class="elevation-1"
+                        :footer-props="{
+                            'items-per-page-text':$t('data.table.items.per.page.text'),
+                            'items-per-page-all-text':$t('data.table.items.per.page.all.text')
+                        }"
                     >
                         <template v-slot:item.name="{ item }">  
                             <v-tooltip bottom>
@@ -103,10 +107,10 @@
                             {{ $t(item.role) }}
                         </template> 
                         <template v-slot:item.actions="{ item, index }">  
-                            <div v-if="displayActions(index)">
+                            <div v-if="displayActions(item)">
                                 <v-tooltip bottom>
                                     <template v-slot:activator="{ on }">
-                                        <v-btn v-on="on" icon class="mx-0" @click="openEditUserRole(index);">
+                                        <v-btn v-on="on" icon class="mx-0" @click="openEditUserRole(item);">
                                             <v-icon v-if="hasPendingRequest(index)">mdi-account-plus-outline</v-icon>
                                             <v-icon v-else>mdi-pencil-outline</v-icon>
                                         </v-btn>
@@ -116,7 +120,7 @@
                                 </v-tooltip>
                                 <v-tooltip bottom>
                                     <template v-slot:activator="{ on }">
-                                        <v-btn v-on="on" icon class="mx-0" @click="userIndex = index;dialogRemoveUser=true;">     
+                                        <v-btn v-on="on" icon class="mx-0" @click="user = item;dialogRemoveUser=true;">     
                                             <v-icon>mdi-delete-forever-outline</v-icon>    
                                         </v-btn>
                                     </template>
@@ -125,6 +129,8 @@
                                 <span v-if="hasPendingRequest(index)" class="red--text text-subtitle-2 pl-5">{{$t('repository.screen.join.request.pending')}}</span>
                             </div>
                         </template> 
+                        <template v-slot:footer.page-text="items"> {{ items.pageStart }} - {{ items.pageStop }} {{ $t('data.table.page.text') }} {{ items.itemsLength }} 
+                        </template>
                     </v-data-table>
                     <v-btn class="ma-3 " small :title="$t('repository.screen.add.user.title')" @click="openAddUserDialog()"  fab color="info"> 
                         <v-icon >mdi-plus</v-icon> 
@@ -164,7 +170,7 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                 <div class="flex-grow-1"></div>
-                <v-btn @click="cancelAddUser">
+                <v-btn @click="cancelAddEditUser">
                     {{ $t("button.cancel") }}
                 </v-btn>
                 <v-btn color="info" @click="editUserRole">
@@ -232,7 +238,7 @@
                             hide-details
                             @input="clearSelectedUser"
                         ></v-text-field>
-                        <v-data-table item-key="name" show-select single-select
+                        <v-data-table show-select single-select
                             v-model="selectedUser"
                             @input="rowClick"
                             @click:row="rowClick"
@@ -246,6 +252,7 @@
                         >
                             <template v-slot:item.data-table-select="{ item, isSelected, select }">
                             <v-simple-checkbox
+                                :ripple="false"
                                 :value="isSelected"
                                 :readonly="item.disabled"
                                 :disabled="item.disabled"
@@ -295,10 +302,10 @@
                     <v-divider></v-divider>
                     <v-card-actions>
                     <div class="flex-grow-1"></div>
-                    <v-btn @click="cancelAddUser">
+                    <v-btn @click="cancelAddEditUser">
                         {{ $t("button.cancel") }}
                     </v-btn>
-                    <v-btn color="info" :disabled="!validPopupAddUser || selectedUser.length == 0" @click="addUserRole">
+                    <v-btn color="info" :disabled="!validPopupAddUser || selectedUser.length == 0" @click="addUserOnRepo">
                         {{ $t("button.confirm") }}
                     </v-btn>
                     </v-card-actions>
@@ -368,7 +375,6 @@ export default {
                 ] ,
             /** loading button for orcid lookup */
             loadingUser: false,
-            userIndex: -1,
             orcid: null,
             email: null,
             userName: null,
@@ -503,21 +509,14 @@ export default {
          * Populate User role data (userId, name, role) into repository object
          * Called by Add an user functionnalities
          */
-        addUserRole() {
+        addUserOnRepo() {
             this.dialogAddUser = false
-            this.dialogEditUserRole = false
             let user = {name: this.selectedUser[0].name, id:this.selectedUser[0].id, role: this.role}
-            if(this.userIndex < 0 ) {
-                if(this.myRepository.users == null || this.myRepository.users.length == 0) {
-                    let myUserList = [];
-                    myUserList.push(user)
-                    this.myRepository.users = myUserList;
-                } else {
-                    this.myRepository.users.push(user)
-                }
-                
+            if(this.myRepository.users == null || this.myRepository.users.length == 0) {
+                let myUserList = [];
+                myUserList.push(user)
+                this.myRepository.users = myUserList;
             } else {
-                this.myRepository.users.splice(this.userIndex, 1)
                 this.myRepository.users.push(user)
             }
             this.keyword = null
@@ -527,27 +526,24 @@ export default {
          * Called by Edit user role functionnalities
          */
         editUserRole() {
-            this.dialogAddUser = false
             this.dialogEditUserRole = false
             let user = JSON.parse(JSON.stringify(this.user))
             user.status = 'ACTIVE'
-            if(this.userIndex < 0 ) {
-                if(this.myRepository.users == null || this.myRepository.users.length == 0) {
-                    let myUserList = [];
-                    myUserList.push(user)
-                    this.myRepository.users = myUserList;
-                } else {
+            for (let i=0; i<this.myRepository.users.length ; i++) {
+                if(this.myRepository.users[i].id == this.user.id) {
+                    this.myRepository.users.splice(i, 1)
                     this.myRepository.users.push(user)
+                    break
                 }
-                
-            } else {
-                this.myRepository.users.splice(this.userIndex, 1)
-                this.myRepository.users.push(user)
             }
-            this.keyword = null
         },
         removeUser() {
-            this.myRepository.users.splice(this.userIndex, 1)
+            for (let i=0; i<this.myRepository.users.length ; i++) {
+                if(this.myRepository.users[i].id == this.user.id) {
+                    this.myRepository.users.splice(i, 1)
+                    break
+                }
+            }
         },
         goToRepositories() {
             this.$router.push({ path: '/repositories'});
@@ -658,9 +654,10 @@ export default {
         openAddUserDialog() {
             this.dialogAddUser=true
             this.orcid = null
-            this.userIndex = -1
+            this.role = null
+            this.selectedUser = []
             this.foundUsers = []
-            this.keyword = null
+            this.search = null
             this.user={name: null, id:null, role: null, status: 'ACTIVE'}
             this.loadUsers()
         },
@@ -672,19 +669,18 @@ export default {
             this.user={name: null, id:null, role: null}
         },
 
-        openEditUserRole(index) {
-            this.userIndex = index
-            this.user = JSON.parse(JSON.stringify(this.myRepository.users[index]))
+        openEditUserRole(item) {
+            this.user = JSON.parse(JSON.stringify(item))
             this.dialogEditUserRole = true
         },
 
-        cancelAddUser() {
+        cancelAddEditUser() {
             this.dialogEditUserRole = false
             this.dialogAddUser = false
             this.role = null
             this.selectedUser = []
             this.foundUsers = []
-            this.keyword = null
+            this.search = null
         },
 
         cancelCreateUser() {
@@ -695,12 +691,12 @@ export default {
             this.user={name: null, id:null, role: null}
         },
 
-        displayActions: function(index) {
-            return !(this.isLastManager && this.myRepository.users[index].role == 'EDITOR')
+        displayActions: function(item) {
+            return !(this.isLastManager && item.role == 'EDITOR')
         },
 
         hasPendingRequest: function(index) {
-            return this.myRepository.users[index].status == 'PENDING'
+            return false
         },
 
         affiliationCreated: function() {

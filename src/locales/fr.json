@@ -203,6 +203,8 @@
   "reports.screen.download.isComments": "Cocher cette case, si vous voulez les commentaires associés aux critères",
   "reports.screen.create.new.report.confirmation.title": "Créer un nouveau dossier de certification",
   "reports.screen.create.new.report.confirmation.message": "Veuillez sélectionner le type de dossier de certification.",
+  "reports.screen.create.copy.report.confirmation.title": "Créer un nouveau dossier de certification à partir d'une copie",
+  "reports.screen.create.copy.report.confirmation.message": "Voulez vous créer un dossier de certification basé sur '{msg}'?",
   "reports.screen.delete.report.confirmation.title": "Suppression",
   "reports.screen.delete.report.confirmation.message": "Voulez vous vraiment supprimer ce dossier de certification? Veuillez noter que cette opération est irréversible.",
   "reports.screen.button.radar.help": "Graphique radar des auto-évaluations",
@@ -252,6 +254,7 @@
   "data.table.items.per.page.text": "Lignes par page",
   "data.table.items.per.page.all.text": "Toutes",
   "data.table.page.text": "de",
+  "data.table.no.data": "Aucun dossier de certification disponible",
   "request.validation.screen.user.has.been.added" : "L'utilisateur a été ajouté à l'entrepôt",
   "request.validation.screen.user.was.already.added" : "L'utilisateur avait déjà été ajouté à l'entrepôt",
   "request.validation.screen.user.request.has.been.revoked": "La demande de l'utilisateur a déjà été refusée"
