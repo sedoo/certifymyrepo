@@ -90,9 +90,6 @@ export default {
   },
 
   methods: {
-    test: function(message) {
-      console.log(message)
-    },
     loginOrcid: function() {
       this.$emit("login");
     },
