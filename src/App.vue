@@ -46,6 +46,10 @@ export default {
       type: String,
       default: "http://localhost:8485"
     },
+    frontEndUrl: {
+      type: String,
+      default: "https://coso-preprod.sedoo.fr"
+    },
     language: {
       type: String,
       default: "fr"
@@ -76,7 +80,6 @@ export default {
     linkContact: {label:"page.contact", route: '/contact', icon: 'mdi-email' },
     // Add extra listenner on production mode
     listenersSet: false,
-    baseUrl: 'https://coso-preprod.sedoo.fr'
   }),
 
   computed: {
@@ -109,16 +112,16 @@ export default {
     },
     helpUrl: function() {
       if(this.language == 'fr') {
-        return baseUrl+'/faq/'
+        return this.frontEndUrl+'/faq/'
       } else {
-        return baseUrl+'/en/faq-2/'
+        return this.frontEndUrl+'/en/faq-2/'
       }
     },
     docUrl: function() {
       if(this.language == 'fr') {
-        return baseUrl+'/documentation/'
+        return this.frontEndUrl+'/documentation/'
       } else {
-        return baseUrl+'/en/documentation-2/'
+        return this.frontEndUrl+'/en/documentation-2/'
       }
     }
   },
@@ -163,53 +166,28 @@ export default {
       } else {
         var code = this.getCodeParameter();
         if (code) {
-          if(false && this.getAuthentificationType() && this.getAuthentificationType() == 'shibb') {
-            var self = this;
-            this.axios({
-                method: 'get',
-                url: "https://services-coso-preprod.sedoo.fr/shibboleth/userbycode?code=" + code
-            }).then( function (response) {
-                self.links.push(self.linkRepositories)
-                self.links.push(self.linkUserInformation)
-                self.$store.commit('setUser', response.data)
-                self.$store.commit('setLogged', true)
-                if(self.userIsAdmin || self.userIsSuperAdmin) {
-                  self.links.push(self.linkDashoard)
-                  self.links.push(self.linkAdministration)
-                }
-                if(response.data.profile.email != null) {
-                  self.$router.push({path: '/repositories'})
-                } else {
-                  self.$router.push({path: '/profile'})
-                }
+          var self = this;
+          this.axios({
+              method: 'post',
+              url: this.service+"/login/v1_0/login?code=" + code + "&redirect_uri=" + this.redirectUri + "&type=" + this.getAuthentificationType()
+          }).then( function (response) {
+              self.links.push(self.linkRepositories)
+              self.links.push(self.linkUserInformation)
+              self.$store.commit('setUser', response.data)
+              self.$store.commit('setLogged', true)
+              if(self.userIsAdmin || self.userIsSuperAdmin) {
+                self.links.push(self.linkDashoard)
+                self.links.push(self.linkAdministration)
+              }
+              if(response.data.profile.email != null) {
+                self.$router.push({path: '/repositories'})
+              } else {
+                self.$router.push({path: '/profile'})
+              }
             }).catch(function(error) {
               self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
             })
             this.$router.push("/logging").catch(() => {});
-          } else {
-            var self = this;
-            this.axios({
-                method: 'post',
-                url: this.service+"/login/v1_0/login?code=" + code + "&redirect_uri=" + this.redirectUri + "&type=" + this.getAuthentificationType()
-            }).then( function (response) {
-                self.links.push(self.linkRepositories)
-                self.links.push(self.linkUserInformation)
-                self.$store.commit('setUser', response.data)
-                self.$store.commit('setLogged', true)
-                if(self.userIsAdmin || self.userIsSuperAdmin) {
-                  self.links.push(self.linkDashoard)
-                  self.links.push(self.linkAdministration)
-                }
-                if(response.data.profile.email != null) {
-                  self.$router.push({path: '/repositories'})
-                } else {
-                  self.$router.push({path: '/profile'})
-                }
-              }).catch(function(error) {
-                self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
-              })
-              this.$router.push("/logging").catch(() => {});
-          }
         } else {
           this.logoutFromORCID()
         }
@@ -300,7 +278,7 @@ export default {
           }
           if(this.links && this.links.length > 0) {
             content += '<i route="help" id="'+prefix+'-help" style="border-left: 1px solid #555;" class="toolbar-button mdi mdi-help-circle" title="'+this.$t('page.help')+'"></i>'
-            content += '<i route="help" id="'+prefix+'-documentation" style="border-left: 1px solid #555;" class="toolbar-button mdi mdi-information-outline" title="'+this.$t('page.documentation')+'"></i>'
+            content += '<i route="documentation" id="'+prefix+'-documentation" style="border-left: 1px solid #555;" class="toolbar-button mdi mdi-information-outline" title="'+this.$t('page.documentation')+'"></i>'
           }
           if (this.isLogged) {
             content += '<i route="logout" id="'+prefix+'-logout" style="color:#fb8c00" class="toolbar-button mdi mdi-application-export" title="'+this.$t('logout', {msg: this.userName})+'"></i>'
