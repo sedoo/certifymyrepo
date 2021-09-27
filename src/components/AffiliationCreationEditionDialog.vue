@@ -164,7 +164,6 @@ export default {
       if (!this.$refs.affiliationForm.validate()) {
         return;
       } else {
-        debugger
         this.saving = true;
         this.axios
           .post(this.affiliationSavingService, this.affiliation)
