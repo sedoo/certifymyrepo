@@ -1,6 +1,5 @@
 <template>
     <div class="reports">
-    <unidoo-alert></unidoo-alert>
     <h1 class="subheading grey--text">{{ $t('reports.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
     <v-container v-else class="my-3">

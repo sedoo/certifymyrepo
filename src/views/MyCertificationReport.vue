@@ -1,10 +1,10 @@
 <template>
     <div>
-    <unidoo-alert></unidoo-alert>
     <h1 class="subheading grey--text">{{ $t('report.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
     <v-progress-linear indeterminate v-if="loadingReport" class="mt-3"></v-progress-linear>
     <div v-if="!loadingReport" class="report">
     <h4 class="subheading grey--text pt-5 pb-5">{{ templateDescription }}</h4>
+    <p v-if="editExistingAllowed" class="grey--text">Pensez à enregistrer régulièrement votre travail avec le bouton 'Enregister' en bas de la page.</p>
       <v-form v-model="valid">
             <v-text-field v-if="editExistingAllowed"
                 :label="$t('report.screen.version.number')"
@@ -136,25 +136,14 @@
               </v-tooltip>
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                <v-btn v-on="on" v-show="editExistingAllowed" class="mr-5"
+                <v-btn v-on="on" v-show="editExistingAllowed"
                     color="info"
-                    @click="saveReportWithCurrentVersion"
+                    @click="dialogSave = true; editedVersion = myReport.version"
                     >
                     {{ $t('button.save') }}
                 </v-btn>
                 </template>
                 <span>{{ $t('report.screen.button.save.help') }}</span>
-              </v-tooltip> 
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                <v-btn v-on="on" v-show="editExistingAllowed"
-                    color="info"
-                    @click="saveReportIncreaseVersion"
-                    >
-                    {{ $t('button.saveNewVersion') }}
-                </v-btn>
-                </template>
-                <span>{{ $t('report.screen.button.saveNewVersion.help') }}</span>
               </v-tooltip>
             </div>
 
@@ -175,36 +164,7 @@
       </v-form>
     </div>
 
-
-    <v-dialog v-model="dialog" :width="$store.getters.getDialogWidth">
-
-    <v-card>
-        <v-card-title
-        class="headline grey lighten-2"
-        primary-title
-        >
-        {{ $t('report.screen.release.confirmation.title')}}
-        </v-card-title>
-
-        <v-card-text>
-        {{ $t('report.screen.release.confirmation.message')}}
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-        <div class="flex-grow-1"></div>
-        <v-btn @click="dialog = false">
-            {{ $t('button.cancel') }}
-        </v-btn>
-        <v-btn color="info" @click="releaseTheReport()">
-            {{ $t('button.confirm') }}
-        </v-btn>
-        </v-card-actions>
-    </v-card>
-    </v-dialog>
-
-      <v-dialog v-model="dialogUploadFiles" :width="$store.getters.getDialogWidth">
+    <v-dialog v-model="dialogUploadFiles" :width="$store.getters.getDialogWidth">
 
     <v-card>
         <v-card-title
@@ -275,6 +235,70 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="dialogFreeze" :width="$store.getters.getDialogWidth" >
+      <v-card>
+          <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+          >
+          {{ $t('report.screen.release.confirmation.title')}}
+          </v-card-title>
+          <v-card-text>
+            <p>{{ $t('report.screen.release.confirmation.message')}}</p>
+            <v-form v-model="valid">
+              <v-text-field v-if="editExistingAllowed"
+                  :label="$t('report.screen.version.number')"
+                  v-model="editedVersion"
+                  :rules="rules.versionRules"
+                  outlined dense
+              ></v-text-field>
+            </v-form>
+          </v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn @click="dialogFreeze = false">
+              {{ $t('button.cancel') }}
+          </v-btn>
+          <v-btn color="info" @click="releaseTheReport()" :disabled="!valid">
+              {{ $t('button.confirm') }}
+          </v-btn>
+          </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogSave" :width="$store.getters.getDialogWidth" persistent>
+      <v-card>
+          <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+          >
+          {{ $t('report.screen.save.confirmation.title')}}
+          </v-card-title>
+          <v-card-text>
+            <p>{{ $t('report.screen.save.confirmation.message')}}</p>
+            <v-form v-model="valid">
+              <v-text-field v-if="editExistingAllowed"
+                  :label="$t('report.screen.version.number')"
+                  v-model="editedVersion"
+                  :rules="rules.versionRules"
+                  outlined dense
+              ></v-text-field>
+            </v-form>
+          </v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn @click="dialogSave = false">
+              {{ $t('button.cancel') }}
+          </v-btn>
+          <v-btn color="info" @click="saveReport()" :disabled="!valid">
+              {{ $t('button.confirm') }}
+          </v-btn>
+          </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     </div>
 
 </template>
@@ -292,11 +316,13 @@ export default {
     data() {
         return {
             valid: false,
-            dialog: false,
             dialogUploadFiles: false,
             dialogDeleteFile: false,
+            dialogFreeze: false,
+            dialogSave: false,
 	          editExistingAllowed: false,
             validationAllowed: false,
+            editedVersion: null,
             myReport: {
                 'id': null,
                 'templateId': null,
@@ -567,25 +593,14 @@ export default {
 
       },
 
-      goToMyCertificationReports() {
-        this.$router.push({ path: '/certificationReports/'+this.myReport.repositoryId });
-      },
-
-      displayReleaseConfirmation() {
-        if(this.myReport.status != 'IN_PROGRESS') {
-          self.$unidooAlert.showError(this.$t('report.screen.release.error'), self.$t('button.close'))
-        } else {
-          this.dialog = true
-        }
-      },
-
       saveReportAndReturn() {
         this.myReport.status = 'IN_PROGRESS'
         this.saveReport (true)
       },
 
-      saveReportWithCurrentVersion() {
+      saveReport() {
         this.myReport.status = 'IN_PROGRESS'
+        this.myReport.version = this.editedVersion
         this.saveReport (false)
       },
 
@@ -595,12 +610,6 @@ export default {
         let decimal = parseInt(versionArray[1], 10) + 1
         this.myReport.version = versionArray[0] + '.' + decimal
         this.saveReport (false)
-      },
-
-      releaseTheReport() {
-        this.dialog = false
-        this.myReport.status = 'RELEASED'
-        this.saveReport (true)
       },
 
       showReturnConfirmDialog: function () {
@@ -615,7 +624,40 @@ export default {
               this.$t('button.cancel'),
               this.$t('button.confirm'));
         }
+      },
 
+      goToMyCertificationReports() {
+        this.$router.push({ path: '/certificationReports/'+this.myReport.repositoryId });
+      },
+
+      showFreezeReportConfirmDialog: function () {
+        if(this.myReport.status != 'IN_PROGRESS') {
+          this.$unidooAlert.showError(this.$t('report.screen.release.error'), self.$t('button.close'))
+        } else {
+          this.$unidooConfirmDialog.show(this.releaseTheReport, 
+              this.$t('report.screen.release.confirmation.message'), 
+              this.$t('report.screen.release.confirmation.title'),
+              'headline grey lighten-2',
+              this.$store.getters.getDialogWidth,
+              this.$t('button.cancel'),
+              this.$t('button.confirm'));
+        }
+      },
+
+      releaseTheReport() {
+        this.dialog = false
+        this.myReport.status = 'RELEASED'
+        this.myReport.version = this.version
+        this.saveReport (true)
+      },
+
+      displayReleaseConfirmation() {
+        if(this.myReport.status != 'IN_PROGRESS') {
+          self.$unidooAlert.showError(this.$t('report.screen.release.error'), self.$t('button.close'))
+        } else {
+          this.editedVersion = this.myReport.version
+          this.dialogFreeze = true
+        }
       },
 
     },

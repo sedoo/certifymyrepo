@@ -1,7 +1,6 @@
 <template>
   <v-layout>
   <v-flex xs12>
-    <unidoo-alert></unidoo-alert>
     <h1 class="subheading grey--text">{{ $t('userinformation.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loadingProfile || loadingRepo" class="mt-3"></v-progress-linear>
 

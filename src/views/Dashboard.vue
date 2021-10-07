@@ -1,6 +1,5 @@
 <template>
   <v-layout>
-    <unidoo-alert></unidoo-alert>
     <v-flex xs12>
     <h1 class="subheading grey--text">{{ $t('dashboard.screen.title') }}</h1>
 

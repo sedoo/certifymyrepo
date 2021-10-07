@@ -8,8 +8,6 @@
       mode="creation"
     ></AffiliationCreationEditionDialog>
 
-    <unidoo-alert></unidoo-alert>
-
     <h1 class="subheading grey--text">{{$t('repository.screen.title')}}</h1>
 
         <template>
@@ -152,20 +150,39 @@
                 {{ dialogEditUserTitle }}
                 </v-card-title>
                 <v-card-text>
-                <v-text-field class="pt-2" v-model="user.name" prepend-inner-icon="mdi-account" :label="$t('repository.screen.label.user.name')" readonly filled></v-text-field>
-                <v-select :rules="rules.roleRules" outlined
-                v-model="user.role"
-                :items="roles"
-                :label="$t('repository.screen.add.user.label.select.role')">
-                    <template slot="selection" slot-scope="data">
-                        <!-- HTML that describe how select should render selected items -->
-                        {{ $t(data.item) }} 
-                    </template>
-                    <template slot="item" slot-scope="data">
-                        <!-- HTML that describe how select should render items when the select is open -->
-                        {{ $t(data.item) }}
-                    </template>
-                </v-select>
+                <v-row>
+                    <v-col cols="12">
+                        <v-text-field class="pt-2" v-model="user.name" 
+                            prepend-inner-icon="mdi-account" 
+                            :label="$t('repository.screen.label.user.name')" 
+                            readonly filled dense
+                            >
+                        </v-text-field>
+                    </v-col>
+                    <v-col cols="11">
+                        <v-select :rules="rules.roleRules" outlined dense
+                        v-model="user.role"
+                        :items="roles"
+                        :label="$t('repository.screen.add.user.label.select.role')">
+                            <template slot="selection" slot-scope="data">
+                                <!-- HTML that describe how select should render selected items -->
+                                {{ $t(data.item) }} 
+                            </template>
+                            <template slot="item" slot-scope="data">
+                                <!-- HTML that describe how select should render items when the select is open -->
+                                {{ $t(data.item) }}
+                            </template>
+                        </v-select>
+                    </v-col>
+                    <v-col cols="1">
+                        <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                            <v-icon v-on="on" class="pt-2">mdi-information</v-icon>
+                        </template>
+                        <span v-html="$t('repository.screen.add.user.help')"></span>
+                        </v-tooltip>
+                    </v-col>
+                </v-row>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
