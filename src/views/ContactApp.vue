@@ -129,14 +129,6 @@ export default {
           }).finally(() => self.$refs.form.reset())
       }
     },
-
-    showConfirmDialog: function () {
-      this.$unidooConfirmDialog.show(this.callback);
-    },
-
-    callback: function () {
-      this.$unidooAlert.showSuccess("Confirmation !");
-    },
   },
 
   created: function() {
