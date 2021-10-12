@@ -13,7 +13,7 @@
             disable-pagination: true
             hide-default-footer
             :search="search"
-            :sort-by="sortBy.toLowerCase()"
+            sort-by="name"
             class="pa-5"
             :items-per-page.sync="resultMyRepo.length"
           >
@@ -200,7 +200,6 @@ export default {
           resultMyRepo: [],
           emptyRepo: {id:null, name: null, keywords:[], contact: null, users: []},
           search: null,
-          sortBy: 'name',
         }
     },
 

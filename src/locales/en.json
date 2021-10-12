@@ -172,7 +172,7 @@
   "report.screen.button.saveNewVersion.help": "Save and increment the version of 0.1",
   "report.screen.button.release.help": "Open the confirmation window used to freeze the report at its current state making it unchangeable",
   "report.screen.release.confirmation.title": "Freeze the self-assessment report",
-  "report.screen.release.confirmation.message": "Do you really want to validate this report ? You will not be able to modify or delete this version of the report after this operation. Please confirm the version number.",
+  "report.screen.release.confirmation.message": "Do you really want to freeze this report ? You will not be able to modify or delete this version of the report after this operation. Please confirm the version number.",
   "report.screen.release.error": "The report status must be 'Redaction in progress' before been able to validate a report",
   "report.screen.upload.popup.title": "Upload",
   "report.screen.delete.confirmation.title": "Delete",
@@ -259,5 +259,6 @@
   "data.table.no.data": "No data available",
   "request.validation.screen.user.has.been.added" : "The user has been added on the repository",
   "request.validation.screen.user.was.already.added" : "The user had been already added on the repository",
-  "request.validation.screen.user.request.has.been.revoked": "The user request had been already declined"
+  "request.validation.screen.user.request.has.been.revoked": "The user request had been already declined",
+  "dasborad.screen.stats": "There are {userNb} users and {repoNb} repositories in the aplication. The number of self-assessment repors is {reportsNb} including {inProgressReports} reports in progress and {validatedReports} frozen reports."
 }

@@ -3,22 +3,25 @@
     <v-flex xs12>
     <h1 class="subheading grey--text">{{ $t('dashboard.screen.title') }}</h1>
 
-    <div v-if="!loading" class="pa-5">
+    <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
+    <div v-else class="pa-5">
+      <p class="grey--text">{{ $t('dasborad.screen.stats', {'userNb':numberOfUsers, 'repoNb':numberOfRepositories, 'reportsNb':numberOfInProgressReport + numberOfValidatedReport, 'inProgressReports':numberOfInProgressReport, 'validatedReports':numberOfValidatedReport  } ) }}</p>
       <template v-if="repoList != null && repoList.length > 0">
         <v-data-table
           :headers="headers"
           :items="repoList"
           :items-per-page="5"
+          sort-by="name"
           class="elevation-1"
           :footer-props="{
               'items-per-page-text':$t('data.table.items.per.page.text'),
               'items-per-page-all-text':$t('data.table.items.per.page.all.text')
           }"
         >
-            <template v-slot:item.repositoryCreation="{ item }">  
-                <span class="px-2" >{{ formatDate(item.repository.creationDate) }}</span>
-            </template> 
-            <template v-slot:item.validHealth="{ item }">  
+            <template v-slot:item.creationDate="{ item }">  
+                <span class="px-2" >{{ formatDate(item.creationDate) }}</span>
+            </template>
+            <template v-slot:item.latestValidReportUpdateDate="{ item }">  
                 <v-tooltip bottom z-index="12">
                   <template v-if="!item.readonly" v-slot:activator="{ on }">
                     <v-icon v-on="on" class="px-2" :color="getHealthColor(item.healthLatestValidReport)">{{ getHealthIcon(item.healthLatestValidReport) }}</v-icon>
@@ -27,9 +30,9 @@
                   <span v-if="item.healthLatestValidReport && item.healthLatestValidReport.orange">{{ $t('health.icon.legend.orange') }}</span>
                   <span v-if="item.healthLatestValidReport && item.healthLatestValidReport.red">{{ $t('health.icon.legend.red') }}</span>
                 </v-tooltip>
-                <span class="px-2" >{{ formatHealthDate(item.healthLatestValidReport) }}</span>
+                <span class="px-2" >{{ formatDate(item.latestValidReportUpdateDate) }}</span>
             </template> 
-            <template v-slot:item.inProgressHealth="{ item }">  
+            <template v-slot:item.latestInProgressReportUpdateDate="{ item }">  
                 <v-tooltip bottom z-index="12">
                   <template v-if="!item.readonly" v-slot:activator="{ on }">
                     <v-icon v-on="on" class="px-2" :color="getHealthColor(item.healthLatestInProgressReport)">{{ getHealthIcon(item.healthLatestInProgressReport) }}</v-icon>
@@ -38,10 +41,11 @@
                   <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.orange">{{ $t('health.icon.legend.orange') }}</span>
                   <span v-if="item.healthLatestInProgressReport && item.healthLatestInProgressReport.red">{{ $t('health.icon.legend.red') }}</span>
                 </v-tooltip>
-                <span class="px-2" >{{ formatHealthDate(item.healthLatestInProgressReport) }}</span>
+                <span class="px-2" >{{ formatDate(item.latestInProgressReportUpdateDate) }}</span>
             </template> 
             <template v-slot:footer.page-text="items"> {{ items.pageStart }} - {{ items.pageStop }} {{ $t('data.table.page.text') }} {{ items.itemsLength }} 
             </template>
+
         </v-data-table>
       </template>
     </div>
@@ -58,16 +62,20 @@ export default {
       repoList: [],
       loading: false,
       headers: [] ,
+      numberOfUsers: 0,
+      numberOfRepositories: 0,
+      numberOfValidatedReport: 0,
+      numberOfInProgressReport: 0
     }
   },
 
   created: function() {
     this.$i18n.locale = this.language
     this.headers = [
-          { text: this.$t('repository.table.column.repository.name'), value: 'repository.name' },
-          { text: this.$t('repository.table.column.repository.creation.date'), value: 'repositoryCreation' },
-          { text: this.$t('repository.table.column.report.validated.health'), value: 'validHealth' },
-          { text: this.$t('repository.table.column.report.inprogress.health'), value: 'inProgressHealth' }
+          { text: this.$t('repository.table.column.repository.name'), value: 'name' },
+          { text: this.$t('repository.table.column.repository.creation.date'), value: 'creationDate' },
+          { text: this.$t('repository.table.column.report.validated.health'), value: 'latestValidReportUpdateDate' },
+          { text: this.$t('repository.table.column.report.inprogress.health'), value: 'latestInProgressReportUpdateDate' }
           ]
     var self = this;
     this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')
@@ -77,6 +85,16 @@ export default {
       self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
     })
     .finally(() => self.loading = false)
+
+    this.axios.get(this.service+'/statistics/v1_0/statistics')
+    .then(response => {
+      this.numberOfUsers = response.data.users
+      this.numberOfRepositories = response.data.repositories
+      this.numberOfValidatedReport = response.data.validated
+      this.numberOfInProgressReport = response.data.inProgress
+    }).catch(function(error) {
+      self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
+    })
   },
 
   props: {
@@ -124,15 +142,6 @@ export default {
           } else {
             return ''
           }
-        } else {
-          return ''
-        }
-    },
-
-    formatHealthDate (health) {
-
-        if(health && health.latestReport && health.latestReport.updateDate) {
-          return this.formatDate(health.latestReport.updateDate)
         } else {
           return ''
         }

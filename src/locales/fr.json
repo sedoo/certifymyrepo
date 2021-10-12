@@ -173,9 +173,9 @@
   "report.screen.button.accept.user.help": "Accepter la demande d'accés",
   "report.screen.button.remove.user.help": "Retirer les droits de l'utilisteur sur cet entrepôt",
   "report.screen.save.confirmation.title": "Engregister les modifications",
-  "report.screen.save.confirmation.message": "Vous pouvez éventuellement modifier la version de ce dossier d'auto évaluation. Cet action enregistre le dossier en l'état. Si vous souhaitez garder une version particulière dans l'historique, utilisez l'action 'FIGER' puis faite une copie",
+  "report.screen.save.confirmation.message": "Vous pouvez éventuellement modifier la version de ce dossier d'auto évaluation. Cette action enregistre le dossier en l'état. Si vous souhaitez garder une version particulière dans l'historique, utilisez l'action 'FIGER' puis faîte une copie",
   "report.screen.release.confirmation.title": "Figer le dossier de certification",
-  "report.screen.release.confirmation.message": "Voulez-vous vraiment valider ce dossier de certification? Vous ne pourrez plus modifier ou supprimer cette version après cette opération. Veuillez confirmer le numéro de version, il ne sera plus modifiable.",
+  "report.screen.release.confirmation.message": "Voulez-vous vraiment figer ce dossier de certification? Vous ne pourrez plus modifier ou supprimer cette version après cette opération. Veuillez confirmer le numéro de version, il ne sera plus modifiable.",
   "report.screen.release.error": "Le statut doit être 'En cours de rédaction' pour pouvoir valider un dossier de certification",
   "report.screen.upload.popup.title": "Ajouter des fichiers",
   "report.screen.upload.popup.message": "Le nom du fichier sera formaté sans accent. les éventuels espaces seront remplacés par le caractère underscore. Si le fichier existant déjà, le fichier précédent enregistré sera remplacé par le nouveau.",
@@ -259,5 +259,6 @@
   "data.table.no.data": "Aucun dossier de certification disponible",
   "request.validation.screen.user.has.been.added" : "L'utilisateur a été ajouté à l'entrepôt",
   "request.validation.screen.user.was.already.added" : "L'utilisateur avait déjà été ajouté à l'entrepôt",
-  "request.validation.screen.user.request.has.been.revoked": "La demande de l'utilisateur a déjà été refusée"
+  "request.validation.screen.user.request.has.been.revoked": "La demande de l'utilisateur a déjà été refusée",
+  "dasborad.screen.stats": "Il y a actuellement {userNb} utilisateurs et {repoNb} entrepôts dans l'application. Le nombre de dossiers de certification est de {reportsNb} dont {inProgressReports} en cours de rédaction et {validatedReports} figés."
 }

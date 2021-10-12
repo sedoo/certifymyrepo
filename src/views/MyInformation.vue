@@ -38,6 +38,7 @@
           :expanded.sync="expanded"
           single-expand
           show-expand
+          sort-by="name"
           class="elevation-1"
         >
             <template v-slot:item.affiliation="{ item }">
@@ -122,11 +123,11 @@ export default {
     this.$i18n.locale = this.$store.getters.getLanguage;
     this.headers = [
         { text: this.$t('repository.table.column.repository.name'), value: 'name' },
-        { text: this.$t('repository.table.column.repository.affiliation'), value: 'affiliation' },
-        { text: this.$t('repository.table.column.keywords'), value: 'keywords' },
         { text: this.$t('repository.table.column.contact'), value: 'contact' },
-        { text: this.$t('repository.table.column.link'), value: 'url' },
-        { text: this.$t('repository.table.column.role'), value: 'role' },
+        { text: this.$t('repository.table.column.repository.affiliation'), value: 'affiliation', sortable: false },
+        { text: this.$t('repository.table.column.keywords'), value: 'keywords', sortable: false },
+        { text: this.$t('repository.table.column.link'), value: 'url', sortable: false },
+        { text: this.$t('repository.table.column.role'), value: 'role', sortable: false },
         { text: '', value: 'data-table-expand' },
         ],
     this.loadProfile();

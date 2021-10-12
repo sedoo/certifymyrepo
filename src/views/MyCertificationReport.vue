@@ -292,7 +292,7 @@
           <v-btn @click="dialogSave = false">
               {{ $t('button.cancel') }}
           </v-btn>
-          <v-btn color="info" @click="saveReport()" :disabled="!valid">
+          <v-btn color="info" @click="saveReportVersion(false)" :disabled="!valid">
               {{ $t('button.confirm') }}
           </v-btn>
           </v-card-actions>
@@ -590,25 +590,12 @@ export default {
             self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
           })
         }
-
       },
 
-      saveReportAndReturn() {
-        this.myReport.status = 'IN_PROGRESS'
-        this.saveReport (true)
-      },
-
-      saveReport() {
+      saveReportVersion() {
+        this.dialogSave = false
         this.myReport.status = 'IN_PROGRESS'
         this.myReport.version = this.editedVersion
-        this.saveReport (false)
-      },
-
-      saveReportIncreaseVersion() {
-        this.myReport.status = 'IN_PROGRESS'
-        let versionArray = this.myReport.version.split('.')
-        let decimal = parseInt(versionArray[1], 10) + 1
-        this.myReport.version = versionArray[0] + '.' + decimal
         this.saveReport (false)
       },
 
