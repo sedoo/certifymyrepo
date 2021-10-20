@@ -456,20 +456,18 @@ export default {
             } 
             return option
         },
-        deleteItem (reportId) {
-            var self = this;
-            self.isDeletingReport = true
-            this.axios.delete(this.service+'/certificationReport/v1_0/delete/'+this.reportId)
-                .then( response =>
+        deleteItem () {
+            return this.axios.delete(this.service+'/certificationReport/v1_0/delete/'+this.reportId)
+                .then( () =>
                     this.axios
                         .get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
                         .then(response => {
-                            self.editExistingAllowed = response.data.editExistingAllowed
-	                        self.creationValidationAllowed = response.data.creationValidationAllowed
-                            self.reports = response.data.reports
+                            this.editExistingAllowed = response.data.editExistingAllowed
+	                        this.creationValidationAllowed = response.data.creationValidationAllowed
+                            this.reports = response.data.reports
                         })
                 ).catch(function(error) {
-                    self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
+                    this.$unidooAlert.showError(this.$unidooAlert.formatError(this.$t('error.notification'), error), this.$t('button.close'))
                 })
         },
         createReport() {

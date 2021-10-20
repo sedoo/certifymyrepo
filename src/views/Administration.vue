@@ -218,7 +218,6 @@
 
 <script>
 import AffiliationCreationEditionDialog from "../components/AffiliationCreationEditionDialog";
-import moment from 'moment';
 export default {
   components: {
       AffiliationCreationEditionDialog

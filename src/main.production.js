@@ -26,7 +26,6 @@ Vue.use(Unidoo);
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
 Vue.use(vueCustomElement);
-
 Vue.component('apexchart', VueApexCharts)
 Vue.component('certifymyrepo-token-refresher', TokenRefresher)
 

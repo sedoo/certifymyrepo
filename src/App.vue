@@ -5,32 +5,41 @@
     <unidoo-alert></unidoo-alert>
     <unidoo-confirm-dialog />
 
-    <v-toolbar color="secondary" v-if="type!='external'">
-      <v-toolbar-title class="text-uppercase" >
-        <span class="font-weight-light">Crusöe</span>
-      </v-toolbar-title>
-
-      <v-spacer></v-spacer>
-      <v-toolbar-items  >
-          <v-btn v-for="(link, i) in links"
-            :key="i" router :to="link.route" :title="$t(link.label)"
+    <v-app-bar-nav-icon v-if="type!='external' || $vuetify.breakpoint.mobile" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+    <v-navigation-drawer
+      v-model="drawer"
+      absolute
+      temporary
+    >
+      <v-list
+        nav
+        dense
+      >
+        <v-list-item-group
+          v-model="group"
+          active-class="deep-purple--text text--accent-4"
+        >
+          <v-list-item v-for="(link, i) in links"
+            :key="i" router :to="link.route"
             color="secondary"
             >
-            <v-icon class="standard-icon">{{ link.icon }}</v-icon>
-          </v-btn>
-          <v-btn text @click="login" v-if="!isLogged" title="Login">
-            <v-icon class="standard-icon">mdi-application-import</v-icon>
-          </v-btn>
-          <v-btn
-            text
-            @click="logoutFromORCID"
-            v-if="isLogged"
-            :title="$t('logout', {msg: userName})"
-          >
-            <v-icon class="standard-icon">mdi-application-export</v-icon>
-          </v-btn>
-      </v-toolbar-items>
-    </v-toolbar>
+            <v-list-item-icon><v-icon>{{ link.icon }}</v-icon></v-list-item-icon>
+            <v-list-item-title>{{ $t(link.label) }}</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item @click="login" v-if="!isLogged">
+            <v-list-item-icon><v-icon>mdi-application-import</v-icon></v-list-item-icon>
+            <v-list-item-title>{{ $t('login') }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="logoutFromORCID" v-if="isLogged">
+            <v-list-item-icon><v-icon>mdi-application-export</v-icon></v-list-item-icon>
+            <v-list-item-title class="text-wrap">{{ $t('logout', {msg: userName}) }}</v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
+
+
     <v-main class="ma-3">
       <router-view @login="login"></router-view>
     </v-main>
@@ -62,6 +71,10 @@ export default {
       Type: String,
       default: "header.entry-header"
     },
+    renater: {
+      Type: Boolean,
+      default: false
+    },
     devEnv: {
       Type: Boolean,
       default: false
@@ -71,6 +84,7 @@ export default {
     profile: null,
     errored: false,
     drawer : false,
+    group: null,
     link: null,
     links : [],
     linkRepositories: {label:"page.repositories", route: '/repositories', icon: 'mdi-archive'},
@@ -139,6 +153,7 @@ export default {
     this.$i18n.locale = this.language;
     this.$store.commit('setLanguage', this.language)
     this.$store.commit('setService', this.service)
+    this.$store.commit('setRenater', this.renater)
     this.links = []
     let token = this.getTokenParameter()
     if( token != null) {
@@ -259,7 +274,7 @@ export default {
        */
       updateToolbar() {
         let prefix='external-toolbar-button'
-        if (this.type=='external') {
+        if (this.type=='external' && !this.$vuetify.breakpoint.mobile) {
         let toolbar = document.querySelector("div.external-toolbar")
         if (toolbar) {
           let content ="<span style='font-size: 2rem;padding-right: 70px;'>";
@@ -382,6 +397,9 @@ div.v-application.white {
 .toolbar-title {
   font-size: 1.3 rem;
   margin: 10px 0px;
+}
+.fullwidth a {
+ text-decoration: none;
 }
 </style>
 

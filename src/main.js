@@ -50,5 +50,5 @@ new Vue({
   store,
   vuetify,
   i18n,
-  render: h => h(App, {props: {type: 'internal', devEnv: true}})
+  render: h => h(App, {props: {type: 'internal', renater: true, devEnv: true}})
 }).$mount('#app')

@@ -203,7 +203,7 @@
                     <v-card-title class="headline grey lighten-2" primary-title>
                     {{ $t('repository.screen.create.user.title') }}
                     </v-card-title>
-                    <v-card-actions>
+                    <v-card-actions v-if="renater">
                         <v-radio-group class="pl-2" v-model="creationMode" row>
                             <v-radio label="ORCID" value="orcid"></v-radio>
                             <v-radio label="Renater email" value="email"></v-radio>
@@ -456,6 +456,9 @@ export default {
     },
 
     computed: {
+      renater: function() {
+        return this.$store.getters.getRenater;
+      },
       language: function() {
         return this.$store.getters.getLanguage
       },

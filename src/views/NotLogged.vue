@@ -5,14 +5,10 @@
     </div>
     <div class=box>
       <v-container fluid>
-      <v-row>
-        <v-col cols="12">
-         <p class="text-center">
-          {{ $t('notlogged.screen.message') }}
-          </p>
-        </v-col>
+      <v-row justify="center">
+        <p>{{ $t('notlogged.screen.message') }}</p>
       </v-row>
-      <v-row>
+      <v-row v-if="renater" >
         <v-col cols="8" md="3" offset-md="2" offset="2">
           <v-form v-model="validRenater">
             <v-card height="100%" elevation="2" class="card-outter">
@@ -47,20 +43,35 @@
           </v-form>
         </v-col>
         <v-col cols="8" md="3" offset-md="2" offset="2">
-      <v-card height="100%" elevation="2" class="card-outter">
-        <v-card-title class="pt-10">
-          <img
-              style="vertical-align:middle;"
-              src="https://orcid.org/assets/vectors/orcid.logo.svg"
-            />
-        </v-card-title>
-         <v-card-actions class="card-actions">
-            <v-btn color="info" @click="loginOrcid">
-              {{ $t('notlogged.screen.button.login') }}
-              </v-btn>
-         </v-card-actions>
-      </v-card>
+          <v-card height="100%" elevation="2" class="card-outter">
+            <v-card-title class="pt-10">
+              <img
+                  style="vertical-align:middle;"
+                  src="https://orcid.org/assets/vectors/orcid.logo.svg"
+                />
+            </v-card-title>
+            <v-card-actions class="card-actions">
+                <v-btn color="info" @click="loginOrcid">
+                  {{ $t('notlogged.screen.button.login') }}
+                  </v-btn>
+            </v-card-actions>
+          </v-card>
         </v-col>
+      </v-row>
+      <v-row v-else justify="center">
+        <v-card height="100%" elevation="2" class="card-outter">
+          <v-card-title class="pt-10">
+            <img
+                style="vertical-align:middle;"
+                src="https://orcid.org/assets/vectors/orcid.logo.svg"
+              />
+          </v-card-title>
+          <v-card-actions class="card-actions">
+              <v-btn color="info" @click="loginOrcid">
+                {{ $t('notlogged.screen.button.login') }}
+                </v-btn>
+          </v-card-actions>
+        </v-card>
       </v-row>
       </v-container>
     </div>
@@ -86,6 +97,9 @@ export default {
     },
     service: function()  {
       return this.$store.getters.getService
+    },
+    renater: function() {
+      return this.$store.getters.getRenater;
     },
   },
 

@@ -140,26 +140,22 @@
                     color="info"
                     @click="dialogSave = true; editedVersion = myReport.version"
                     >
-                    {{ $t('button.save') }}
+                    {{ $t('button.save') }} 1
                 </v-btn>
                 </template>
                 <span>{{ $t('report.screen.button.save.help') }}</span>
               </v-tooltip>
-            </div>
-
-            <div class="text-right save-button">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-              <v-btn v-on="on" v-show="validationAllowed"
-                color="info"
-                @click="displayReleaseConfirmation"
-                :disabled="!valid"
-                >
-                {{ $t('button.release') }}
-              </v-btn>
-              </template>
-              <span>{{ $t('report.screen.button.release.help') }}</span>
-            </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                <v-btn v-on="on" v-show="editExistingAllowed" class="ml-5"
+                    color="info"
+                    @click="dialogSave2 = true; radioGroup = 'save'; editedVersion = myReport.version"
+                    >
+                    {{ $t('button.save') }} 2
+                </v-btn>
+                </template>
+                <span>{{ $t('report.screen.button.save.help') }}</span>
+              </v-tooltip>
             </div>
       </v-form>
     </div>
@@ -175,7 +171,7 @@
         </v-card-title>
 
         <v-card-text class="py-5">{{ $t('report.screen.upload.popup.message')}}</v-card-text>
-
+        <v-form v-model="valid">
         <v-file-input
           class="px-3 py-0"
           v-model="itemFiles"
@@ -186,7 +182,7 @@
           :label="$t('report.screen.label.add.files')"
           :rules="rules.filesRules"
         ></v-file-input>
-
+        </v-form>
         <v-divider></v-divider>
 
         <v-card-actions>
@@ -198,6 +194,7 @@
             color="info"
             @click="updateUploadedFiles(itemFiles)"
             :loading="uploadInProgress"
+            :disabled="!valid"
         >
             {{ $t('button.confirm') }}
         </v-btn>
@@ -244,15 +241,7 @@
           {{ $t('report.screen.release.confirmation.title')}}
           </v-card-title>
           <v-card-text>
-            <p>{{ $t('report.screen.release.confirmation.message')}}</p>
-            <v-form v-model="valid">
-              <v-text-field v-if="editExistingAllowed"
-                  :label="$t('report.screen.version.number')"
-                  v-model="editedVersion"
-                  :rules="rules.versionRules"
-                  outlined dense
-              ></v-text-field>
-            </v-form>
+            <p>{{ $t('report.screen.release.confirmation.message', {'version':editedVersion })}}</p>
           </v-card-text>
           <v-divider></v-divider>
           <v-card-actions>
@@ -293,11 +282,65 @@
               {{ $t('button.cancel') }}
           </v-btn>
           <v-btn color="info" @click="saveReportVersion(false)" :disabled="!valid">
+              {{ $t('button.save') }}
+          </v-btn>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+            <v-btn v-on="on" v-show="validationAllowed" class="ml-2"
+              color="info"
+              @click="displayReleaseConfirmation"
+              :disabled="!valid"
+              >
+              {{ $t('button.release') }}
+            </v-btn>
+            </template>
+            <span>{{ $t('report.screen.button.release.help') }}</span>
+          </v-tooltip>
+          </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+   <v-dialog v-model="dialogSave2" :width="$store.getters.getDialogWidth" persistent>
+      <v-card>
+          <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+          >
+          {{ $t('report.screen.save.confirmation.title')}}
+          </v-card-title>
+          <v-card-text>
+          <v-radio-group v-model="radioGroup">
+            <v-radio
+              label="Enregistrer le dossier de certification. cette action enregistrera une version modifiable."
+              value="save"
+            ></v-radio>
+            <v-radio
+              label="Enregistrer une version non modifiable et non supprimable du dossier de certification dans l'historique et retourne sur liste des dossiers de certification."
+              value="freeze"
+            ></v-radio>
+          </v-radio-group>
+            <v-form v-model="valid">
+              <v-text-field v-if="editExistingAllowed"
+                  :label="$t('report.screen.version.number')"
+                  v-model="editedVersion"
+                  :rules="rules.versionRules"
+                  outlined dense
+              ></v-text-field>
+            </v-form>
+          </v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn @click="dialogSave2 = false">
+              {{ $t('button.cancel') }}
+          </v-btn>
+          <v-btn color="info" @click="confirmSaving" :disabled="!valid">
               {{ $t('button.confirm') }}
           </v-btn>
           </v-card-actions>
       </v-card>
     </v-dialog>
+
 
     </div>
 
@@ -320,6 +363,8 @@ export default {
             dialogDeleteFile: false,
             dialogFreeze: false,
             dialogSave: false,
+            dialogSave2: false,
+            radioGroup: 'save',
 	          editExistingAllowed: false,
             validationAllowed: false,
             editedVersion: null,
@@ -417,6 +462,15 @@ export default {
       },
     },
     methods: {
+
+      confirmSaving() {
+        if(this.radioGroup == 'save') {
+          this.dialogSave2 = false
+          this.saveReportVersion(false)
+        } else  if(this.radioGroup == 'freeze') {
+          this.displayReleaseConfirmation()
+        }
+      },
 
       downloadAttachment(reportId, code, fileName, index) {
         this.downloadAttachmentInProgress[index] = true
@@ -567,6 +621,7 @@ export default {
        * @param isReturn if true return to the previous screen after saving (list of reports)
        */
       saveReport (isReturn) {
+        debugger
         if(!this.valid) {
           this.$unidooAlert.showError(this.$t('report.screen.error.version.madatory'))
         } else {
@@ -618,6 +673,7 @@ export default {
       },
 
       showFreezeReportConfirmDialog: function () {
+        debugger
         if(this.myReport.status != 'IN_PROGRESS') {
           this.$unidooAlert.showError(this.$t('report.screen.release.error'), self.$t('button.close'))
         } else {
@@ -632,9 +688,10 @@ export default {
       },
 
       releaseTheReport() {
+        debugger
         this.dialog = false
         this.myReport.status = 'RELEASED'
-        this.myReport.version = this.version
+        this.myReport.version = this.editedVersion
         this.saveReport (true)
       },
 
@@ -667,8 +724,6 @@ export default {
         .get(this.service+'/certificationReport/v1_0/getReport/'+id)
         .then( function (response) {
           self.myReport = response.data.report
-          let originalRepositoryId = self.myReport.repositoryId 
-          let destinationRepositoryId = self.$route.query.repositoryId
           self.myReport.repositoryId = self.$route.query.repositoryId
           self.editExistingAllowed = response.data.editExistingAllowed
           self.validationAllowed = response.data.validationAllowed

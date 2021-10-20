@@ -5,7 +5,6 @@
 
     <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
     <div v-else class="pa-5">
-      <p class="grey--text">{{ $t('dasborad.screen.stats', {'userNb':numberOfUsers, 'repoNb':numberOfRepositories, 'reportsNb':numberOfInProgressReport + numberOfValidatedReport, 'inProgressReports':numberOfInProgressReport, 'validatedReports':numberOfValidatedReport  } ) }}</p>
       <template v-if="repoList != null && repoList.length > 0">
         <v-data-table
           :headers="headers"
@@ -45,8 +44,8 @@
             </template> 
             <template v-slot:footer.page-text="items"> {{ items.pageStart }} - {{ items.pageStop }} {{ $t('data.table.page.text') }} {{ items.itemsLength }} 
             </template>
-
         </v-data-table>
+        <dashboard-charts/>
       </template>
     </div>
     </v-flex>
@@ -55,17 +54,17 @@
 </template>
 
 <script>
+import DashboardCharts from "../components/DashboardCharts.vue";
 import moment from 'moment';
 export default {
+  components: {
+      DashboardCharts
+  },
   data() {
     return {
       repoList: [],
       loading: false,
       headers: [] ,
-      numberOfUsers: 0,
-      numberOfRepositories: 0,
-      numberOfValidatedReport: 0,
-      numberOfInProgressReport: 0
     }
   },
 
@@ -85,16 +84,6 @@ export default {
       self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
     })
     .finally(() => self.loading = false)
-
-    this.axios.get(this.service+'/statistics/v1_0/statistics')
-    .then(response => {
-      this.numberOfUsers = response.data.users
-      this.numberOfRepositories = response.data.repositories
-      this.numberOfValidatedReport = response.data.validated
-      this.numberOfInProgressReport = response.data.inProgress
-    }).catch(function(error) {
-      self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
-    })
   },
 
   props: {
