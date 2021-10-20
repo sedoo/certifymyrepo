@@ -12,6 +12,7 @@ export const store = new Vuex.Store(
           repository: null,
           language: null,
           service: null,
+          renater: false,
           dialogWidth: '900px'
         },
       
@@ -30,6 +31,9 @@ export const store = new Vuex.Store(
           },
           setService(state, service) {
             state.service = service
+          },
+          setRenater(state, renater) {
+            state.renater = renater
           }
         },
       
@@ -53,6 +57,9 @@ export const store = new Vuex.Store(
           },
           getDialogWidth(state) {
             return state.dialogWidth;
+          },
+          getRenater(state) {
+            return state.renater;
           }
         },
 
