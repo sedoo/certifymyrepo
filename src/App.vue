@@ -27,6 +27,15 @@
             <v-list-item-title>{{ $t(link.label) }}</v-list-item-title>
           </v-list-item>
 
+          <v-list-item :href="helpUrl" target="_blank" v-if="isLogged">
+            <v-list-item-icon><v-icon>mdi-help-circle</v-icon></v-list-item-icon>
+            <v-list-item-title>{{ $t('page.help') }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item :href="docUrl" target="_blank" v-if="isLogged">
+            <v-list-item-icon><v-icon>mdi-information-outline</v-icon></v-list-item-icon>
+            <v-list-item-title>{{ $t('page.documentation') }}</v-list-item-title>
+          </v-list-item>
+
           <v-list-item @click="login" v-if="!isLogged">
             <v-list-item-icon><v-icon>mdi-application-import</v-icon></v-list-item-icon>
             <v-list-item-title>{{ $t('login') }}</v-list-item-title>

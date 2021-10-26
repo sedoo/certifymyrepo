@@ -45,7 +45,7 @@
             <template v-slot:footer.page-text="items"> {{ items.pageStart }} - {{ items.pageStop }} {{ $t('data.table.page.text') }} {{ items.itemsLength }} 
             </template>
         </v-data-table>
-        <dashboard-charts/>
+        <dashboard-semester-charts/>
       </template>
     </div>
     </v-flex>
@@ -54,11 +54,11 @@
 </template>
 
 <script>
-import DashboardCharts from "../components/DashboardCharts.vue";
+import DashboardSemesterCharts from "../components/DashboardSemesterCharts.vue";
 import moment from 'moment';
 export default {
   components: {
-      DashboardCharts
+      DashboardSemesterCharts
   },
   data() {
     return {

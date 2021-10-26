@@ -14,8 +14,8 @@
             <v-card height="100%" elevation="2" class="card-outter">
               <v-card-title>
                   <img
-                    style="vertical-align:middle;"
-                    src="https://upload.wikimedia.org/wikipedia/fr/f/fe/Logo_Renater_2013.gif"
+                    class="logo"
+                    src="../images/Renater.png"
                   />
               </v-card-title>
               <v-card-text class="py-0">
@@ -46,8 +46,8 @@
           <v-card height="100%" elevation="2" class="card-outter">
             <v-card-title class="pt-10">
               <img
-                  style="vertical-align:middle;"
-                  src="https://orcid.org/assets/vectors/orcid.logo.svg"
+                  class="logo"
+                  src="../images/orcid.logo.svg"
                 />
             </v-card-title>
             <v-card-actions class="card-actions">
@@ -62,8 +62,8 @@
         <v-card height="100%" elevation="2" class="card-outter">
           <v-card-title class="pt-10">
             <img
-                style="vertical-align:middle;"
-                src="https://orcid.org/assets/vectors/orcid.logo.svg"
+                class="logo"
+                src="../images/orcid.logo.svg"
               />
           </v-card-title>
           <v-card-actions class="card-actions">
@@ -166,6 +166,11 @@ export default {
   position: absolute;
   bottom: 10px;
   left: 8px;
+}
+.logo {
+  vertical-align:middle;
+  width: 75%; 
+  height: auto;
 }
 </style>
 <style>

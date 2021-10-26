@@ -2,7 +2,7 @@
       <div id="chart">
         <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
         <v-card v-else class="mt-10">
-          <v-card-title>{{ $t('dashboard.screen.graphs') }}</v-card-title>
+          <v-card-title>{{ $t('dashboard.screen.monthly.graphs') }}</v-card-title>
         <v-card-text>
           <v-row>
             <v-col cols="4"><v-select dense v-model="year" :items="years" outlined @change="loadStats" /></v-col>

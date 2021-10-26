@@ -1,6 +1,6 @@
 {
   "login": "Connexion",
-  "logout": "Déconnexion (vous êtes connecté en tant que : '{msg}'",
+  "logout": "Déconnexion (vous êtes connecté en tant que : '{msg}')",
   "page.repositories" : "Entrepôts",
   "page.information" : "Information utilisateur",
   "page.dashboard" : "Tableau de bord",
@@ -38,7 +38,9 @@
   "dashboard.screen.users": "Nombre d'utilisateur",
   "dashboard.screen.repositories": "Nombre d'entrepôts",
   "dashboard.screen.month": "Mois",
-  "dashboard.screen.graphs": "Statistiques mensuelles",
+  "dashboard.screen.semester": "Semestre",
+  "dashboard.screen.monthly.graphs": "Statistiques mensuelles",
+  "dashboard.screen.semester.graphs": "Statistiques semestrielles",
   "dashboard.screen.repositories.states": "Etats des entrepôts",
   "radarchart.legend": "Niveaux supérieurs et égaux à 1",
   "health.icon.legend.green": "Tous les critères éligibles ont un niveau renseigné avec pour valeur 4, 3 ou 0 pour non applicable.",
