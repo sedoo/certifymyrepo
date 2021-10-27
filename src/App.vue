@@ -83,10 +83,6 @@ export default {
     renater: {
       Type: Boolean,
       default: false
-    },
-    devEnv: {
-      Type: Boolean,
-      default: false
     }
   },
   data: () => ({
@@ -169,7 +165,8 @@ export default {
       let user = {token: token, profile: {name: 'Robot'}}
       this.$store.commit('setUser', user)
     } else {
-      if(this.devEnv) {
+      // if type is external it's a dev environment
+      if(this.type!='external') {
         this.links.push(this.linkContact)
       }
       if (this.isLogged) {
@@ -272,7 +269,8 @@ export default {
       logoutFromORCID: function() {
         logOut(this.$store)
         this.links = []
-        if(this.devEnv) {
+        // if type is external it's a dev environment
+        if(this.type!='external') {
           this.links.push(this.linkContact)
         }
         this.$router.push("/notlogged").catch(() => {});

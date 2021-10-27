@@ -47,7 +47,7 @@
             <v-card-title class="pt-10">
               <img
                   class="logo"
-                  src="../images/orcid.logo.svg"
+                  src="../images/Orcid.png"
                 />
             </v-card-title>
             <v-card-actions class="card-actions">
@@ -63,7 +63,7 @@
           <v-card-title class="pt-10">
             <img
                 class="logo"
-                src="../images/orcid.logo.svg"
+                src="../images/Orcid.png"
               />
           </v-card-title>
           <v-card-actions class="card-actions">

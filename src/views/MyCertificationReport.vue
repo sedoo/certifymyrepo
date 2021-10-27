@@ -4,7 +4,7 @@
     <v-progress-linear indeterminate v-if="loadingReport" class="mt-3"></v-progress-linear>
     <div v-if="!loadingReport" class="report">
     <h4 class="subheading grey--text pt-5 pb-5">{{ templateDescription }}</h4>
-    <p v-if="editExistingAllowed" class="grey--text">Pensez à enregistrer régulièrement votre travail avec le bouton 'Enregister' en bas de la page.</p>
+    <p v-if="editExistingAllowed" class="grey--text">{{ $t('report.screen.intro') }}</p>
       <v-form v-model="valid">
             <v-text-field v-if="editExistingAllowed"
                 :label="$t('report.screen.version.number')"

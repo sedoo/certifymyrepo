@@ -16,6 +16,11 @@ module.exports = {
         } else if (process.env.NODE_ENV === "production") {
           config.entry("app").clear().add("./src/main.production.js").end();
         }
+        config.module
+        .rule('images')
+          .use('url-loader')
+            .loader('url-loader')
+            .tap(options => Object.assign(options, { limit: 10240 }))
     },
     configureWebpack: config => {
         if (process.env.NODE_ENV === "production") {

@@ -175,6 +175,7 @@
   "repository.screen.comment.placeholder" : "Leave a comment",
   "comment.placeholder" : "Comments",
   "report.screen.title": "{msg} certification report",
+  "report.screen.intro": "Keep in ind to save your work on regular basis with the 'Save' button. Buttons 'Next and 'Previous' does not save the content.",
   "repository.screen.join.request.pending": "Pending request",
   "report.screen.version.number": "Version number",
   "report.screen.error.version.madatory": "Version is required",
