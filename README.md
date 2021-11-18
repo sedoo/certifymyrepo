@@ -80,7 +80,7 @@ The toolbar of the application gives access to 4 pages and to logout button
 | Logout button  		| Used to disconnect properly from the application.      | |
 
 
-## 7 Notifications
+## 3. Notifications
 
 | Case  | Recipients |
 | :--------------- | :--------------- |
@@ -92,7 +92,7 @@ The toolbar of the application gives access to 4 pages and to logout button
 | Add a comment on a requirement	| Notify all repository users  |
 | No action on the report after 2 months | Notify all repository users  |
 
-## 4 Report template
+## 4. Report template
 
 Certification reports are based on JSON template. The list of existing template is [Report template](https://github.com/sedoo/certifymyrepo-back/tree/main/src/main/resources/certificationReportTemplate)
 
