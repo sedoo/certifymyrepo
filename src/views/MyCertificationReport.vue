@@ -4,7 +4,7 @@
     <v-progress-linear indeterminate v-if="loadingReport" class="mt-3"></v-progress-linear>
     <div v-if="!loadingReport" class="report">
     <h4 class="subheading grey--text pt-5 pb-5">{{ templateDescription }}</h4>
-    <p v-if="editExistingAllowed" class="grey--text">{{ $t('report.screen.intro') }}</p>
+    <h4 v-if="editExistingAllowed" class="red--text mb-5">{{ $t('report.screen.intro') }}</h4>
       <v-form v-model="valid">
             <v-text-field v-if="editExistingAllowed"
                 :label="$t('report.screen.version.number')"
@@ -138,20 +138,9 @@
                 <template v-slot:activator="{ on }">
                 <v-btn v-on="on" v-show="editExistingAllowed"
                     color="info"
-                    @click="dialogSave = true; editedVersion = myReport.version"
+                    @click="dialogSave = true; radioGroup = 'save'; editedVersion = myReport.version"
                     >
-                    {{ $t('button.save') }} 1
-                </v-btn>
-                </template>
-                <span>{{ $t('report.screen.button.save.help') }}</span>
-              </v-tooltip>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                <v-btn v-on="on" v-show="editExistingAllowed" class="ml-5"
-                    color="info"
-                    @click="dialogSave2 = true; radioGroup = 'save'; editedVersion = myReport.version"
-                    >
-                    {{ $t('button.save') }} 2
+                    {{ $t('button.save') }}
                 </v-btn>
                 </template>
                 <span>{{ $t('report.screen.button.save.help') }}</span>
@@ -256,51 +245,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialogSave" :width="$store.getters.getDialogWidth" persistent>
-      <v-card>
-          <v-card-title
-          class="headline grey lighten-2"
-          primary-title
-          >
-          {{ $t('report.screen.save.confirmation.title')}}
-          </v-card-title>
-          <v-card-text>
-            <p>{{ $t('report.screen.save.confirmation.message')}}</p>
-            <v-form v-model="valid">
-              <v-text-field v-if="editExistingAllowed"
-                  :label="$t('report.screen.version.number')"
-                  v-model="editedVersion"
-                  :rules="rules.versionRules"
-                  outlined dense
-              ></v-text-field>
-            </v-form>
-          </v-card-text>
-          <v-divider></v-divider>
-          <v-card-actions>
-          <div class="flex-grow-1"></div>
-          <v-btn @click="dialogSave = false">
-              {{ $t('button.cancel') }}
-          </v-btn>
-          <v-btn color="info" @click="saveReportVersion(false)" :disabled="!valid">
-              {{ $t('button.save') }}
-          </v-btn>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-            <v-btn v-on="on" v-show="validationAllowed" class="ml-2"
-              color="info"
-              @click="displayReleaseConfirmation"
-              :disabled="!valid"
-              >
-              {{ $t('button.release') }}
-            </v-btn>
-            </template>
-            <span>{{ $t('report.screen.button.release.help') }}</span>
-          </v-tooltip>
-          </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-   <v-dialog v-model="dialogSave2" :width="$store.getters.getDialogWidth" persistent>
+   <v-dialog v-model="dialogSave" :width="$store.getters.getDialogWidth" persistent>
       <v-card>
           <v-card-title
           class="headline grey lighten-2"
@@ -311,11 +256,11 @@
           <v-card-text>
           <v-radio-group v-model="radioGroup">
             <v-radio
-              label="Enregistrer le dossier de certification. cette action enregistrera une version modifiable."
+              :label="$t('report.screen.save.message')"
               value="save"
             ></v-radio>
             <v-radio
-              label="Enregistrer une version non modifiable et non supprimable du dossier de certification dans l'historique et retourne sur liste des dossiers de certification."
+              :label="$t('report.screen.freeze.message')"
               value="freeze"
             ></v-radio>
           </v-radio-group>
@@ -331,7 +276,7 @@
           <v-divider></v-divider>
           <v-card-actions>
           <div class="flex-grow-1"></div>
-          <v-btn @click="dialogSave2 = false">
+          <v-btn @click="dialogSave = false">
               {{ $t('button.cancel') }}
           </v-btn>
           <v-btn color="info" @click="confirmSaving" :disabled="!valid">
@@ -363,7 +308,6 @@ export default {
             dialogDeleteFile: false,
             dialogFreeze: false,
             dialogSave: false,
-            dialogSave2: false,
             radioGroup: 'save',
 	          editExistingAllowed: false,
             validationAllowed: false,
@@ -386,7 +330,7 @@ export default {
                   v => /[0-99].[0-99]/.test(v) || this.$t('report.screen.version.not.valid.error'),
               ],
               filesRules: [
-                files => !files || !files.some(file => file.size > 10485760)|| this.$t('report.screen.files.size.error'),
+                files => !files || !files.some(file => file.size > 26214400)|| this.$t('report.screen.files.size.error'),
               ]
             },
             templateDescription: null,
@@ -465,7 +409,7 @@ export default {
 
       confirmSaving() {
         if(this.radioGroup == 'save') {
-          this.dialogSave2 = false
+          this.dialogSave = false
           this.saveReportVersion(false)
         } else  if(this.radioGroup == 'freeze') {
           this.displayReleaseConfirmation()
@@ -621,7 +565,6 @@ export default {
        * @param isReturn if true return to the previous screen after saving (list of reports)
        */
       saveReport (isReturn) {
-        debugger
         if(!this.valid) {
           this.$unidooAlert.showError(this.$t('report.screen.error.version.madatory'))
         } else {
@@ -688,7 +631,6 @@ export default {
       },
 
       releaseTheReport() {
-        debugger
         this.dialog = false
         this.myReport.status = 'RELEASED'
         this.myReport.version = this.editedVersion
@@ -697,7 +639,7 @@ export default {
 
       displayReleaseConfirmation() {
         if(this.myReport.status != 'IN_PROGRESS') {
-          self.$unidooAlert.showError(this.$t('report.screen.release.error'), self.$t('button.close'))
+          this.$unidooAlert.showError(this.$t('report.screen.release.error'), this.$t('button.close'))
         } else {
           this.editedVersion = this.myReport.version
           this.dialogFreeze = true

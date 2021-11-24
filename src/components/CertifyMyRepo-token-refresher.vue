@@ -37,6 +37,7 @@ export default {
                 let user = Object.assign(this.getUser)
                 user.token = response.data
                 this.$store.commit("setUser", user);
+                console.log("JWT token Refreshed " + new Date())
               });
             } 
         }, 900000) // 15 minutes

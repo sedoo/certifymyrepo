@@ -9,7 +9,7 @@
     <v-navigation-drawer
       v-model="drawer"
       absolute
-      temporary
+      temporary app
     >
       <v-list
         nav
@@ -218,6 +218,7 @@ export default {
  },
 
   mounted: function() {
+    console.log(this.isLogged)
     let aux = document.querySelector(this.externalselector);
     if (aux) {
       let text = aux.innerText;
@@ -304,8 +305,8 @@ export default {
           }
           if (this.isLogged) {
             content += '<i route="logout" id="'+prefix+'-logout" style="color:#fb8c00" class="toolbar-button mdi mdi-application-export" title="'+this.$t('logout', {msg: this.userName})+'"></i>'
-          } else {
-            content += '<i route="login" id="'+prefix+'-login" style="color:#fb8c00" class="toolbar-button mdi mdi-application-import" title="'+this.$t('login')+'"></i>'
+          //} else {
+            //content += '<i route="login" id="'+prefix+'-login" style="color:#fb8c00" class="toolbar-button mdi mdi-application-import" title="'+this.$t('login')+'"></i>'
           }
 
           content +="</span>"

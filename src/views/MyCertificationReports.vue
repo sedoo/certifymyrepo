@@ -175,7 +175,8 @@
                         <span>{{ formatName(item) }}</span>
                     </template>
                 </v-select>
-                {{ $t('reports.screen.make.copy.report.information') }}
+                <p>{{ $t('reports.screen.make.copy.report.warning') }}</p>
+                <p>{{ $t('reports.screen.make.copy.report.information') }}</p>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
