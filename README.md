@@ -2,16 +2,18 @@
 
 # Table of Contents
 
-1. [Architecture](#architecture)
-2. [Access management](#access-management)   
-    - 2.1 [User roles](#user-roles)
-    - 2.2 [Administrators](#administrators)
-    - 2.3 [Application toolbar](#application-toolbar)
-3. [Notifications](#notifications)   
-4. [Report template](#report-template)   
-5. [Packing and deployement](#packing-and-deployement)
+1. [Architecture](#1-architecture)
+2. [Access management](#2-access-management)   
+    - 2.1 [User roles](#2.1-user-roles)
+    - 2.2 [Administrators](#2.2-administrators)
+    - 2.3 [Add manually a functional administrator](#2.3-add-manually-a-functional-administrator)
+    - 2.4 [Add a technical administrator](#2.3-add-a-technical-administrator)
+    - 2.5 [Application toolbar](#2.5-application-toolbar)
+3. [Notifications](#3-notifications)   
+4. [Report template](#4-report-template)   
+5. [Packing and deployement](#5-packing-and-deployement)
 
-## Architecture
+## 1 Architecture
 
 ### Front-end
 - The font-end part is developed with Vue.js javascript technology. It permits
@@ -30,9 +32,9 @@
 
 Authentication is not managed by the software itself but is delegated to the Renater and Orcid mechanisms.
 
-## Access management
+## 2 Access management
 
-### User roles
+### 2.1 User roles
 
 
 | Internal code  | French label | English label | Rights |
@@ -44,7 +46,7 @@ Authentication is not managed by the software itself but is delegated to the Ren
 An user can be Editor on a repository and Reader on another.
 
 
-### Administrators
+### 2.2 Administrators
 
 Administrators are initialized during application start up. They are created from an ORCID list passed to the appliaction through environment variables (SUPER_ADMIN_ORCID_LIST and ADMIN_ORCID_LIST).
 If email address has been filled and set to public on their ORCID account it will be copied in the profile (If several emails are present then email set as 'primary' in orcid personnal account will be used others will be ignored). If email is not found adminitrator will have to fill it out in his CRUSÖE profil.
@@ -55,15 +57,15 @@ There are two administrator categories:
 
 Rights are identical between functional and technical administrators. Administrators are able to update or delete any repository.
 
-##### Add manually a functional administrator
+##### 2.3 Add manually a functional administrator
 
 A new person coming as functional administrator has to create a profile frist. To do so, he has to login in once with orcid or renater a profile with minimum information is created at the frist login. Then an actual administrator will be able to find him in the list of user on the 'Administration' page and give him administrator right.
 
-##### Add an technical administrator
+##### 2.4 Add a technical administrator
 
 Currently the only way to add a technical administration is to add his ORCID in the environment variable SUPER_ADMIN_ORCID_LIST and the reboot the back-end application. Technical administrators are not visible on the list in 'Administration' page.
 
-### Application toolbar
+### 2.5 Application toolbar
 
 The toolbar of the application gives access to 4 pages and to logout button
 
@@ -78,20 +80,19 @@ The toolbar of the application gives access to 4 pages and to logout button
 | Logout button  		| Used to disconnect properly from the application.      | |
 
 
-## Notifications
+## 3. Notifications
 
 | Case  | Recipients |
 | :--------------- | :--------------- |
 | Create a new user profile while adding an user on a repository	| An Editor can add users on a repository. An user can be created in the system if he does not exist. If the email has been filled in (not madatory if add from an ORCID) the user will get a notification. |
 | Add an user on a repository	| An Editor can add users on a repository. The users will receive a notification. |
 | Remove an user from a repository	| An Editor can remove users on a repository. The users will receive a notification. |
-| Request access on a repository 	| An user can search for a repositoy by name, keywords etc and request access. The users with Editor role on the given repository will receive a notification  |
 | Save a report with a new version	| Notify all repository users  |
 | Validate a report	| Notify all repository users  |
 | Add a comment on a requirement	| Notify all repository users  |
 | No action on the report after 2 months | Notify all repository users  |
 
-## Report template
+## 4. Report template
 
 Certification reports are based on JSON template. The list of existing template is [Report template](https://github.com/sedoo/certifymyrepo-back/tree/main/src/main/resources/certificationReportTemplate)
 
@@ -128,7 +129,7 @@ Example:
  }
 ````
 
-## Packing and deployement
+## 5 Packing and deployement
 
 ### Front-end
 
