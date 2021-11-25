@@ -145,10 +145,32 @@ Compiles and hot-reloads for development
 npm run serve
 ```
 
+The application is available at ``http://localhost:8485"``
+
 Compiles and minifies for production
 ```
 npm run build
 ```
+
+This command will build and deploy the application on the sedoo cdn. See [vue.config.js](vue.config.js#L26)
+
+Example of app use:
+```html
+ <crusoe-app  service="https://services.sedoo.fr/crusoe-preprod" language="$$LANGUAGE$$" renater="true" type="external" externalselector="header.entry-header"></crusoe-app>
+```
+
+Attributes details:
+| attribute  | default value | role |
+| :--------------- | :--------------- |  :--------------- |
+| service	| "http://localhost:8485" | REST API URL |
+| frontEndUrl	| "https://coso-preprod.sedoo.fr" | Used to add links on Wordpress pages (FAQ, Documentation) |
+| language	| "fr" | Language code, two value possible "fr" or "en" |
+| type	| "external" | if "external" an external nemu is hooked outside the VueJS app else use VueJS menu |
+| externalselector	| "header.entry-header" | css selector to hook the external menu on Wordpress page title |
+| renater	| false | active login with Renater Education Research Federation account |
+
+
+
 
 ### Back-end
 
