@@ -165,7 +165,6 @@ export default {
       let user = {token: token, profile: {name: 'Robot'}}
       this.$store.commit('setUser', user)
     } else {
-      // if type is external it's a dev environment
       if(this.type!='external') {
         this.links.push(this.linkContact)
       }

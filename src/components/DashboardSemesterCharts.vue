@@ -5,6 +5,8 @@
           <v-card-title>{{ $t('dashboard.screen.semester.graphs') }}</v-card-title>
         <v-card-text>
           <apexchart  type="bar" height="350" :options="chartOptions" :series="series"></apexchart>
+          <apexchart  type="bar" height="350" :options="chartOptionsUsersRoles" :series="seriesUsersRoles"></apexchart>
+          <p class="legend center">{{ $t('dashboard.screen.role.legend') }}</p>
           <apexchart  type="bar" height="350" :options="chartOptionsStacked" :series="serieReports"></apexchart>
         </v-card-text>
         </v-card>
@@ -54,7 +56,6 @@ export default {
               url: this.service+"/statistics/v1_0/getStats"
           })
           .then(response => {
-            debugger
 
             let dataGreen = []
             let dataOrange = []
@@ -71,6 +72,11 @@ export default {
             let serieUsers = {name: this.$t('dashboard.screen.users'), data: []}
             let serieRepo = {name: this.$t('dashboard.screen.repositories'), data: []}
 
+            let serieEditor = {name: this.$t('dashboard.screen.role.editor'), data: []}
+            let serieContributor = {name: this.$t('dashboard.screen.role.repo.contributor'), data: []}
+            let serieReader = {name: this.$t('dashboard.screen.role.reader'), data: []}
+            let serieNoRole = {name: this.$t('dashboard.screen.role.none'), data: []}
+
             for(let i=0 ; i<statsByYear.length ; i++) {
               if(statsByYear[i].firstSemester) {
                   serieUsers.data.push(statsByYear[i].firstSemester.users)
@@ -79,6 +85,10 @@ export default {
                   dataOrange.push(statsByYear[i].firstSemester.orangeReports)
                   dataRed.push(statsByYear[i].firstSemester.redReports)
                   dataNoReport.push(statsByYear[i].firstSemester.noReports)
+                  serieEditor.data.push(statsByYear[i].firstSemester.numberOfEditors)
+                  serieContributor.data.push(statsByYear[i].firstSemester.numberOfContributors)
+                  serieReader.data.push(statsByYear[i].firstSemester.numberOfReaders)
+                  serieNoRole.data.push(statsByYear[i].firstSemester.numberUsersWithoutRepo)
                   xAxis.push("S1 - "+statsByYear[i].year)
               }
               if(statsByYear[i].secondSemester) {
@@ -88,6 +98,10 @@ export default {
                   dataOrange.push(statsByYear[i].secondSemester.orangeReports)
                   dataRed.push(statsByYear[i].secondSemester.redReports)
                   dataNoReport.push(statsByYear[i].secondSemester.noReports)
+                  serieEditor.data.push(statsByYear[i].secondSemester.numberOfEditors)
+                  serieContributor.data.push(statsByYear[i].secondSemester.numberOfContributors)
+                  serieReader.data.push(statsByYear[i].secondSemester.numberOfReaders)
+                  serieNoRole.data.push(statsByYear[i].secondSemester.numberUsersWithoutRepo)
                   xAxis.push("S2 - "+statsByYear[i].year)
               }
             }
@@ -97,44 +111,65 @@ export default {
           this.serieReports.push({name: this.$t('health.icon.legend.red'), data: dataRed})
           this.serieReports.push({name: this.$t('health.icon.legend.nodata'), data: dataNoReport})
 
-            this.series = []
-            this.series.push(serieUsers)
-            this.series.push(serieRepo)
-            this.chartOptions.xaxis.categories = xAxis
-            this.chartOptionsStacked.xaxis.categories = xAxis
+          this.series = []
+          this.series.push(serieUsers)
+          this.series.push(serieRepo)
 
-            let maxNumberOfUsers = Math.ceil(Math.max(...serieUsers.data)/10)*10
-            let yaxisUsers = { seriesName: serieUsers.name,
-                        opposite: false,
-                        title: {
-                          text: this.$t('dashboard.screen.users')
-                        },
-                        min: 0,
-                        max: maxNumberOfUsers,
-                        tickAmount: maxNumberOfUsers/10
-                      }
-            let maxNumberOfRepositories = Math.ceil(Math.max(...serieRepo.data)/10)*10
-            let yaxisRepo = { seriesName: serieRepo.name,
-                        opposite: true,
-                        title: {
-                          text: this.$t('dashboard.screen.repositories')
-                        },
-                        min: 0,
-                        max: maxNumberOfRepositories,
-                        tickAmount: maxNumberOfRepositories/10
-                      }
-            this.chartOptions.yaxis = []
-            this.chartOptions.yaxis.push(yaxisUsers)
-            this.chartOptions.yaxis.push(yaxisRepo)
-            this.chartOptionsStacked.yaxis = {
-                        title: {
-                          text: this.$t('dashboard.screen.repositories.states')
-                        },
-                        min: 0,
-                        max: maxNumberOfRepositories,
-                        tickAmount: maxNumberOfRepositories/10
-                      }
-          })
+          this.seriesUsersRoles.push(serieEditor)
+          this.seriesUsersRoles.push(serieContributor)
+          this.seriesUsersRoles.push(serieReader)
+          this.seriesUsersRoles.push(serieNoRole)
+          
+          
+          this.chartOptions.xaxis.categories = xAxis
+          this.chartOptionsUsersRoles = JSON.parse(JSON.stringify(this.chartOptions))
+
+          this.chartOptionsStacked.xaxis.categories = xAxis
+
+          let maxNumberOfUsers = Math.ceil(Math.max(...serieUsers.data)/10)*10
+          let yaxisUsers = { seriesName: serieUsers.name,
+                      opposite: false,
+                      title: {
+                        text: this.$t('dashboard.screen.users')
+                      },
+                      min: 0,
+                      max: maxNumberOfUsers,
+                      tickAmount: maxNumberOfUsers/10
+                    }
+          let maxNumberOfRepositories = Math.ceil(Math.max(...serieRepo.data)/10)*10
+          let yaxisRepo = { seriesName: serieRepo.name,
+                      opposite: true,
+                      title: {
+                        text: this.$t('dashboard.screen.repositories')
+                      },
+                      min: 0,
+                      max: maxNumberOfRepositories,
+                      tickAmount: maxNumberOfRepositories/10
+                    }
+          this.chartOptions.yaxis = []
+          this.chartOptions.yaxis.push(yaxisUsers)
+          this.chartOptions.yaxis.push(yaxisRepo)
+
+          let yaxisUsersRole = { seriesName: serieUsers.name,
+                      opposite: false,
+                      title: {
+                        text: this.$t('dashboard.screen.users')+' *'
+                      },
+                      min: 0,
+                      max: maxNumberOfUsers,
+                      tickAmount: maxNumberOfUsers/10
+                    }
+          this.chartOptionsUsersRoles.yaxis = yaxisUsersRole
+
+          this.chartOptionsStacked.yaxis = {
+                      title: {
+                        text: this.$t('dashboard.screen.repositories.states')
+                      },
+                      min: 0,
+                      max: maxNumberOfRepositories,
+                      tickAmount: maxNumberOfRepositories/10
+                    }
+        })
           
           .catch(error => {
             this.$unidooAlert.showError(this.$unidooAlert.formatError(this.$t('error.notification'), error), this.$t('button.close'))
@@ -150,7 +185,9 @@ export default {
       year: 2021,
       years: [2021],
       series: [],
+      seriesUsersRoles: [],
       serieReports: [],
+      chartOptionsUsersRoles: null,
       chartOptions: {
         chart: {
           height: 350,
@@ -167,7 +204,6 @@ export default {
             show: true
           }
         },
-        colors: ['#77B6EA', '#545454'],
         dataLabels: {
           enabled: true,
         },
@@ -251,3 +287,17 @@ export default {
 
 }
 </script>
+
+<style scoped>
+.legend {
+  color: rgb(55, 61, 63);
+  font-size: 12px;
+  font-weight: 400;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.center {
+  margin: auto;
+  width: 75%;
+}
+</style>
