@@ -40,6 +40,10 @@
           show-expand
           sort-by="name"
           class="elevation-1"
+          :footer-props="{
+              'items-per-page-text':$t('data.table.items.per.page.text'),
+              'items-per-page-all-text':$t('data.table.items.per.page.all.text')
+          }"
         >
             <template v-slot:item.affiliation="{ item }">
               {{ formatAffiliation(item.affiliation).text }}
