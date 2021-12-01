@@ -11,7 +11,9 @@ export const store = new Vuex.Store(
           logged: false,
           repository: null,
           language: null,
-          service: null,
+          service: process.env.VUE_APP_BACKEND_URL,
+          serviceShibboleth: process.env.VUE_APP_SHIBBOLETH_URL,
+          frontEndUrl: process.env.VUE_APP_FRONTEND_URL,
           renater: false,
           dialogWidth: '900px'
         },
@@ -28,9 +30,6 @@ export const store = new Vuex.Store(
           },
           setLanguage(state, language) {
             state.language = language
-          },
-          setService(state, service) {
-            state.service = service
           },
           setRenater(state, renater) {
             state.renater = renater
@@ -54,6 +53,12 @@ export const store = new Vuex.Store(
           },
           getService(state) {
             return state.service;
+          },
+          getServiceShibboleth(state) {
+            return state.serviceShibboleth;
+          },
+          getFrontEndUrl(state) {
+            return state.frontEndUrl;
           },
           getDialogWidth(state) {
             return state.dialogWidth;

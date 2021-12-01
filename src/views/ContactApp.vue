@@ -52,10 +52,6 @@
 export default {
   name: 'contact-app',
   props: {
-    service: {
-      type: String,
-      default: "http://localhost:8485"
-    },
     language: {
       type: String,
       default: "fr"
@@ -94,7 +90,9 @@ export default {
   },
 
   computed: {
-
+    service: function()  {
+      return this.$store.getters.getService
+    },
   },
 
   methods: {

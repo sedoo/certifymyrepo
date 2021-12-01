@@ -60,14 +60,6 @@ import {logOut} from './utils.js'
 export default {
   name: 'App',
   props: {
-    service: {
-      type: String,
-      default: "http://localhost:8485"
-    },
-    frontEndUrl: {
-      type: String,
-      default: "https://coso-preprod.sedoo.fr"
-    },
     language: {
       type: String,
       default: "fr"
@@ -102,6 +94,12 @@ export default {
   }),
 
   computed: {
+    service: function()  {
+      return this.$store.getters.getService
+    },
+    frontEndUrl: function() {
+      return this.$store.getters.getFrontEndUrl
+    },
     redirectUri: function() {
       return window.location.origin + window.location.pathname;
     },
@@ -157,7 +155,6 @@ export default {
   created: function() {
     this.$i18n.locale = this.language;
     this.$store.commit('setLanguage', this.language)
-    this.$store.commit('setService', this.service)
     this.$store.commit('setRenater', this.renater)
     this.links = []
     let token = this.getTokenParameter()

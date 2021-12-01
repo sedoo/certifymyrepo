@@ -84,7 +84,6 @@ export default {
       loading: false,
       entities: [],
       entity: null,
-      root : "https://services-coso-preprod.sedoo.fr",
       code: null,
       requestingCode: false,
       validRenater: false,
@@ -93,14 +92,14 @@ export default {
   },
   computed: {
     loginurl() {
-      return this.root+"/Shibboleth.sso/Login?SAMLDS=1&target="+this.root+"/shibboleth/login?code="+this.code+"&entityID="+this.entity;
+      return this.$store.getters.getServiceShibboleth+"/Shibboleth.sso/Login?SAMLDS=1&target="+this.$store.getters.getServiceShibboleth+"/shibboleth/login?code="+this.code+"&entityID="+this.entity;
     },
     service: function()  {
       return this.$store.getters.getService
     },
     renater: function() {
       return this.$store.getters.getRenater;
-    },
+    }
   },
 
   methods: {

@@ -58,6 +58,7 @@ Vue.customElement('crusoe-app', App)
 
 ContactApp.vuetify = vuetify;
 ContactApp.i18n = i18n;
+ContactApp.store = store;
 Vue.customElement('contact-app', ContactApp)
 
 const urlCdnStyle = [

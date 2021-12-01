@@ -13,7 +13,7 @@ module.exports = {
         config.module.rules.delete('eslint')
         if (process.env.NODE_ENV === "development") {
           config.entry("app").clear().add("./src/main.js").end();
-        } else if (process.env.NODE_ENV === "production") {
+        } else if (process.env.NODE_ENV === "preproduction" || process.env.NODE_ENV === "production") {
           config.entry("app").clear().add("./src/main.production.js").end();
         }
         config.module
@@ -23,7 +23,7 @@ module.exports = {
             .tap(options => Object.assign(options, { limit: 10240 }))
     },
     configureWebpack: config => {
-        if (process.env.NODE_ENV === "production") {
+        if (process.env.NODE_ENV === "preproduction" || process.env.NODE_ENV === "production") {
             return {
                 optimization: {
                     splitChunks: false
@@ -36,11 +36,16 @@ module.exports = {
                                 //We ignore sourcemap file
                                 return;
                             }
+                            
                             let repo = "release";
                             if (pkgVersion.toLowerCase().endsWith("snapshot")) {
                                 repo = "snapshot"
                             }
-                            let url = "https://services.aeris-data.fr/cdn/jsrepo/v1_0/webpackupload/sandbox/" + repo + "/" + pkgName + "/" + pkgVersion
+                            let artifactName = pkgName;
+                            if (process.VUE_CLI_SERVICE.mode === "preproduction") {
+                                artifactName = pkgName + "_preproduction";
+                            }
+                            let url = "https://services.aeris-data.fr/cdn/jsrepo/v1_0/webpackupload/sandbox/" + repo + "/" + artifactName + "/" + pkgVersion
                             console.log(url)
 
                             await axios({
