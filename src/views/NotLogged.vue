@@ -92,10 +92,13 @@ export default {
   },
   computed: {
     loginurl() {
-      return this.$store.getters.getServiceShibboleth+"/Shibboleth.sso/Login?SAMLDS=1&target="+this.$store.getters.getServiceShibboleth+"/shibboleth/login?code="+this.code+"&entityID="+this.entity;
+      return this.serviceShibboleth+"/Shibboleth.sso/Login?SAMLDS=1&target="+this.serviceShibboleth+"/shibboleth/login?code="+this.code+"&entityID="+this.entity;
     },
     service: function()  {
       return this.$store.getters.getService
+    },
+    serviceShibboleth: function()  {
+      return this.$store.getters.getServiceShibboleth
     },
     renater: function() {
       return this.$store.getters.getRenater;
@@ -113,7 +116,7 @@ export default {
 
     requestcode: function() {
       this.requestingCode = true;
-      this.axios.get(this.root+"/shibboleth/requestcode?url="+ window.location.origin + window.location.pathname +"?authtype=shibb").then(response => {
+      this.axios.get(this.serviceShibboleth+"/shibboleth/requestcode?url="+ window.location.origin + window.location.pathname +"?authtype=shibb").then(response => {
       this.code = response.data
       if(this.code) {
         this.requestingCode = false;
