@@ -130,7 +130,7 @@ export default {
           let yaxisUsers = { seriesName: serieUsers.name,
                       opposite: false,
                       title: {
-                        text: this.$t('dashboard.screen.users')
+                        text: this.$t('dashboard.screen.users.all')
                       },
                       min: 0,
                       max: maxNumberOfUsers,
@@ -153,7 +153,7 @@ export default {
           let yaxisUsersRole = { seriesName: serieUsers.name,
                       opposite: false,
                       title: {
-                        text: this.$t('dashboard.screen.users')+' *'
+                        text: this.$t('dashboard.screen.users')
                       },
                       min: 0,
                       max: maxNumberOfUsers,
