@@ -22,6 +22,9 @@
           <v-text-field class="required" v-model="profile.email"  :label="$t('profile.screen.label.email')" prepend-inner-icon="mdi-email"  :rules="rules.emailRules" outlined dense required></v-text-field>
           <span class="text">{{ $t('profile.screen.message.email') }}</span>
         </v-col>
+        <v-col cols="12">
+          <v-checkbox prepend-icon="mdi-bell-off" v-model="profile.isNotificationOff" :label="$t('profile.screen.label.notification.checkbox')" dense></v-checkbox>
+        </v-col>
       </v-row>
     </v-form>
 
