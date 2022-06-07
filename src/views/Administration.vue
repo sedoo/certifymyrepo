@@ -389,7 +389,7 @@ export default {
     saveUser() {
       this.saving = true
       self = this
-      this.axios.post(this.service + "/profile/v1_0/saveProfile?language=" + this.language, this.editedUser).then(function(response) {
+      this.axios.post(this.service + "/profile/v1_0/saveProfile?language=" + this.$i18n.locale, this.editedUser).then(function(response) {
         self.dialogEditUser = false
         self.users.splice(self.index, 1, self.editedUser)
 
@@ -524,7 +524,7 @@ export default {
       this.loadingSimulation = true;
       debugger
       this.axios
-        .get(this.service + "/profile/v1_0/deleteProfileSimulation/"+this.language+"/"+this.item.id)
+        .get(this.service + "/profile/v1_0/deleteProfileSimulation/"+this.$i18n.locale+"/"+this.item.id)
         .then(function(response) {
           if(response.data != null && response.data != '') {
             self.warningMessage = response.data
