@@ -596,7 +596,7 @@ export default {
       },
 
       showReturnConfirmDialog: function () {
-        if(this.myReport.status == 'RELEASED') {
+        if(!this.editExistingAllowed) {
           this.goToMyCertificationReports()
         } else {
           this.$unidooConfirmDialog.show(this.goToMyCertificationReports, 
@@ -645,17 +645,15 @@ export default {
 
       refreshConnectedUserTimer() {
         this.timer = setInterval(() => {
-          console.log("Refresh connected  user cache")
-          this.refreshConnectedUser(false)
+          this.refreshConnectedUser()
         }, 5000) // 45 seconds
       },
 
-      refreshConnectedUser(loadingNeeded) {
-          this.loadingConnectedUsers = loadingNeeded;
-          if(this.myReport.id) {
-            this.axios.get(this.service+"/certificationReport/v1_0/updateConnectedUser?reportId="+this.myReport.id+"&userId="+this.userId+"&userName="+this.userName)
+      refreshConnectedUser() {
+          if(this.myReport.id && this.editExistingAllowed) {
+            this.axios.post(this.service+"/certificationReport/v1_0/updateConnectedUser?reportId="+this.myReport.id+"&userId="+this.userId+"&userName="+this.userName)
               .then(() => {
-                console.log("updated  user cache " + new Date())
+                console.log("Cache user updated at " + new Date()+ " for userId "+this.userId)
               }).catch((error) => {
             this.$unidooAlert.showError(this.$unidooAlert.formatError(this.$t('error.notification'), error), this.$t('button.close'))
           })
@@ -810,7 +808,7 @@ export default {
     },
 
     mounted() {
-      this.refreshConnectedUser(true)
+      this.refreshConnectedUser()
       this.refreshConnectedUserTimer();
     },
 

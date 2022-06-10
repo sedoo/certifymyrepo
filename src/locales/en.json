@@ -236,6 +236,7 @@
   "reports.screen.button.edit.help": "Edit this report",
   "reports.screen.button.delete.help": "Open the delete report dialog",
   "reports.screen.button.download.help": "Download",
+  "reports.screen.user.currently.editing": "{name} is currently editing the report",
   "reports.screen.download.confirmation.title": "Download",
   "reports.screen.download.select.format": "Select the format",
   "reports.screen.download.isAttachments": "Check this if you want attachements",

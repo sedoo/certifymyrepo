@@ -1,7 +1,7 @@
 <template>
     <div class="reports">
     <h1 class="subheading grey--text">{{ $t('reports.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
-    <v-progress-linear indeterminate v-if="loading" class="mt-3"></v-progress-linear>
+    <v-progress-linear indeterminate v-if="loading && loadingEditingUser" class="mt-3"></v-progress-linear>
     <v-container v-else class="my-3">
 
         <template>
@@ -36,24 +36,43 @@
                 <span>{{ $t(item.status) }}</span>
             </template> 
             <template v-slot:item.actions="{ item , index}">
-
-            <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                <v-btn v-if="editExistingAllowed  && !isReleased(item)" icon v-on="on" class="mx-0" @click="editItem(item)">     
-                   <v-icon>mdi-pencil-outline</v-icon>  
-                </v-btn>
-                </template>
-                <span>{{ $t('reports.screen.button.edit.help') }}</span>
-            </v-tooltip>
-
-            <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                <v-btn v-if="creationValidationAllowed && !isReleased(item)" icon v-on="on" class="mx-0" @click="showDeleteReportConfirmDialog(item.id)">     
-                    <v-icon>mdi-delete-forever-outline</v-icon>  
-                </v-btn>  
-                </template>
-                <span>{{ $t('reports.screen.button.delete.help') }}</span>
-            </v-tooltip>
+            
+            <span v-if="!currentlyEdited(item)">
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                    <v-btn v-if="editExistingAllowed  && !isReleased(item)" icon v-on="on" class="mx-0" @click="editItem(item)">     
+                    <v-icon>mdi-pencil-outline</v-icon>  
+                    </v-btn>
+                    </template>
+                    <span>{{ $t('reports.screen.button.edit.help') }}</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                    <v-btn v-if="creationValidationAllowed && !isReleased(item)" icon v-on="on" class="mx-0" @click="showDeleteReportConfirmDialog(item.id)">     
+                        <v-icon>mdi-delete-forever-outline</v-icon>
+                    </v-btn>  
+                    </template>
+                    <span>{{ $t('reports.screen.button.delete.help') }}</span>
+                </v-tooltip>
+            </span>
+            <span v-else>
+                <v-avatar color="red" size="36">
+                    <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                        <span v-on="on" class="white--text"> {{ getEditingUser(item).shortName }}</span>
+                        </template>
+                        <span>{{ $t('reports.screen.user.currently.editing',  {name: getEditingUser(item).fullName}) }}</span>
+                    </v-tooltip>
+                </v-avatar>
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                    <v-btn icon v-on="on" class="mx-0" @click="editItem(item)">     
+                        <v-icon>mdi-book-open-variant</v-icon>    
+                    </v-btn>
+                    </template>
+                    <span>{{ $t('reports.screen.button.read.help') }}</span>
+                </v-tooltip>
+            </span>
 
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
@@ -270,6 +289,10 @@ export default {
     data() {
         return {
             reports: [],
+            reportsId: [],
+            reportsCurrentlyEdited: new Map(),
+            reportsIdCurrentlyEdited: [],
+            loadingEditingUser: false,
             dialogCreate: false,
             dialogCopy: false,
             dialogDownload: false,
@@ -310,6 +333,13 @@ export default {
     computed: {
         service: function()  {
             return this.$store.getters.getService
+        },
+        userId: function()  {
+            if(this.$store.getters.getUser != null) {
+            return this.$store.getters.getUser.profile.id
+            } else {
+            return '';
+            }
         },
     },
     methods: {
@@ -407,6 +437,27 @@ export default {
                 return true
             } else {
                 return false
+            }
+        },
+
+        currentlyEdited(item) {
+            console.log("currentlyEdited id:"+item.id)
+            console.log(this.reportsIdCurrentlyEdited != null)
+            console.log(this.reportsIdCurrentlyEdited.length > 0)
+            console.log(this.reportsIdCurrentlyEdited.includes(item.id))
+            if(this.reportsIdCurrentlyEdited != null && this.reportsIdCurrentlyEdited.length > 0 && this.reportsIdCurrentlyEdited.includes(item.id)) {
+                return true
+            } else {
+                console.log(false)
+                return false
+            }
+        },
+
+        getEditingUser(item) {
+            if(this.reportsCurrentlyEdited.has(item.id)) {
+                return this.reportsCurrentlyEdited.get(item.id)[0]
+            } else {
+                return new Object();
             }
         },
 
@@ -560,12 +611,37 @@ export default {
                 this.$t('button.confirm'));
         },
 
+        reloadConnectedUserTimer() {
+            this.timer = setInterval(() => {
+            this.reloadConnectedUser(false)
+            }, 5000) // 45 seconds
+        },
 
+        reloadConnectedUser(loading) {
+            this.loadingEditingUser = loading
+            if(this.reports) {
+                this.axios.get(this.service+"/certificationReport/v1_0/listConnectedUser?reportIdList="+this.reportsId+"&userId="+this.userId)
+                .then((response) => {
+                    this.reportsCurrentlyEdited = new Map(Object.entries(response.data))
+                    this.reportsIdCurrentlyEdited = []
+                    if(this.reportsCurrentlyEdited && this.reportsCurrentlyEdited.size > 0) {
+                        this.reportsIdCurrentlyEdited = Array.from(this.reportsCurrentlyEdited.keys())
+                    }
+                    console.log("Cache user by report loaded " + new Date() + " current edited repository "+this.reportsIdCurrentlyEdited)
+                }).catch((error) => {
+                    this.$unidooAlert.showError(this.$unidooAlert.formatError(this.$t('error.notification'), error), this.$t('button.close'))
+                }).finally(() => this.loadingEditingUser = false)
+            }
+        },
 
     },
 
     mounted: function() {
-    	//console.log("-------> MyCertificationReports Monté")
+      this.reloadConnectedUserTimer()
+    },
+
+    beforeDestroy() {
+      clearInterval(this.timer)
     },
     
     created: function() {
@@ -576,12 +652,18 @@ export default {
       .get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.$route.params.id)
       .then(response => {
         self.reports = response.data.reports
+        if(self.reports) {
+            self.reports.forEach(el => self.reportsId.push(el.id))
+        }
         self.editExistingAllowed = response.data.editExistingAllowed
 	    self.creationValidationAllowed = response.data.creationValidationAllowed
       }).catch(function(error) {
         self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
       })
-      .finally(() => this.loading = false)
+      .finally(() => {
+          this.reloadConnectedUser(true)
+          this.loading = false
+      })
 
       this.axios
       .get(this.service+'/certificationReport/v1_0/getTemplatesList/')

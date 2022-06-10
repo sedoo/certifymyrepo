@@ -250,6 +250,7 @@
   "reports.screen.make.copy.report.select.report.label": "Sélectionner un dossier de certification",
   "reports.screen.make.copy.report.warning": "PENSEZ A METTRE A JOUR LE NUMERO DE VERSION DANS LE DOSSIER QUI SERA CREE ET A SAUVEGARDER LE DOSSIER.",
   "reports.screen.make.copy.report.information": "Pour infomation, si le dossier de certification copié contient des pièces jointes, celles-ci seront copiées également. Cependant la copie des pièces jointes est asynchrone et peut prendre un certain temps avant d'être visible sur le dossier de certification. Pensez à refraichir la page de votre navigateur.",
+  "reports.screen.user.currently.editing": "{name} est en train d'éditer ce dossier de certification",
   "affiliation.dialog.title.creation": "Création d'une affiliation",
   "affiliation.dialog.title.edition": "Edition d'une affiliation",
   "affiliation.dialog.label.institute": "Institut",
