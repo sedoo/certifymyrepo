@@ -1,9 +1,20 @@
 <template>
     <div>
     <h1 class="subheading grey--text">{{ $t('report.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
-    <v-progress-linear indeterminate v-if="loadingReport" class="mt-3"></v-progress-linear>
-    <div v-if="!loadingReport" class="report">
-    <h4 class="subheading grey--text pt-5 pb-5">{{ templateDescription }}</h4>
+    <v-progress-linear indeterminate v-if="loadingReport || loadingConnectedUsers" class="mt-3"></v-progress-linear>
+    <div v-if="!loadingReport && !loadingConnectedUsers" class="report">
+    <div v-if="myReport.status != 'RELEASED'" class="text-right py-5">
+      <span class="px-1" v-for="connectedUserName in connectedUsers" :key="connectedUserName.userId" >
+        <v-avatar :color="avatarColor(connectedUserName.readOnly)">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <span v-on="on" class="white--text">{{ connectedUserName.shortName }}</span>
+            </template>
+            <span>{{ avatarLabel(connectedUserName) }}</span>
+          </v-tooltip>
+        </v-avatar>
+      </span>
+    </div>
     <h4 v-if="editExistingAllowed" class="red--text mb-5">{{ $t('report.screen.intro') }}</h4>
       <v-form v-model="valid">
             <v-text-field v-if="editExistingAllowed"
@@ -333,8 +344,8 @@ export default {
                 files => !files || !files.some(file => file.size > 26214400)|| this.$t('report.screen.files.size.error'),
               ]
             },
-            templateDescription: null,
             loadingReport: false,
+            loadingConnectedUsers: false,
             itemFiles: null,
             currentRequirementCode: null,
             currentRequirementIndex: null,
@@ -343,6 +354,9 @@ export default {
             uploadInProgress: false,
             downloadAttachmentInProgress: [],
             featureFlag: true,
+            connectedUsers: [],
+            colorCache: {},
+            connectedUserName: null,
         }
     },
     computed: {
@@ -406,6 +420,14 @@ export default {
       },
     },
     methods: {
+
+      avatarLabel(user) {
+        if(user.readOnly) {
+          return this.$t("report.screen.avatar.reader.label", {name: user.fullName})
+        } else {
+          return this.$t("report.screen.avatar.writer.label", {name: user.fullName})
+        }
+      },
 
       confirmSaving() {
         if(this.radioGroup == 'save') {
@@ -499,7 +521,7 @@ export default {
                   "&codeRequirement="+this.currentRequirementCode+
                   "&fileName="+this.fileToDelete,
             })
-            .then(response => {
+            .then(() => {
                 for(let i=0 ; i<self.myReport.items[self.currentRequirementIndex].files.length ; i++) {
                   if(self.myReport.items[self.currentRequirementIndex].files[i] === self.fileToDelete) {
                     self.myReport.items[self.currentRequirementIndex].files.splice(i, 1);
@@ -616,7 +638,6 @@ export default {
       },
 
       showFreezeReportConfirmDialog: function () {
-        debugger
         if(this.myReport.status != 'IN_PROGRESS') {
           this.$unidooAlert.showError(this.$t('report.screen.release.error'), self.$t('button.close'))
         } else {
@@ -646,6 +667,175 @@ export default {
         }
       },
 
+      refreshConnectedUserTimer() {
+        this.timer = setInterval(() => {
+          console.log("Refresh connected  user cache")
+          this.refreshConnectedUser(false)
+        }, 5000) // 45 seconds
+      },
+
+      refreshConnectedUser(loadingNeeded) {
+          this.loadingConnectedUsers = loadingNeeded;
+          if(this.myReport.id) {
+            this.axios.get(this.service+"/certificationReport/v1_0/updateConnectedUser?reportId="+this.myReport.id+"&userId="+this.userId+"&userName="+this.userName)
+              .then((response) => {
+                this.connectedUsers = response.data
+                let user = this.connectedUsers.filter(u => u.userId == this.userId)
+                this.editExistingAllowed = this.editExistingAllowed && !user[0].readOnly
+                if(this.editExistingAllowed == false && user[0].readOnly == false) {
+                  this.initialize()
+                }
+                console.log("Connected  user cache " + new Date())
+                console.log("Connected  users list cache " + this.connectedUsers.length)
+              }).finally(() => { this.loadingConnectedUsers = false})
+          }
+      },
+
+      avatarColor(readOnly) {
+        if(readOnly) {
+          return "red"
+        } else {
+          return "green"
+        }
+      },
+
+      initialize() {
+        this.loadingReport = true
+        this.$i18n.locale = this.$store.getters.getLanguage;
+        // case 1 id != null AND copy undefined or false => update the report
+        // case 2 id != null AND copy == true => make a copy of the report
+        // case 3 id == null AND template contains a templateName => create a new report with the requested template
+        let id = this.$route.query.reportId
+        if(id != null) {
+          var self = this
+          // getReport return as result the report, the comments by requirement, a boolean ISREADONLY and the certification report template
+          this.axios
+          .get(this.service+'/certificationReport/v1_0/getReport/'+id)
+          .then( function (response) {
+            self.myReport = response.data.report
+            self.myReport.repositoryId = self.$route.query.repositoryId
+            self.editExistingAllowed = response.data.editExistingAllowed
+            self.validationAllowed = response.data.validationAllowed
+            
+            if(response.data.template.description) {
+              self.templateDiscription = response.data.template.description
+            }
+            let commentsCollection = response.data.requirementComments
+            let requirementsTemplate = response.data.template.requirements
+            let requirementsAttachments = response.data.attachments
+
+            if(self.myReport.items != null && self.myReport.items.length > 0 ) {
+
+              // Used by the stepper
+              self.steps = self.myReport.items.length
+
+              for (let i = 0; i < self.myReport.items.length; i++) {
+
+                let itemCode = self.myReport.items[i].code
+
+                if(commentsCollection && commentsCollection.length > 0) {
+                  // BEGINNING add comments into report object
+                  self.myReport.items[i].comments = []
+                  for (let commentItem in commentsCollection) {
+                    if(itemCode == commentsCollection[commentItem].itemCode ) {
+                      self.myReport.items[i].comments = commentsCollection[commentItem].comments
+                    }
+                  }
+                  // END add comments into report object
+                } else {
+                  self.myReport.items[i].comments = []
+                }
+
+                // BEGINNING add labels into report object from template
+                for (let requirementItemCode in requirementsTemplate) {
+                  if(i == requirementItemCode) {
+                    self.myReport.items[i].requirement = requirementsTemplate[requirementItemCode].requirement
+                    self.myReport.items[i].levelActive = requirementsTemplate[requirementItemCode].levelActive
+                  }
+                }
+                // END add labels into report object from template
+                // BEGINNING add attachments into report object
+                if(requirementsAttachments) {
+                  for (let attachmentsItem in requirementsAttachments) {
+                    if(itemCode == attachmentsItem) {
+                      self.myReport.items[i].files = requirementsAttachments[attachmentsItem]
+                    }
+                  }
+                }
+                // END add attachments into report object
+
+              }
+            }
+
+            // Add levels labels for user language into myReport object
+            let levelsLocal = []
+            let lItem = null
+            for (lItem of response.data.template.levels) {
+              let levelLocal = {
+                code: null,
+                label: null
+              }
+              levelLocal.label = lItem.label
+              levelLocal.code = lItem.code
+              levelsLocal.push(levelLocal)
+            }
+            self.levelsTemplate = levelsLocal
+
+          }).catch(function(error) {
+            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
+          })
+          .finally(function() { self.loadingReport = false})
+
+        } else {
+          var self = this
+          this.axios
+          .get(this.service+'/certificationReport/v1_0/getCertificationReportTemplate?name='+this.$route.query.template)
+          .then( function (response) {
+            // Add requirements label for user language into myReport object
+            let requirementsLocal = []
+            let rItem = null
+            for (rItem of response.data.requirements) {
+              let requirementLocal = {
+                requirement: null,
+                code: null,
+                response: null,
+                level: null,
+                levelActive: false,
+                comments: []
+              }
+              requirementLocal.requirement = rItem.requirement
+              if(rItem.response) {
+                requirementLocal.response = rItem.response
+              }
+              requirementLocal.code = rItem.code
+              requirementLocal.levelActive = rItem.levelActive
+              requirementsLocal.push(requirementLocal)
+            }
+            self.myReport.items = requirementsLocal
+
+            // Add levels label for user language into myReport object
+            let levelsLocal = []
+            let lItem = null
+            for (lItem of response.data.levels) {
+              let levelLocal = {
+                code: null,
+                label: null
+              }
+              levelLocal.label = lItem.label
+              levelLocal.code = lItem.code
+              levelsLocal.push(levelLocal)
+            }
+            self.levelsTemplate = levelsLocal
+            self.myReport.templateId = self.$route.query.template
+            self.myReport.repositoryId = self.$route.query.repositoryId
+            self.editExistingAllowed = true
+            self.validationAllowed = false
+          }).catch(function(error) {
+            self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
+          }).finally(function() { self.loadingReport = false})
+        }
+      }
+
     },
 
     mounted: function() {
@@ -653,143 +843,17 @@ export default {
     },
     
     created () {
-      this.loadingReport = true
-      this.$i18n.locale = this.$store.getters.getLanguage;
-      // case 1 id != null AND copy undefined or false => update the report
-      // case 2 id != null AND copy == true => make a copy of the report
-      // case 3 id == null AND template contains a templateName => create a new report with the requested template
-      let id = this.$route.query.reportId
-      if(id != null) {
-        var self = this
-        // getReport return as result the report, the comments by requirement, a boolean ISREADONLY and the certification report template
-        this.axios
-        .get(this.service+'/certificationReport/v1_0/getReport/'+id)
-        .then( function (response) {
-          self.myReport = response.data.report
-          self.myReport.repositoryId = self.$route.query.repositoryId
-          self.editExistingAllowed = response.data.editExistingAllowed
-          self.validationAllowed = response.data.validationAllowed
-          
-          if(response.data.template.description) {
-            self.templateDiscription = response.data.template.description
-          }
-          let commentsCollection = response.data.requirementComments
-          let requirementsTemplate = response.data.template.requirements
-          let requirementsAttachments = response.data.attachments
-
-          if(self.myReport.items != null && self.myReport.items.length > 0 ) {
-
-            // Used by the stepper
-            self.steps = self.myReport.items.length
-
-            for (let i = 0; i < self.myReport.items.length; i++) {
-
-              let itemCode = self.myReport.items[i].code
-
-              if(commentsCollection && commentsCollection.length > 0) {
-                // BEGINNING add comments into report object
-                self.myReport.items[i].comments = []
-                for (let commentItem in commentsCollection) {
-                  if(itemCode == commentsCollection[commentItem].itemCode ) {
-                    self.myReport.items[i].comments = commentsCollection[commentItem].comments
-                  }
-                }
-                // END add comments into report object
-              } else {
-                self.myReport.items[i].comments = []
-              }
-
-              // BEGINNING add labels into report object from template
-              for (let requirementItemCode in requirementsTemplate) {
-                if(i == requirementItemCode) {
-                  self.myReport.items[i].requirement = requirementsTemplate[requirementItemCode].requirement
-                  self.myReport.items[i].levelActive = requirementsTemplate[requirementItemCode].levelActive
-                }
-              }
-              // END add labels into report object from template
-              // BEGINNING add attachments into report object
-              if(requirementsAttachments) {
-                for (let attachmentsItem in requirementsAttachments) {
-                  if(itemCode == attachmentsItem) {
-                    self.myReport.items[i].files = requirementsAttachments[attachmentsItem]
-                  }
-                }
-              }
-              // END add attachments into report object
-
-            }
-          }
-
-          // Add levels labels for user language into myReport object
-          let levelsLocal = []
-          let lItem = null
-          for (lItem of response.data.template.levels) {
-            let levelLocal = {
-              code: null,
-              label: null
-            }
-            levelLocal.label = lItem.label
-            levelLocal.code = lItem.code
-            levelsLocal.push(levelLocal)
-          }
-          self.levelsTemplate = levelsLocal
-
-        }).catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
-        })
-        .finally(function() { self.loadingReport = false})
-
-      } else {
-        var self = this
-        this.axios
-        .get(this.service+'/certificationReport/v1_0/getCertificationReportTemplate?name='+this.$route.query.template)
-        .then( function (response) {
-          // Add requirements label for user language into myReport object
-          let requirementsLocal = []
-          let rItem = null
-          for (rItem of response.data.requirements) {
-            let requirementLocal = {
-              requirement: null,
-              code: null,
-              response: null,
-              level: null,
-              levelActive: false,
-              comments: []
-            }
-            requirementLocal.requirement = rItem.requirement
-            if(rItem.response) {
-              requirementLocal.response = rItem.response
-            }
-            requirementLocal.code = rItem.code
-            requirementLocal.levelActive = rItem.levelActive
-            requirementsLocal.push(requirementLocal)
-          }
-          self.myReport.items = requirementsLocal
-
-          // Add levels label for user language into myReport object
-          let levelsLocal = []
-          let lItem = null
-          for (lItem of response.data.levels) {
-            let levelLocal = {
-              code: null,
-              label: null
-            }
-            levelLocal.label = lItem.label
-            levelLocal.code = lItem.code
-            levelsLocal.push(levelLocal)
-          }
-          self.levelsTemplate = levelsLocal
-          self.myReport.templateId = self.$route.query.template
-          self.myReport.repositoryId = self.$route.query.repositoryId
-          self.editExistingAllowed = true
-          self.validationAllowed = false
-        }).catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
-        }).finally(function() { self.loadingReport = false})
-
-      }
-
+      this.initialize()
     },
+
+    mounted() {
+      this.refreshConnectedUser(true)
+      this.refreshConnectedUserTimer();
+    },
+
+    beforeDestroy() {
+      clearInterval(this.timer)
+    }
 
 
 } 

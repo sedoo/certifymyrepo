@@ -61,6 +61,14 @@
                   </template>
                   <span>{{ $t('administration.screen.edit.email.help.message') }}</span>
               </v-tooltip>
+              <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" :loading="loadingRemonveRole[index]" @click="openDeleteDialog(item, index)">     
+                      <v-icon>mdi-delete-forever-outline</v-icon>    
+                  </v-btn>
+                  </template>
+                  <span>{{ $t('administration.screen.delete.user.help.message') }}</span>
+              </v-tooltip>
             </template> 
             <template v-slot:footer.page-text="items"> {{ items.pageStart }} - {{ items.pageStop }} {{ $t('data.table.page.text') }} {{ items.itemsLength }} 
             </template>
@@ -212,6 +220,35 @@
     </v-card>
     </v-dialog>
 
+    <v-dialog v-model="dialogDelete" :width="$store.getters.getDialogWidth">
+        <v-card>
+            <v-card-title
+            class="headline grey lighten-2"
+            primary-title
+            >
+            {{ $t('userinformation.screen.delete.profile.confirmation.title') }}
+            </v-card-title>
+            <v-card-text>
+            <p>{{ $t('administration.screen.delete.profile.confirmation.message', {msg: this.item.name}) }}</p>
+            <p class="font-weight-bold">{{ $t('userinformation.screen.delete.profile.confirmation.message.warning')  }}
+            <p><span v-html="warningMessage"></span></p>
+            </v-card-text>
+            <v-divider></v-divider>
+            <v-card-actions>
+            <div class="flex-grow-1"></div>
+                <v-btn
+                    @click="dialogDelete = false">
+                    {{ $t('button.cancel') }}
+                </v-btn>
+                <v-btn
+                    color="info"
+                    @click="dialogDelete = false; deleteProfile()">
+                    {{ $t('button.confirm') }}
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
   </v-layout>
 
 </template>
@@ -262,6 +299,10 @@ export default {
         address:"",
         institute:"",
         department:""},
+      dialogDelete: false,
+      loadingDelete: false,
+      loadingSimulation: false,
+      warningMessage: null,
     }
   },
 
@@ -363,18 +404,18 @@ export default {
 
     titleDialogConfirmationRemoveAdmin() {
       if(this.item && this.userId == this.item.userId) {
-        return this.$t('administration.scree.remove.admin.ownrole.confirmation.title')
+        return this.$t('administration.screen.remove.admin.ownrole.confirmation.title')
       } else {
-        return this.$t('administration.scree.remove.admin.confirmation.title')
+        return this.$t('administration.screen.remove.admin.confirmation.title')
       }
     },
 
     labelDialogConfirmationRemoveAdmin() {
       if(this.item) {
         if(this.userId == this.item.userId) {
-          return this.$t('administration.scree.remove.admin.ownrole.confirmation.label')
+          return this.$t('administration.screen.remove.admin.ownrole.confirmation.label')
         } else {
-          return this.$t('administration.scree.remove.admin.confirmation.label', {msg: this.item.name})
+          return this.$t('administration.screen.remove.admin.confirmation.label', {msg: this.item.name})
         }
       }
     },
@@ -476,6 +517,46 @@ export default {
           });
     },
 
+    openDeleteDialog(item, index) {
+      this.item = item;
+      this.index= index;
+      var self = this;
+      this.loadingSimulation = true;
+      debugger
+      this.axios
+        .get(this.service + "/profile/v1_0/deleteProfileSimulation/"+this.language+"/"+this.item.id)
+        .then(function(response) {
+          if(response.data != null && response.data != '') {
+            self.warningMessage = response.data
+          }
+        })
+        .catch(function(error) {
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
+        })
+        .finally(function() {
+          self.loadingSimulation = false
+          self.dialogDelete = true
+        });
+    },
+
+    deleteProfile() {
+      debugger
+      var self = this;
+      this.loadingDelete = true;
+      this.axios
+        .delete(this.service + "/profile/v1_0/deleteProfile/"+this.language+"/"+this.item.id)
+        .then(function() {
+            self.$unidooAlert.showSuccess(self.$t('administration.screen.delete.user.success'))
+            self.refeshData()
+        })
+        .catch(function(error) {
+          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
+        })
+        .finally(function() {
+          self.loadingDelete = false
+          self.dialogDelete = false
+        });
+    },
   },
 
 };

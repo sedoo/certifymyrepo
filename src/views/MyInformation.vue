@@ -11,6 +11,7 @@
         <v-card-text v-if="orcid != null"><v-icon>mdi-identifier</v-icon>{{ orcid }}</v-card-text>
         <v-card-text v-if="profile.title != null"><v-icon>mdi-bookmark</v-icon>{{ profile.title }}</v-card-text>
         <v-card-text v-if="profile.email != null"> <v-icon>mdi-email</v-icon>{{ profile.email }}</v-card-text>
+        <v-card-text><v-icon>mdi-bell-off</v-icon>{{ profile.notification }}</v-card-text>
         <template v-if="isPhoneNumber">
         <v-card-text v-for="(phone, index) in profile.phones" :key="index">
           <div>
@@ -85,34 +86,34 @@
     </div>
     </v-flex>
 
-        <v-dialog v-model="dialogDelete" :width="$store.getters.getDialogWidth">
-            <v-card>
-                <v-card-title
-                class="headline grey lighten-2"
-                primary-title
-                >
-                {{ $t('userinformation.screen.delete.profile.confirmation.title') }}
-                </v-card-title>
-                <v-card-text>
-                <p>{{ $t('userinformation.screen.delete.profile.confirmation.message') }}</p>
-                <p class="font-weight-bold">{{ $t('userinformation.screen.delete.profile.confirmation.message.warning')  }}
-                <p><span v-html="warningMessage"></span></p>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                <div class="flex-grow-1"></div>
-                    <v-btn
-                        @click="dialogDelete = false">
-                        {{ $t('button.cancel') }}
-                    </v-btn>
-                    <v-btn
-                        color="info"
-                        @click="dialogDelete = false; deleteProfile()">
-                        {{ $t('button.confirm') }}
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+    <v-dialog v-model="dialogDelete" :width="$store.getters.getDialogWidth">
+        <v-card>
+            <v-card-title
+            class="headline grey lighten-2"
+            primary-title
+            >
+            {{ $t('userinformation.screen.delete.profile.confirmation.title') }}
+            </v-card-title>
+            <v-card-text>
+            <p>{{ $t('userinformation.screen.delete.profile.confirmation.message') }}</p>
+            <p class="font-weight-bold">{{ $t('userinformation.screen.delete.profile.confirmation.message.warning')  }}
+            <p><span v-html="warningMessage"></span></p>
+            </v-card-text>
+            <v-divider></v-divider>
+            <v-card-actions>
+            <div class="flex-grow-1"></div>
+                <v-btn
+                    @click="dialogDelete = false">
+                    {{ $t('button.cancel') }}
+                </v-btn>
+                <v-btn
+                    color="info"
+                    @click="dialogDelete = false; deleteProfile()">
+                    {{ $t('button.confirm') }}
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 
   </v-layout>
 
@@ -248,8 +249,10 @@ export default {
         .then(function(response) {
           if(response.data != null && response.data != '') {
             self.profile = response.data
-            if (!self.profile.phones) {
-              self.profile.phones = [''];
+            if(self.profile.isNotificationOff) {
+              self.profile.notification = self.$t("userinformation.screen.profile.bloc.notification.off")
+            } else {
+              self.profile.notification = self.$t("userinformation.screen.profile.bloc.notification.on")
             }
           }
         })
