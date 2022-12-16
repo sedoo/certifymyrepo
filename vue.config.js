@@ -45,7 +45,7 @@ module.exports = {
                             if (process.VUE_CLI_SERVICE.mode === "preproduction") {
                                 artifactName = pkgName + "_preproduction";
                             }
-                            let url = "https://services.aeris-data.fr/cdn/jsrepo/v1_0/webpackupload/sandbox/" + repo + "/" + artifactName + "/" + pkgVersion
+                            let url = "https://api.sedoo.fr/aeris-cdn-rest/jsrepo/v1_0/webpackupload/sandbox/" + repo + "/" + artifactName + "/" + pkgVersion
                             console.log(url)
 
                             await axios({

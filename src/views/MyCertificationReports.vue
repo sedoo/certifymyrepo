@@ -614,7 +614,7 @@ export default {
         reloadConnectedUserTimer() {
             this.timer = setInterval(() => {
             this.reloadConnectedUser(false)
-            }, 5000) // 45 seconds
+            }, 45000) // 45 seconds
         },
 
         reloadConnectedUser(loading) {

@@ -41,6 +41,8 @@ export default {
               });
             } 
         }, 900000) // 15 minutes
-    }    }
+    }    
+    
+  }
 }
 </script>

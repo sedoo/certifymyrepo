@@ -4,6 +4,7 @@
     <v-progress-linear indeterminate v-if="loadingReport" class="mt-3"></v-progress-linear>
     <div v-if="!loadingReport" class="report">
     <h4 v-if="editExistingAllowed" class="red--text mb-5">{{ $t('report.screen.intro') }}</h4>
+    <h4 v-if="currentEditor != null" class="red--text mb-5">{{ $t('report.screen.currently.edited', {'name': currentEditor}) }}</h4>
       <v-form v-model="valid">
             <v-text-field v-if="editExistingAllowed"
                 :label="$t('report.screen.version.number')"
@@ -646,7 +647,7 @@ export default {
       refreshConnectedUserTimer() {
         this.timer = setInterval(() => {
           this.refreshConnectedUser()
-        }, 5000) // 45 seconds
+        }, 30000) // 30 seconds
       },
 
       refreshConnectedUser() {
@@ -677,6 +678,7 @@ export default {
             self.myReport.repositoryId = self.$route.query.repositoryId
             self.editExistingAllowed = response.data.editExistingAllowed
             self.validationAllowed = response.data.validationAllowed
+            self.currentEditor = response.data.currentEditor
             
             if(response.data.template.description) {
               self.templateDiscription = response.data.template.description
