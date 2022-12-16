@@ -1,21 +1,10 @@
 <template>
     <div>
     <h1 class="subheading grey--text">{{ $t('report.screen.title', {'msg':$store.getters.getRepository.name } ) }}</h1>
-    <v-progress-linear indeterminate v-if="loadingReport || loadingConnectedUsers" class="mt-3"></v-progress-linear>
-    <div v-if="!loadingReport && !loadingConnectedUsers" class="report">
-    <div v-if="myReport.status != 'RELEASED'" class="text-right py-5">
-      <span class="px-1" v-for="connectedUserName in connectedUsers" :key="connectedUserName.userId" >
-        <v-avatar :color="avatarColor(connectedUserName.readOnly)">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <span v-on="on" class="white--text">{{ connectedUserName.shortName }}</span>
-            </template>
-            <span>{{ avatarLabel(connectedUserName) }}</span>
-          </v-tooltip>
-        </v-avatar>
-      </span>
-    </div>
+    <v-progress-linear indeterminate v-if="loadingReport" class="mt-3"></v-progress-linear>
+    <div v-if="!loadingReport" class="report">
     <h4 v-if="editExistingAllowed" class="red--text mb-5">{{ $t('report.screen.intro') }}</h4>
+    <h4 v-if="currentEditor != null" class="red--text mb-5">{{ $t('report.screen.currently.edited', {'name': currentEditor}) }}</h4>
       <v-form v-model="valid">
             <v-text-field v-if="editExistingAllowed"
                 :label="$t('report.screen.version.number')"
@@ -345,7 +334,6 @@ export default {
               ]
             },
             loadingReport: false,
-            loadingConnectedUsers: false,
             itemFiles: null,
             currentRequirementCode: null,
             currentRequirementIndex: null,
@@ -354,9 +342,6 @@ export default {
             uploadInProgress: false,
             downloadAttachmentInProgress: [],
             featureFlag: true,
-            connectedUsers: [],
-            colorCache: {},
-            connectedUserName: null,
         }
     },
     computed: {
@@ -420,14 +405,6 @@ export default {
       },
     },
     methods: {
-
-      avatarLabel(user) {
-        if(user.readOnly) {
-          return this.$t("report.screen.avatar.reader.label", {name: user.fullName})
-        } else {
-          return this.$t("report.screen.avatar.writer.label", {name: user.fullName})
-        }
-      },
 
       confirmSaving() {
         if(this.radioGroup == 'save') {
@@ -620,7 +597,7 @@ export default {
       },
 
       showReturnConfirmDialog: function () {
-        if(this.myReport.status == 'RELEASED') {
+        if(!this.editExistingAllowed) {
           this.goToMyCertificationReports()
         } else {
           this.$unidooConfirmDialog.show(this.goToMyCertificationReports, 
@@ -669,34 +646,19 @@ export default {
 
       refreshConnectedUserTimer() {
         this.timer = setInterval(() => {
-          console.log("Refresh connected  user cache")
-          this.refreshConnectedUser(false)
-        }, 5000) // 45 seconds
+          this.refreshConnectedUser()
+        }, 30000) // 30 seconds
       },
 
-      refreshConnectedUser(loadingNeeded) {
-          this.loadingConnectedUsers = loadingNeeded;
-          if(this.myReport.id) {
-            this.axios.get(this.service+"/certificationReport/v1_0/updateConnectedUser?reportId="+this.myReport.id+"&userId="+this.userId+"&userName="+this.userName)
-              .then((response) => {
-                this.connectedUsers = response.data
-                let user = this.connectedUsers.filter(u => u.userId == this.userId)
-                this.editExistingAllowed = this.editExistingAllowed && !user[0].readOnly
-                if(this.editExistingAllowed == false && user[0].readOnly == false) {
-                  this.initialize()
-                }
-                console.log("Connected  user cache " + new Date())
-                console.log("Connected  users list cache " + this.connectedUsers.length)
-              }).finally(() => { this.loadingConnectedUsers = false})
+      refreshConnectedUser() {
+          if(this.myReport.id && this.editExistingAllowed) {
+            this.axios.post(this.service+"/certificationReport/v1_0/updateConnectedUser?reportId="+this.myReport.id+"&userId="+this.userId+"&userName="+this.userName)
+              .then(() => {
+                console.log("Cache user updated at " + new Date()+ " for userId "+this.userId)
+              }).catch((error) => {
+            this.$unidooAlert.showError(this.$unidooAlert.formatError(this.$t('error.notification'), error), this.$t('button.close'))
+          })
           }
-      },
-
-      avatarColor(readOnly) {
-        if(readOnly) {
-          return "red"
-        } else {
-          return "green"
-        }
       },
 
       initialize() {
@@ -716,6 +678,7 @@ export default {
             self.myReport.repositoryId = self.$route.query.repositoryId
             self.editExistingAllowed = response.data.editExistingAllowed
             self.validationAllowed = response.data.validationAllowed
+            self.currentEditor = response.data.currentEditor
             
             if(response.data.template.description) {
               self.templateDiscription = response.data.template.description
@@ -847,7 +810,7 @@ export default {
     },
 
     mounted() {
-      this.refreshConnectedUser(true)
+      this.refreshConnectedUser()
       this.refreshConnectedUserTimer();
     },
 
