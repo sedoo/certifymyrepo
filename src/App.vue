@@ -62,7 +62,7 @@ export default {
   props: {
     language: {
       type: String,
-      default: "fr"
+      default: "en"
     },
     type: {
       Type: String,

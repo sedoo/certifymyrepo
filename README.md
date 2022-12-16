@@ -43,13 +43,13 @@ Authentication is not managed by the software itself but is delegated to the Ren
 | CONTRIBUTOR 	| Contributeur	| Contributor 	| Can see the repository and edit its related reports. He cannot validate them. |
 | READER  		| Lecteur       | Reader 		| Can see the repository and read its related reports. However he can add comments on any criteria. |
 
-An user can be Editor on a repository and Reader on another.
+A user can be Editor on a repository and Reader on another.
 
 
 ### 2.2 Administrators
 
 Administrators are initialized during application start up. They are created from an ORCID list passed to the appliaction through environment variables (SUPER_ADMIN_ORCID_LIST and ADMIN_ORCID_LIST).
-If email address has been filled and set to public on their ORCID account it will be copied in the profile (If several emails are present then email set as 'primary' in orcid personnal account will be used others will be ignored). If email is not found adminitrator will have to fill it out in his CRUSÖE profil.
+If email address has been filled and set to public on their ORCID account it will be copied in the profile (If several emails are present then email set as 'primary' in orcid personnal account will be used others will be ignored). If email is not found adminitrator will have to fill it out in his CRUSOE profil.
 
 There are two administrator categories:
 - Functional administrator
@@ -84,9 +84,9 @@ The toolbar of the application gives access to 4 pages and to logout button
 
 | Case  | Recipients |
 | :--------------- | :--------------- |
-| Create a new user profile while adding an user on a repository	| An Editor can add users on a repository. An user can be created in the system if he does not exist. If the email has been filled in (not madatory if add from an ORCID) the user will get a notification. |
-| Add an user on a repository	| An Editor can add users on a repository. The users will receive a notification. |
-| Remove an user from a repository	| An Editor can remove users on a repository. The users will receive a notification. |
+| Create a new user profile while adding a user on a repository	| An Editor can add users on a repository. A user can be created in the system if he does not exist. If the email has been filled in (not madatory if add from an ORCID) the user will get a notification. |
+| Add a user on a repository	| An Editor can add users on a repository. The users will receive a notification. |
+| Remove a user from a repository	| An Editor can remove users on a repository. The users will receive a notification. |
 | Save a report with a new version	| Notify all repository users  |
 | Validate a report	| Notify all repository users  |
 | Add a comment on a requirement	| Notify all repository users  |

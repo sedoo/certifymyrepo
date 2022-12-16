@@ -92,7 +92,7 @@
   "administration.screen.delete.affiliation.help.message": "Supprimer cette affiliation",
   "administration.screen.delete.user.success" : "L'utilisateur a été supprimé",
   "logging.temporary.screen.connecting": "Connexion...",
-  "notlogged.screen.title": "Bienvenue sur <span class='text-uppercase'><span class='font-weight-regular'>CRUSÖE</span></span>",
+  "notlogged.screen.title": "Bienvenue sur <span class='text-uppercase'><span class='font-weight-regular'>CRUSOE</span></span>",
   "notlogged.screen.message": "Veuillez choisir votre système d'authentification.",
   "notlogged.screen.renater.label.providers": "Sélectionnez l'établissement auquel vous appartenez.",
   "notlogged.screen.renater.help.message": "Si vous avez changé d'email veuillez contacter l'administrateur via le formulaire de contact.",
@@ -118,8 +118,12 @@
   "userinformation.screen.repositories.bloc.title": "Mes entrepôts",
   "userinformation.screen.delete.profile.button": "Supprimer mon profil",
   "userinformation.screen.delete.profile.confirmation.title": "Suppression de profil",
+<<<<<<< HEAD
+  "userinformation.screen.delete.profile.confirmation.message": "Vous pouvez supprimer votre profil avec toutes les informations qu'il contient dans le base de données CRUSOE. Vous perdrez l'accès à vos entrepôts. Si vous êtes le seul utilisateur ayant un rôle 'Editeur' sur un entrepôts, il sera supprimé, ainsi que les dossiers de certification qu'il contient.",
+=======
   "userinformation.screen.delete.profile.confirmation.message": "Vous pouvez supprimer votre profil avec toutes les informations qu'il contient dans le base de données CRUSÖE. Vous perdrez l'accès à vos entrepôts. Si vous êtes le seul utilisateur ayant un rôle 'Editeur' sur un entrepôts, il sera supprimé, ainsi que les dossiers de certification qu'il contient.",
   "administration.screen.delete.profile.confirmation.message": "Vous allez supprimer le profil de {msg} avec toutes les informations qu'il contient dans le base de données CRUSÖE. Cet utilisateur perdra l'accès à ses entrepôts. Si il est le seul utilisateur ayant un rôle 'Editeur' sur un entrepôts, il sera supprimé, ainsi que les dossiers de certification qu'il contient.",
+>>>>>>> f563d042a6ffdeeef9b30e8f79c3f94cf7861080
   "userinformation.screen.delete.profile.confirmation.message.warning": "Veuillez noter que cette opération est irréversible.",
   "repositories.screen.title": "Entrepôts",
   "repositories.screen.button.create.new.repository": "Déclarer un nouvel entrepôt",

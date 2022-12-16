@@ -367,7 +367,7 @@ export default {
              * There are 4 dialogs:
              * - Add an known user
              * - Create an new user by orcid (check) or email/renater (no check) 
-             * - Remove an user from a repository
+             * - Remove a user from a repository
              * - Edit user role
              */
             dialogRemoveUser: false,
@@ -527,7 +527,7 @@ export default {
     methods: {
         /**
          * Populate User role data (userId, name, role) into repository object
-         * Called by Add an user functionnalities
+         * Called by Add a user functionnalities
          */
         addUserOnRepo() {
             this.dialogAddUser = false
