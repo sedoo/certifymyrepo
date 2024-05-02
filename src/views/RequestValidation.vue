@@ -17,14 +17,11 @@ export default {
     },
 
     computed: {
-      service: function()  {
-        return this.$store.getters.getService
-      }
     },
 
     created: function() {
       this.loading = true
-      this.axios.get(this.service+'/repository/v1_0/validRequest/'+this.$route.params.repositoryId+"/"+this.$route.params.userId)
+      this.axios.get(this.$service+'/repository/v1_0/validRequest/'+this.$route.params.repositoryId+"/"+this.$route.params.userId)
           .then(response => {       
               if(response && response.data) {
                 this.message = this.$t('request.validation.screen.user.has.been.added')

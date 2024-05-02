@@ -555,7 +555,7 @@ export default {
             this.dialogCopy = true
             this.loadingRepositories = true
             var self = this;
-            this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')
+            this.axios.get(this.$service+'/repository/v1_0/listAllFullRepositories')
             .then((response) => {
                 this.repositoryList = response.data
             }).catch((error) => {
@@ -582,7 +582,7 @@ export default {
         loadReport() {
             this.loadingReports = true
             var self = this;
-            this.axios.get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.selectedRepository)
+            this.axios.get(this.$service+'/certificationReport/v1_0/listByRepositoryId/'+this.selectedRepository)
             .then((response) => {
                 this.reportsList = response.data.reports
             }).catch((error) => {
@@ -666,7 +666,7 @@ export default {
       })
 
       this.axios
-      .get(this.service+'/certificationReport/v1_0/getTemplatesList/')
+      .get(this.$service+'/certificationReport/v1_0/getTemplatesList/')
       .then(response => {
         self.templateIdentifierList = response.data
         if(response.data && response.data.length > 0) {

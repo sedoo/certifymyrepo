@@ -169,9 +169,6 @@ export default {
       }
       return orcid
     },
-    service: function()  {
-      return this.$store.getters.getService
-    },
     isPhoneNumber: function() {
       if(this.profile.phones != null && this.profile.phones.length >= 1 && this.profile.phones[0].length > 0) {
         return true
@@ -205,7 +202,7 @@ export default {
       var self = this;
       this.loadingSimulation = true;
       this.axios
-        .get(this.service + "/profile/v1_0/deleteProfileSimulation/"+this.language+"/"+this.userId)
+        .get(this.$service + "/profile/v1_0/deleteProfileSimulation/"+this.language+"/"+this.userId)
         .then(function(response) {
           if(response.data != null && response.data != '') {
             self.warningMessage = response.data
@@ -224,7 +221,7 @@ export default {
       var self = this;
       this.loadingDelete = true;
       this.axios
-        .delete(this.service + "/profile/v1_0/deleteProfile/"+this.language+"/"+this.userId)
+        .delete(this.$service + "/profile/v1_0/deleteProfile/"+this.language+"/"+this.userId)
         .then(function(response) {
           if(response.data != null && response.data != '') {
             self.$unidooAlert.showSuccess(response.data)
@@ -245,7 +242,7 @@ export default {
       var self = this;
       this.loadingProfile = true;
       this.axios
-        .get(this.service + "/profile/v1_0/profile")
+        .get(this.$service + "/profile/v1_0/profile")
         .then(function(response) {
           if(response.data != null && response.data != '') {
             self.profile = response.data
@@ -268,7 +265,7 @@ export default {
       var self = this;
       this.loadingRepo = true;
       this.axios
-        .get(this.service + "/repository/v1_0/listMyRepositories")
+        .get(this.$service + "/repository/v1_0/listMyRepositories")
         .then(function(response) {
           if(response.data != null) {
             self.repoList = response.data

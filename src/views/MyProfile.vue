@@ -132,10 +132,6 @@ export default {
       return this.service + "/profile/v1_0/profile";
     },
 
-    service: function()  {
-      return this.$store.getters.getService
-    },
-
     user: function()  {
       let user = null
       if(this.$store.getters.getUser != null) {
@@ -154,7 +150,7 @@ export default {
       var self = this;
       if (this.$refs.form.validate()) {
         this.saving = true;
-        this.axios.post(this.service + "/profile/v1_0/saveProfile?language=" + this.language, this.profile).then(function(response) {
+        this.axios.post(this.$service + "/profile/v1_0/saveProfile?language=" + this.language, this.profile).then(function(response) {
           // save the profile in the store
           let tmpuser = self.user
           tmpuser.profile = response.data

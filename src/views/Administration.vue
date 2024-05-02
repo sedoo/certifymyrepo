@@ -334,10 +334,6 @@ export default {
       return this.loadingUsers || this.loadingAffiliation
     },
 
-    service: function()  {
-      return this.$store.getters.getService
-    },
-
     userId: function() {
       let id = null
       if(this.$store.getters.getUser != null) {
@@ -353,7 +349,7 @@ export default {
     refeshData() {
       var self = this;
       self.loadingUsers = true
-      this.axios.get(this.service+'/admin/v1_0/listAllUsers')
+      this.axios.get(this.$service+'/admin/v1_0/listAllUsers')
       .then(response => {
         self.users = response.data
       }).catch(function(error) {
@@ -389,7 +385,7 @@ export default {
     saveUser() {
       this.saving = true
       self = this
-      this.axios.post(this.service + "/profile/v1_0/saveProfile?language=" + this.$i18n.locale, this.editedUser).then(function(response) {
+      this.axios.post(this.$service + "/profile/v1_0/saveProfile?language=" + this.$i18n.locale, this.editedUser).then(function(response) {
         self.dialogEditUser = false
         self.users.splice(self.index, 1, self.editedUser)
 
@@ -428,7 +424,7 @@ export default {
     giveRole(item, index) {
       var self = this;
       this.loadingGiveRole[this.index] = true
-      this.axios.post(this.service+'/admin/v1_0/save/'+item.id)
+      this.axios.post(this.$service+'/admin/v1_0/save/'+item.id)
       .then(response => {
         if(response.data) {
           self.refeshData()
@@ -442,7 +438,7 @@ export default {
     removeRole(item, index) {
       var self = this;
       this.loadingRemonveRole[this.index] = true
-      this.axios.delete(this.service+'/admin/v1_0/delete/'+item.adminId)
+      this.axios.delete(this.$service+'/admin/v1_0/delete/'+item.adminId)
       .then(response => {
         if(response.data) {
           self.refeshData()
@@ -490,7 +486,7 @@ export default {
         var self = this;
         this.loadingAffiliation = true;
         this.axios
-            .get(this.service + "/myaffi/v1_0/list")
+            .get(this.$service + "/myaffi/v1_0/list")
             .then(function(response) {
             self.affiliations = response.data;
             })
@@ -505,7 +501,7 @@ export default {
     deleteAffiliationHasBeenConfirmed: function() {
       self = this
       this.axios
-          .delete(this.service + "/myaffi/v1_0/delete/"+this.editedAffiliation.id)
+          .delete(this.$service + "/myaffi/v1_0/delete/"+this.editedAffiliation.id)
           .then(function(response) {
             self.loadAffiliations()
           })
@@ -524,7 +520,7 @@ export default {
       this.loadingSimulation = true;
       debugger
       this.axios
-        .get(this.service + "/profile/v1_0/deleteProfileSimulation/"+this.$i18n.locale+"/"+this.item.id)
+        .get(this.$service + "/profile/v1_0/deleteProfileSimulation/"+this.$i18n.locale+"/"+this.item.id)
         .then(function(response) {
           if(response.data != null && response.data != '') {
             self.warningMessage = response.data
@@ -544,7 +540,7 @@ export default {
       var self = this;
       this.loadingDelete = true;
       this.axios
-        .delete(this.service + "/profile/v1_0/deleteProfile/"+this.language+"/"+this.item.id)
+        .delete(this.$service + "/profile/v1_0/deleteProfile/"+this.language+"/"+this.item.id)
         .then(function() {
             self.$unidooAlert.showSuccess(self.$t('administration.screen.delete.user.success'))
             self.refeshData()

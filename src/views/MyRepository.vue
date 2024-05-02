@@ -485,11 +485,9 @@ export default {
             return true
         }
       },
-      service: function()  {
-        return this.$store.getters.getService
-      },
+
       affiliationService: function() {
-        return this.$store.getters.getService + "/myaffi/v1_0/list";
+        return this.$service + "/myaffi/v1_0/list";
       },
 
       dialogEditUserTitle() {
@@ -506,7 +504,7 @@ export default {
         this.$i18n.locale = this.$store.getters.getLanguage;
         if(this.repositoryId != null) {
             var self = this;
-            this.axios.get(this.service+'/repository/v1_0/getRepository/'+this.repositoryId )
+            this.axios.get(this.$service+'/repository/v1_0/getRepository/'+this.repositoryId )
                 .then(response => {       
                     self.myRepository = response.data
                     self.editedAffiliation = response.data.affiliation.id
@@ -573,7 +571,7 @@ export default {
             this.myRepository.affiliationId = this.editedAffiliation
             this.axios({
                 method: 'post',
-                url: this.service+'/repository/v1_0/save?language='+this.language,
+                url: this.$service+'/repository/v1_0/save?language='+this.language,
                 data: this.myRepository
             }).then ( function () {
                 self.goToRepositories()
@@ -586,7 +584,7 @@ export default {
             self = this
             this.axios({
                 method: 'post',
-                url: this.service + "/profile/v1_0/createNewProfile?language="+this.language,
+                url: this.$service + "/profile/v1_0/createNewProfile?language="+this.language,
                 data: {name: this.userName, orcid: this.orcid, email: this.email }
             }).then(function(response) {
                 self.creatingUser = false
@@ -604,7 +602,7 @@ export default {
         searchOnOrcid() {
             var self = this;
             this.loadingUser = true
-            this.axios.get(this.service+'/orcid/v1_0/getUserByOrcId/'+this.orcid)
+            this.axios.get(this.$service+'/orcid/v1_0/getUserByOrcId/'+this.orcid)
             .then(function (response) {
                 if(response.data.id == null) {
                     self.user = response.data
@@ -621,7 +619,7 @@ export default {
         searchUserByEmail() {
             var self = this;
             this.loadingUser = true
-            this.axios.get(this.service+'/profile/v1_0/profileByEmail?email='+this.email)
+            this.axios.get(this.$service+'/profile/v1_0/profileByEmail?email='+this.email)
             .then(function (response) {
                 if(response.data == null || response.data == '') {
                     self.user.email = self.email
@@ -639,7 +637,7 @@ export default {
             this.user={name: null, id:null, role: null}
             var self = this;
             this.loadingUsers = true
-            this.axios.get(this.service+'/profile/v1_0/listAllUsers')
+            this.axios.get(this.$service+'/profile/v1_0/listAllUsers')
             .then(function (response) {
                 self.foundUsers = response.data
                 for(let i=0 ; i<self.foundUsers.length ; i++) {
