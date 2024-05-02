@@ -175,7 +175,7 @@
         </v-card>
       </v-dialog>
 
-      <requestRepositoryAccess v-if="false" class="pt-10" :service="service"></requestRepositoryAccess>
+      <requestRepositoryAccess v-if="false" class="pt-10" :service="$service"></requestRepositoryAccess>
     </div>
   </div>
 </template>
@@ -207,7 +207,7 @@ export default {
       userEmail: function()  {
         let email = null
         if(this.$store.getters.getUser != null) {
-          email = this.$store.getters.getUser.profile.email
+          email = this.$store.getters.getUser.email
         }
         return email;
       },
@@ -217,9 +217,6 @@ export default {
           userId = this.$store.getters.getUser.profile.id
         }
         return userId;
-      },
-      service: function()  {
-        return this.$store.getters.getService
       },
     },
 
@@ -264,10 +261,10 @@ export default {
       },
       deleteRepository () {
           var self = this;
-          this.axios.delete(this.service+'/repository/v1_0/delete/'+this.repositoryId)
+          this.axios.delete(this.$service+'/repository/v1_0/delete/'+this.repositoryId)
             .then( response =>
                 self.axios
-                    .get(self.service+'/repository/v1_0/listAllFullRepositories')
+                    .get(self.$service+'/repository/v1_0/listAllFullRepositories')
                     .then(response => {
                         self.resultMyRepo = response.data
                     })
@@ -411,12 +408,13 @@ export default {
     },
     
     created: function() {
+      console.log(this.$store.getters.getUser)
       this.$i18n.locale = this.$store.getters.getLanguage;
       // reset repository in the store
       this.$store.commit('setRepository', null)
       this.loadingReports = true
       var self = this;
-      this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')
+      this.axios.get(this.$service+'/repository/v1_0/listAllFullRepositories')
       .then(response => {
         self.resultMyRepo = response.data
         if(this.userEmail==null) {

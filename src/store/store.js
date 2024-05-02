@@ -7,14 +7,11 @@ Vue.use(Vuex);
 export const store = new Vuex.Store(
     {
         state: {
-          user: null,
-          logged: false,
+          user: {roles: []},
+          authenticated: false,
           repository: null,
           language: null,
-          service: process.env.VUE_APP_BACKEND_URL,
-          serviceShibboleth: process.env.VUE_APP_SHIBBOLETH_URL,
           frontEndUrl: process.env.VUE_APP_FRONTEND_URL,
-          renater: false,
           dialogWidth: '900px'
         },
       
@@ -22,21 +19,29 @@ export const store = new Vuex.Store(
           setUser(state, user) {
             state.user = user;
           },
-          setLogged(state, logged) {
-            state.logged = logged
-          },
           setRepository(state, repository) {
             state.repository = repository
           },
           setLanguage(state, language) {
             state.language = language
           },
-          setRenater(state, renater) {
-            state.renater = renater
-          }
+          setAuthenticated(state, authenticated) {
+            state.authenticated = authenticated;
+          },
         },
       
-        actions: {},
+        actions: {
+          async userSignIn({ commit }, keycloak) {
+            await initUser(commit, keycloak);
+          },
+          userSignOutDispatch({ commit }) {
+            commit("setUser", {roles: []});
+            // remettre à null les capabilities de l'user ici si nécessaire
+          },
+          getAuthenticated(state) {
+            return state.authenticated;
+          },
+        },
       
         getters: {
           getUser(state) {
@@ -51,20 +56,11 @@ export const store = new Vuex.Store(
           getLanguage(state) {
             return state.language;
           },
-          getService(state) {
-            return state.service;
-          },
-          getServiceShibboleth(state) {
-            return state.serviceShibboleth;
-          },
           getFrontEndUrl(state) {
             return state.frontEndUrl;
           },
           getDialogWidth(state) {
             return state.dialogWidth;
-          },
-          getRenater(state) {
-            return state.renater;
           }
         },
 
@@ -73,3 +69,40 @@ export const store = new Vuex.Store(
         ]
       }
 )
+
+export async function initUser(commit, keyCloak) {
+  if (keyCloak.tokenParsed) {
+    keyCloak.loadUserProfile().then((userProfile) => {
+      const attributes = userProfile.attributes;
+      const id = keyCloak.tokenParsed.sub;
+      const firstName = keyCloak.tokenParsed.given_name;
+      const lastName = keyCloak.tokenParsed.family_name;
+      const email = keyCloak.tokenParsed.email;
+      const resourceRoles = Object.keys(keyCloak.tokenParsed.resource_access)
+        .map((key) => {
+          return keyCloak.tokenParsed.resource_access[key].roles;
+        })
+        .join(",")
+        .split(",");
+
+      const realmRoles = keyCloak.tokenParsed.realm_access.roles;
+      let roles = [];
+      if (realmRoles) {
+        roles = roles.concat(realmRoles);
+      }
+      if (resourceRoles) {
+        roles = roles.concat(resourceRoles);
+      }
+
+      let user = {
+        id,
+        email,
+        roles,
+        firstName,
+        lastName,
+        attributes
+      };
+      commit("setUser", user);
+    });
+  }
+}

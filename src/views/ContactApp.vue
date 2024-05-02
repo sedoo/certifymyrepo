@@ -90,9 +90,7 @@ export default {
   },
 
   computed: {
-    service: function()  {
-      return this.$store.getters.getService
-    },
+
   },
 
   methods: {
@@ -108,7 +106,7 @@ export default {
       self = this
       this.axios({
               method: 'post',
-              url: this.service+"/admin/v1_0/contact",
+              url: this.$service+"/admin/v1_0/contact",
               data: contact
           })
           .then(response => {

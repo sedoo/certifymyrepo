@@ -93,12 +93,8 @@ import constantsFile from '../resources/constants.json'
 export default {
   computed: {
 
-    service: function() {
-      return this.$store.getters.getService;
-    },
-
     affiliationSavingService: function() {
-      return this.service + "/myaffi/v1_0/save";
+      return this.$service + "/myaffi/v1_0/save";
     },
 
     countryRequiredClass() {

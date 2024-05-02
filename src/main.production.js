@@ -11,7 +11,7 @@ import "@/style/global.css"
 
 Vue.config.productionTip = false
 
-import App from './App.vue'
+import App from './CrusoeApp.vue'
 import TokenRefresher from './components/CertifyMyRepo-token-refresher.vue'
 import VueApexCharts from 'vue-apexcharts'
 import 'es6-promise/auto'
@@ -22,6 +22,7 @@ import i18n from './i18n'
 import ContactApp from './views/ContactApp.vue'
 import Unidoo from '@sedoo/unidoo'
 
+console.log('init VueJS')
 Vue.use(Unidoo);
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
@@ -54,11 +55,13 @@ App.i18n = i18n;
 App.store = store;
 App.router = router;
 
+console.log('crusoe-app')
 Vue.customElement('crusoe-app', App)
 
 ContactApp.vuetify = vuetify;
 ContactApp.i18n = i18n;
 ContactApp.store = store;
+console.log('contact-app')
 Vue.customElement('contact-app', ContactApp)
 
 const urlCdnStyle = [
