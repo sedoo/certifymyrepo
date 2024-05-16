@@ -187,7 +187,6 @@ export default {
     },
 
     resetCountry() {
-      console.log('reset')
       this.affiliation.country = null
       this.$refs.affiliationForm.resetValidation()
     },

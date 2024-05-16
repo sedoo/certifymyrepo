@@ -134,7 +134,6 @@
   "repositories.screen.label.affiliation": "Affiliation",
   "repositories.screen.label.keywords": "Mots-clés",
   "repositories.screen.label.role": "Rôle",
-  "repositories.screen.required.email.error": "Veuillez ajouter votre courriel dans votre profil avant d'éditer un entrepôt",
   "repository.screen.title": "Entrepôt",
   "repository.screen.label.repository.name": "Nom de l'entrepôt",
   "repository.screen.label.repository.role": "Rôle",

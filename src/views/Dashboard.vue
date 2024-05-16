@@ -77,7 +77,7 @@ export default {
           { text: this.$t('repository.table.column.report.inprogress.health'), value: 'latestInProgressReportUpdateDate' }
           ]
     var self = this;
-    this.axios.get(this.service+'/repository/v1_0/listAllFullRepositories')
+    this.axios.get(this.$service+'/repository/v1_0/listAllFullRepositories')
     .then(response => {
       self.repoList = response.data
     }).catch(function(error) {
@@ -91,10 +91,6 @@ export default {
   },
 
   computed: {
-
-    service: function()  {
-      return this.$store.getters.getService
-    },
 
     language: function() {
       return this.$store.getters.getLanguage

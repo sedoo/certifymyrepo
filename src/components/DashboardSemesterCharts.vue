@@ -17,10 +17,6 @@
 export default {
   computed: {
 
-    service: function() {
-      return this.$store.getters.getService;
-    },
-
   },
 
   props: {
@@ -53,7 +49,7 @@ export default {
       this.loading = true
       this.axios({
               method: 'get',
-              url: this.service+"/statistics/v1_0/getStats"
+              url: this.$service+"/statistics/v1_0/getStats"
           })
           .then(response => {
 

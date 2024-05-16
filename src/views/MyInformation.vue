@@ -3,12 +3,11 @@
   <v-flex xs12>
     <h1 class="subheading grey--text">{{ $t('userinformation.screen.title') }}</h1>
     <v-progress-linear indeterminate v-if="loadingProfile || loadingRepo" class="mt-3"></v-progress-linear>
-
     <div v-if="!loadingProfile && !loadingRepo">
       <v-card class="ma-5">
         <v-card-title>{{ $t('userinformation.screen.profile.bloc.title')}}</v-card-title>
-        <v-card-text><v-icon>mdi-account</v-icon> {{ username }}</v-card-text>
-        <v-card-text v-if="orcid != null"><v-icon>mdi-identifier</v-icon>{{ orcid }}</v-card-text>
+        <v-card-text><v-icon>mdi-account</v-icon> {{ profile.name }}</v-card-text>
+        <v-card-text v-if="orcid != null"><v-icon>mdi-identifier</v-icon>{{ profile.orcid }}</v-card-text>
         <v-card-text v-if="profile.title != null"><v-icon>mdi-bookmark</v-icon>{{ profile.title }}</v-card-text>
         <v-card-text v-if="profile.email != null"> <v-icon>mdi-email</v-icon>{{ profile.email }}</v-card-text>
         <v-card-text><v-icon>mdi-bell-off</v-icon>{{ profile.notification }}</v-card-text>
@@ -120,7 +119,6 @@
 </template>
 
 <script>
-import {logOut} from '../utils.js'
 import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
   mixins: [formattedAffiliationMixin],
@@ -151,21 +149,21 @@ export default {
     username: function() {
       let name = null
       if(this.$store.getters.getUser != null) {
-        name = this.$store.getters.getUser.profile.name
+        name = this.$store.getters.getUser.name
       }
       return name
     },
     userId: function() {
       let id = null
       if(this.$store.getters.getUser != null) {
-        id = this.$store.getters.getUser.profile.id
+        id = this.$store.getters.getUser.id
       }
       return id
     },
     orcid: function() {
       let orcid
       if(this.$store.getters.getUser != null) {
-        orcid = this.$store.getters.getUser.profile.orcid
+        orcid = this.$store.getters.getUser.orcid
       }
       return orcid
     },
@@ -199,7 +197,7 @@ export default {
     },
 
     openDeleteDialog: function() {
-      var self = this;
+      let self = this;
       this.loadingSimulation = true;
       this.axios
         .get(this.$service + "/profile/v1_0/deleteProfileSimulation/"+this.language+"/"+this.userId)
@@ -218,7 +216,7 @@ export default {
     },
 
     deleteProfile: function() {
-      var self = this;
+      let self = this;
       this.loadingDelete = true;
       this.axios
         .delete(this.$service + "/profile/v1_0/deleteProfile/"+this.language+"/"+this.userId)
@@ -226,8 +224,8 @@ export default {
           if(response.data != null && response.data != '') {
             self.$unidooAlert.showSuccess(response.data)
           }
-          logOut(self.$store)
-          self.$router.push("/notlogged").catch(() => {});
+          this.$store.dispatch("userSignOut")
+          this.$keycloak.logout();
         })
         .catch(function(error) {
           self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
@@ -239,12 +237,12 @@ export default {
     },
 
     loadProfile: function() {
-      var self = this;
+      let self = this;
       this.loadingProfile = true;
       this.axios
         .get(this.$service + "/profile/v1_0/profile")
         .then(function(response) {
-          if(response.data != null && response.data != '') {
+          if(response.data) {
             self.profile = response.data
             if(self.profile.isNotificationOff) {
               self.profile.notification = self.$t("userinformation.screen.profile.bloc.notification.off")
@@ -262,14 +260,13 @@ export default {
     },
 
     loadRepo: function() {
-      var self = this;
+      let self = this;
       this.loadingRepo = true;
       this.axios
         .get(this.$service + "/repository/v1_0/listMyRepositories")
         .then(function(response) {
           if(response.data != null) {
             self.repoList = response.data
-
           }
         })
         .catch(function(error) {

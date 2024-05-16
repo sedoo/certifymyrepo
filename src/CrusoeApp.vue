@@ -1,6 +1,5 @@
 <template>
  <v-app class="grey lighten-4">
-  <certifymyrepo-token-refresher :service="service"></certifymyrepo-token-refresher>
 
     <unidoo-alert></unidoo-alert>
     <unidoo-confirm-dialog />
@@ -15,7 +14,7 @@
         nav
         dense
       >
-        <v-list-item-group
+        <v-list-item-group v-if="authenticated" 
           v-model="group"
           active-class="deep-purple--text text--accent-4"
         >
@@ -35,22 +34,24 @@
             <v-list-item-icon><v-icon>mdi-information-outline</v-icon></v-list-item-icon>
             <v-list-item-title>{{ $t('page.documentation') }}</v-list-item-title>
           </v-list-item>
-
-          <v-list-item @click="login" v-if="!authenticated">
-            <v-list-item-icon><v-icon>mdi-application-import</v-icon></v-list-item-icon>
-            <v-list-item-title>{{ $t('login') }}</v-list-item-title>
-          </v-list-item>
           <v-list-item @click="logout" v-if="authenticated">
             <v-list-item-icon><v-icon>mdi-application-export</v-icon></v-list-item-icon>
             <v-list-item-title class="text-wrap">{{ $t('logout', {msg: userName}) }}</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
+        <v-list-item-group v-else
+          v-model="group"
+          active-class="deep-purple--text text--accent-4"
+        >
+          <v-list-item @click="login">
+            <v-list-item-icon><v-icon>mdi-application-import</v-icon></v-list-item-icon>
+            <v-list-item-title class="text-wrap">{{ this.$t('login') }}</v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
-
-
     <v-main class="ma-3">
-      <router-view @login="login"></router-view>
+      <router-view></router-view>
     </v-main>
 </v-app>
 </template>
@@ -104,9 +105,6 @@ export default {
     frontEndUrl: function() {
       return this.$store.getters.getFrontEndUrl
     },
-    redirectUri: function() {
-      return window.location.origin + window.location.pathname;
-    },
     helpUrl: function() {
       if(this.language == 'fr') {
         return this.frontEndUrl+'/faq/'
@@ -123,25 +121,20 @@ export default {
     }
   },
 
-  watch: {
-    filteredLinks: function () {
-      this.updateToolbar();
-    },
-    $route (){
-        this.updateToolbar();
-    }
-  },
-
   created: function() {
-    console.log("created")
+    console.log("CRUSOE APP")
+    console.log(this.$store.getters.getUser)
+    console.log(this.authenticated)
     this.$i18n.locale = this.language;
     this.$store.commit('setLanguage', this.language)
-    this.links = []
-    this.links.push(this.linkContact)
+    this.links = [
+          {label:"page.repositories", route: '/repositories', icon: 'mdi-archive'},
+          {label:"page.information", route: "/information", icon: 'mdi-account-details-outline'},
+        ]
+    //this.links.push(this.linkContact)
  },
 
   mounted: function() {
-    console.log("mounted")
     let aux = document.querySelector(this.externalselector);
     if (aux) {
       let text = aux.innerText;
@@ -150,98 +143,106 @@ export default {
       this.setExternalListeners();
     }
   },
+
+  watch: {
+      authenticated(value) {
+        if (value) {
+          this.$store.dispatch("userSignIn", this.$keycloak);
+        }
+        // si on veut stocker le booléen authenticated dans le store pour l'utiliser à différents endroits de l'application
+        this.$store.commit("setAuthenticated", value);
+        this.updateToolbar();
+      }
+   },
     
   methods: {
 
     logout() {
        this.$store.dispatch("userSignOut")
-       this.$router.push("notlogged").catch( () => {})
        this.$keycloak.logout();
+       this.clearToolBar();
+       window.location = this.$store.getters.getFrontEndUrl;
      },
 
-      navigate(route) {
-        this.$router.push(route).catch( () => {})
-      },
+    clearToolBar() {
+      this.links = []
+      if (this.type=='external' && !this.$vuetify.breakpoint.mobile) {
+        let toolbar = document.querySelector("div.external-toolbar")
+        if (toolbar) {
+          toolbar.innerHTML = ""
+        }
+      }
+    },
 
-      toggleDrawer: function() {
-        this.drawer = !this.drawer
-      },
+    login() {
+      this.$keycloak.login();
+    },
 
-      /**
-       * Update toolbar on production mode
-       */
-      updateToolbar() {
-        let prefix='external-toolbar-button'
-        if (this.type=='external' && !this.$vuetify.breakpoint.mobile) {
+    /**
+     * Update toolbar on production mode
+     */
+    updateToolbar() {
+      let prefix='external-toolbar-button'
+      if (this.type=='external' && !this.$vuetify.breakpoint.mobile) {
         let toolbar = document.querySelector("div.external-toolbar")
         if (toolbar) {
           let content ="<span style='font-size: 2rem;padding-right: 70px;'>";
-          for (let i=0; i < this.links.length; i++) {
-            let routeclass="";
-            let link = this.links[i]
-            if (this.$route.name == link.route) {
-              routeclass="active"
+          if(this.authenticated) {
+            for (let i=0; i < this.links.length; i++) {
+              let routeclass="";
+              let link = this.links[i]
+              if (this.$route.name == link.route) {
+                routeclass="active"
+              }
+              if (i==0) {
+                content += '<i route="'+link.route+'" id="'+prefix+'-'+i+'"  class="'+routeclass+' toolbar-button mdi '+link.icon+'" title="'+this.$t(link.label)+'"></i>'
+              } else {
+                content += '<i route="'+link.route+'" id="'+prefix+'-'+i+'" style="border-left: 1px solid #555;" class="'+routeclass+' toolbar-button mdi '+link.icon+'" title="'+this.$t(link.label)+'"></i>'
+              }
+              
             }
-            if (i==0) {
-              content += '<i route="'+link.route+'" id="'+prefix+'-'+i+'"  class="'+routeclass+' toolbar-button mdi '+link.icon+'" title="'+this.$t(link.label)+'"></i>'
-            } else {
-              content += '<i route="'+link.route+'" id="'+prefix+'-'+i+'" style="border-left: 1px solid #555;" class="'+routeclass+' toolbar-button mdi '+link.icon+'" title="'+this.$t(link.label)+'"></i>'
+            if(this.links && this.links.length > 0) {
+              content += '<i route="help" id="'+prefix+'-help" style="border-left: 1px solid #555;" class="toolbar-button mdi mdi-help-circle" title="'+this.$t('page.help')+'"></i>'
+              content += '<i route="documentation" id="'+prefix+'-documentation" style="border-left: 1px solid #555;" class="toolbar-button mdi mdi-information-outline" title="'+this.$t('page.documentation')+'"></i>'
             }
-            
-          }
-          if(this.links && this.links.length > 0) {
-            content += '<i route="help" id="'+prefix+'-help" style="border-left: 1px solid #555;" class="toolbar-button mdi mdi-help-circle" title="'+this.$t('page.help')+'"></i>'
-            content += '<i route="documentation" id="'+prefix+'-documentation" style="border-left: 1px solid #555;" class="toolbar-button mdi mdi-information-outline" title="'+this.$t('page.documentation')+'"></i>'
-          }
-          if (this.isLogged) {
             content += '<i route="logout" id="'+prefix+'-logout" style="color:#fb8c00" class="toolbar-button mdi mdi-application-export" title="'+this.$t('logout', {msg: this.userName})+'"></i>'
-          //} else {
-            //content += '<i route="login" id="'+prefix+'-login" style="color:#fb8c00" class="toolbar-button mdi mdi-application-import" title="'+this.$t('login')+'"></i>'
+          } else {
+            content += '<i route="repositories" id="'+prefix+'-logout" style="color:#fb8c00" class="toolbar-button mdi mdi-application-import" title="'+this.$t('login')+'"></i>'
           }
-
           content +="</span>"
           toolbar.innerHTML = content;
         }
-        }
-      },
+      }
+    },
 
-      /**
-       * Add extra listenner on production mode
-       */
-      setExternalListeners() {
-        if (this.listenersSet) {
-          return;
-        }
-        var self = this
-        document.addEventListener('click',function(e){
+    /**
+     * Add extra listenner on production mode
+     */
+    setExternalListeners() {
+      if (this.listenersSet) {
+        return;
+      }
+      var self = this
+      document.addEventListener('click',function(e){
         if(e.target && e.target.id.startsWith('external-toolbar-button')){
           let route = e.target.getAttribute("route");
-        if (route == "login") {
-          self.login();
-          return;
+          if(route == "help"){
+            window.location = self.helpUrl;
+            return
+          } else if(route == "documentation"){
+            window.location = self.docUrl;
+            return
+          } else {
+            self.navigate(route)
+          }
         }
+      })
+    this.listenersSet=true;
+    },
 
-        if (route == "logout") {
-          self.logoutFromORCID();
-          return;
-        } else if(route == "help"){
-          window.location = self.helpUrl;
-          return
-        } else if(route == "documentation"){
-          window.location = self.docUrl;
-          return
-        } else {
-          self.navigate(route)
-        }
-        
-        }
-        })
-      this.listenersSet=true;
-      },
-
-      navigate(route) {
-        this.$router.push(route).catch( () => {})
-      },
+    navigate(route) {
+      this.$router.push(route).catch( () => {})
+    },
   }
 };
 </script>

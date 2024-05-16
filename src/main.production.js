@@ -5,64 +5,56 @@ import vuetify from './plugins/vuetify.js';
 import axios from "axios";
 import VueAxios from "vue-axios";
 import router from './router'
+import VueI18n from 'vue-i18n'
 
 // Importing the global css file
 import "@/style/global.css"
 
-Vue.config.productionTip = false
-
 import App from './CrusoeApp.vue'
-import TokenRefresher from './components/CertifyMyRepo-token-refresher.vue'
 import VueApexCharts from 'vue-apexcharts'
 import 'es6-promise/auto'
 import { store } from './store/store'
-import {logOut} from './utils.js'
 import vueCustomElement from 'vue-custom-element'
 import i18n from './i18n'
 import ContactApp from './views/ContactApp.vue'
-import Unidoo from '@sedoo/unidoo'
+import {Unidoo, UnidooKeycloak} from "@sedoo/unidoo";
 
-console.log('init VueJS')
-Vue.use(Unidoo);
-Vue.use(VueAxios, axios);
+
+Vue.use(VueI18n);
 Vue.use(VueRouter);
 Vue.use(vueCustomElement);
-Vue.component('apexchart', VueApexCharts)
-Vue.component('certifymyrepo-token-refresher', TokenRefresher)
+Vue.use(VueAxios, axios);
+Vue.use(Unidoo, { vuetify, axios, iconfont: 'mdi' });
+Vue.use(UnidooKeycloak, { axios });
+Vue.component('apexchart', VueApexCharts);
 
-//Enable request interceptor
-axios.interceptors.request.use(function (config) {
-    if(store.getters.getUser != null ) {
-      config.headers = { Authorization: 'Bearer '+store.getters.getUser.token}
-    }
-    return config;
-})
-
-// Add a response interceptor
-axios.interceptors.response.use(function (response) {
-  // Do not do anything
-  return response;
-}, function (error) {
-  if(error.response != null && error.response.status == 403) {
-    logOut(store)
-    router.push({path: '/notlogged' })
-  }
-  return Promise.reject(error);
+Vue.prototype.$unidooInitKeycloak({
+  ssoParams: {
+    url: "https://sso.aeris-data.fr/auth",
+    onLoad: "check-sso",
+    realm: "aeris",
+    clientId: "gestionpic-vjs",
+    resource: "gestionpic-vjs",
+    authorizedDomains: ["http://localhost:8485", "https://api.sedoo.fr"]
+  },
 });
+
+Vue.prototype.$service = process.env.VUE_APP_BACKEND_URL;
 
 App.vuetify = vuetify;
 App.i18n = i18n;
 App.store = store;
 App.router = router;
-
-console.log('crusoe-app')
 Vue.customElement('crusoe-app', App)
 
 ContactApp.vuetify = vuetify;
 ContactApp.i18n = i18n;
 ContactApp.store = store;
-console.log('contact-app')
 Vue.customElement('contact-app', ContactApp)
+
+Vue.config.productionTip = false;
+Vue.config.devtools = false;
+
 
 const urlCdnStyle = [
   "https://fonts.googleapis.com/css?family=Material+Icons",

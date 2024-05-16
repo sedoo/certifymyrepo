@@ -10,6 +10,11 @@
 </template>
 <script>
 export default {
-  data: () => ({})
+  data: () => ({}),
+
+  mounted: function() {
+    this.keycloak.login();
+    window.location = this.$store.getters.getFrontEndUrl;
+  }
 };
 </script>

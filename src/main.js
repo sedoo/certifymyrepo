@@ -1,6 +1,6 @@
 import '@fortawesome/fontawesome-free/css/all.css'
 import Vue from 'vue'
-import App from './App.vue'
+import App from './CrusoeApp.vue'
 import vuetify from './plugins/vuetify.js';
 import axios from "axios";
 import VueAxios from "vue-axios";
@@ -19,8 +19,6 @@ import i18n from './i18n'
 import router from './router'
 import {Unidoo, UnidooKeycloak} from "@sedoo/unidoo";
 
-console.log("init 1")
-
 Vue.use(VueRouter)
 Vue.use(VueI18n)
 Vue.use(VueAxios, axios)
@@ -32,6 +30,7 @@ Vue.prototype.$unidooInitKeycloak({
     onLoad: "check-sso",
       url: "https://sso.aeris-data.fr/auth",
       realm: "aeris",
+      onLoad: "check-sso",
       clientId: "gestionpic-vjs",
       resource: "gestionpic-vjs",
       authorizedDomains: ["http://localhost:8080", "http://localhost:8485", "https://api.sedoo.fr"]
@@ -42,11 +41,10 @@ Vue.component('apexchart', VueApexCharts)
 
 Vue.prototype.$service = process.env.VUE_APP_BACKEND_URL;
 
-console.log("init 2")
 new Vue({
   router,
   store,
   vuetify,
   i18n,
-  render: h => h(App, {props: {type: 'internal', renater: false}})
+  render: h => h(App, {props: {type: 'internal'}})
 }).$mount('#app')

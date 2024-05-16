@@ -337,7 +337,7 @@ export default {
     userId: function() {
       let id = null
       if(this.$store.getters.getUser != null) {
-        id = this.$store.getters.getUser.profile.id
+        id = this.$store.getters.getUser.id
       }
       return id
     },

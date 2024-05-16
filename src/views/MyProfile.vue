@@ -111,7 +111,6 @@
 </template>
 
 <script>
-import {logOut} from '../utils.js'
 export default {
   created: function() {
     this.$i18n.locale = this.language
@@ -129,7 +128,7 @@ export default {
     },
     
     profileService: function() {
-      return this.service + "/profile/v1_0/profile";
+      return this.$service + "/profile/v1_0/profile";
     },
 
     user: function()  {
@@ -189,20 +188,7 @@ export default {
     },
 
     searchOnOrcid() {
-        var self = this;
-        this.loadingUser = true
-        this.axios.get(this.service+'/orcid/v1_0/getUserByOrcId/'+this.orcidOrganisation.orcid)
-        .then(function (response) {
-            if(response.data.id == null) {
-                self.orcidOrganisation.name = response.data.name
-                self.orcidOrganisation.email = response.data.email
-            } else {
-              self.$unidooAlert.showError(self.$t('repository.screen.create.user.error.duplicate.orcid', {'msg':response.data.name } ), self.$t('button.close'))
-            }
-        }).catch(function(error) {
-          self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
-        })
-        .finally(() => this.loadingUser = false)
+        console.log("searchOnOrcid")
     },
 
     confirmOrcid() {

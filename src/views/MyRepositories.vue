@@ -174,20 +174,16 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-
-      <requestRepositoryAccess v-if="false" class="pt-10" :service="$service"></requestRepositoryAccess>
     </div>
   </div>
 </template>
 
 
 <script>
-import requestRepositoryAccess from '../components/RequestRepositoryAccess.vue'
 import formattedAffiliationMixin from "../mixins/formattedAffiliationMixin";
 export default {
   mixins: [formattedAffiliationMixin],
   components: {
-      requestRepositoryAccess
   },
 	props: {
 
@@ -214,7 +210,7 @@ export default {
       userId: function()  {
         let userId = null
         if(this.$store.getters.getUser != null) {
-          userId = this.$store.getters.getUser.profile.id
+          userId = this.$store.getters.getUser.id
         }
         return userId;
       },
@@ -273,11 +269,7 @@ export default {
             })
       },
       editRepository (item) {
-        if(this.userEmail==null) {
-          this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'), self.$t('button.close'))
-        } else {
-          this.$router.push({name: 'repository', query: {repositoryId: item.id}});
-        }
+        this.$router.push({name: 'repository', query: {repositoryId: item.id}});
       },
 
       levelList (health) {
@@ -338,28 +330,24 @@ export default {
         option.chart = {
           events: {
             updated: function (chartContext, options) {
-              console.log(' updated')
+
             },
             mouseMove: function (chartContext, options) {
-              console.log(' mouseMove')
+
             },
             mouseLeave: function(event, chartContext, config) {
-              console.log(' mouseLeave')
+
             },
             dataPointMouseLeave: function(event, chartContext, config) {
-              console.log(' dataPointMouseLeave')
+
             }
           }
         }
         return option
       },
       routeToMyReports(repository) {
-        if(this.userEmail==null) {
-          this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'))
-        } else {
-          this.$store.commit('setRepository', repository)
-          this.$router.push({path: '/certificationReports/' + repository.id })
-        }
+        this.$store.commit('setRepository', repository)
+        this.$router.push({path: '/certificationReports/' + repository.id })
       },
       getMyRoleMessage(item) {
         item.displayRole = false
@@ -408,6 +396,14 @@ export default {
     },
     
     created: function() {
+      console.log("created")
+      if(!this.$keycloak.authenticated) {
+        console.log("login")
+        this.$keycloak.login();
+        this.$store.dispatch("userSignIn", this.$keycloak);
+      } else {
+        console.log("not login")
+      }
       console.log(this.$store.getters.getUser)
       this.$i18n.locale = this.$store.getters.getLanguage;
       // reset repository in the store
@@ -417,14 +413,10 @@ export default {
       this.axios.get(this.$service+'/repository/v1_0/listAllFullRepositories')
       .then(response => {
         self.resultMyRepo = response.data
-        if(this.userEmail==null) {
-          this.$unidooAlert.showError(this.$t('repositories.screen.required.email.error'), self.$t('button.close'))
-        }
       }).catch(function(error) {
         self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
       })
-      .finally(() => this.loadingReports = false)
-
+      .finally(() => self.loadingReports = false)
 
     },
 

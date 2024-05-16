@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import VueRouter from "vue-router";
-import { store } from './store/store'
 
 import MyProfile from './views/MyProfile.vue'
 import MyInformation from './views/MyInformation.vue'
@@ -10,8 +9,8 @@ import MyRepositories from './views/MyRepositories.vue'
 import MyRepository from './views/MyRepository.vue'
 import MyCertificationReports from './views/MyCertificationReports.vue'
 import MyCertificationReport from './views/MyCertificationReport.vue'
-import NotLogged from "./views/NotLogged.vue"
-import Logging from "./views/Logging.vue"
+import HomePage from "./views/HomePage.vue"
+import Logout from "./views/Logout.vue"
 import Contact from "./views/ContactApp.vue"
 import RequestValidation from "./views/RequestValidation.vue"
 
@@ -69,14 +68,14 @@ const router = new VueRouter({
           meta: {requiresAuth: true}
         },
         {
-          path: "/logging",
-          name: "logging",
-          component: Logging
+          path: "/homepage",
+          name: "homepage",
+          component: HomePage
         },
         {
-          path: "/notlogged",
-          name: "notlogged",
-          component: NotLogged
+          path: "/Logout",
+          name: "logout",
+          component: Logout
         },
         {
           path: "/contact",
@@ -87,23 +86,8 @@ const router = new VueRouter({
           path: "/requestValidation/:repositoryId/:userId",
           name: "requestValidation",
           component: RequestValidation
-        },
-        { path: '/', redirect: '/notlogged' }
+        }
     ]
 })
-/** 
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    // this route requires auth, check if logged in
-    // if not, redirect to login page.
-    if (!store.getters.getLogged) {
-      next({ name: 'notlogged' })
-    } else {
-      next() // go to wherever I'm going
-    }
-  } else {
-    next() // does not require auth, make sure to always call next()!
-  }
-})*/
 
 export default router;

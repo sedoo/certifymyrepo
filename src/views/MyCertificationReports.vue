@@ -441,14 +441,9 @@ export default {
         },
 
         currentlyEdited(item) {
-            console.log("currentlyEdited id:"+item.id)
-            console.log(this.reportsIdCurrentlyEdited != null)
-            console.log(this.reportsIdCurrentlyEdited.length > 0)
-            console.log(this.reportsIdCurrentlyEdited.includes(item.id))
             if(this.reportsIdCurrentlyEdited != null && this.reportsIdCurrentlyEdited.length > 0 && this.reportsIdCurrentlyEdited.includes(item.id)) {
                 return true
             } else {
-                console.log(false)
                 return false
             }
         },

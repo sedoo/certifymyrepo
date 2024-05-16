@@ -88,7 +88,6 @@ export default {
       authenticated(value) {
         if (value) {
           this.$store.dispatch("userSignIn", this.$keycloak);
-          this.$router.push("repositories").catch( () => {})
         }
         // si on veut stocker le booléen authenticated dans le store pour l'utiliser à différents endroits de l'application
         this.$store.commit("setAuthenticated", value);
@@ -103,7 +102,6 @@ export default {
 
       logout() {
         this.$store.dispatch("userSignOut")
-        this.$router.push("notlogged").catch( () => {})
         this.$keycloak.logout();
       },
 

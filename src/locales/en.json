@@ -136,7 +136,6 @@
   "repositories.screen.label.keywords": "Keywords",
   "repositories.screen.label.role": "Role",
   "repositories.screen.label.repository.name": "Name",
-  "repositories.screen.required.email.error": "Please go to your profile to add your email before editing a repository",
   "repository.screen.title": "Repository",
   "repository.screen.label.repository.name": "Repository name",
   "repository.screen.label.repository.role": "Role",
