@@ -178,16 +178,26 @@ export default {
       this.$keycloak.login();
     },
 
+    isAdmin() {
+      if(this.$store.getters.getUser) {
+        this.$store.getters.getUser.includes("")
+      }
+    },
+
     /**
      * Update toolbar on production mode
      */
     updateToolbar() {
+      if(this.$store.getters.getUser.isAdmin) {
+        this.links.push(this.linkDashoard)
+        this.links.push(this.linkAdministration) 
+      } 
       let prefix='external-toolbar-button'
       if (this.type=='external' && !this.$vuetify.breakpoint.mobile) {
         let toolbar = document.querySelector("div.external-toolbar")
         if (toolbar) {
           let content ="<span style='font-size: 2rem;padding-right: 70px;'>";
-          if(this.authenticated) {
+          if(true) {
             for (let i=0; i < this.links.length; i++) {
               let routeclass="";
               let link = this.links[i]
@@ -207,7 +217,7 @@ export default {
             }
             content += '<i route="logout" id="'+prefix+'-logout" style="color:#fb8c00" class="toolbar-button mdi mdi-application-export" title="'+this.$t('logout', {msg: this.userName})+'"></i>'
           } else {
-            content += '<i route="repositories" id="'+prefix+'-logout" style="color:#fb8c00" class="toolbar-button mdi mdi-application-import" title="'+this.$t('login')+'"></i>'
+            content += '<i route="homepage" id="'+prefix+'-logout" style="color:#fb8c00" class="toolbar-button mdi mdi-application-import" title="'+this.$t('login')+'"></i>'
           }
           content +="</span>"
           toolbar.innerHTML = content;

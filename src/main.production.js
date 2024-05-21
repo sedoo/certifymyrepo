@@ -31,7 +31,7 @@ Vue.component('apexchart', VueApexCharts);
 Vue.prototype.$unidooInitKeycloak({
   ssoParams: {
     url: "https://sso.aeris-data.fr/auth",
-    onLoad: "check-sso",
+    onLoad: "login-required",
     realm: "aeris",
     clientId: "gestionpic-vjs",
     resource: "gestionpic-vjs",
@@ -61,7 +61,6 @@ const urlCdnStyle = [
   "https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css",
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css",
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/svg-with-js.css",
-  "https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v6.0.1/css/ol.css",
   "https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
 ]
 // adding CDN css font url

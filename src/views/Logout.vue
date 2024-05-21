@@ -20,7 +20,7 @@ export default {
    mounted: function() {
     console.log("mounted")
     this.$store.dispatch("userSignOut")
-    this.keycloak.logout();
+    this.$keycloak.logout();
     window.location = this.$store.getters.getFrontEndUrl;
     return
    }

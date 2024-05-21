@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios'
 import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex);
@@ -34,7 +35,7 @@ export const store = new Vuex.Store(
           async userSignIn({ commit }, keycloak) {
             await initUser(commit, keycloak);
           },
-          userSignOutDispatch({ commit }) {
+          userSignOut({ commit }) {
             commit("setUser", {roles: []});
             // remettre à null les capabilities de l'user ici si nécessaire
           },
@@ -73,6 +74,8 @@ export const store = new Vuex.Store(
 export async function initUser(commit, keyCloak) {
   if (keyCloak.tokenParsed) {
     keyCloak.loadUserProfile().then((userProfile) => {
+      console.log(userProfile)
+      console.log(keyCloak.token)
       const attributes = userProfile.attributes;
       const id = keyCloak.tokenParsed.sub;
       const firstName = keyCloak.tokenParsed.given_name;
@@ -102,7 +105,12 @@ export async function initUser(commit, keyCloak) {
         lastName,
         attributes
       };
-      commit("setUser", user);
+      axios.get(Vue.prototype.$service + "/admin/v1_0/isAdmin?email="+email)
+      .then(function(response) {
+        user.isAdmin = response.data
+        commit("setUser", user);
+      })
     });
   }
+
 }

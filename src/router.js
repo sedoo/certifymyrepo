@@ -86,7 +86,8 @@ const router = new VueRouter({
           path: "/requestValidation/:repositoryId/:userId",
           name: "requestValidation",
           component: RequestValidation
-        }
+        },
+        { path: '/', redirect: '/homepage' }
     ]
 })
 

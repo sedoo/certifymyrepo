@@ -19,6 +19,9 @@
 <script>
 export default {
 
+  created: function() {
+    console.log("created"+this.$keycloak.authenticated)
+  }
 
 };
 </script>

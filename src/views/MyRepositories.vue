@@ -396,14 +396,6 @@ export default {
     },
     
     created: function() {
-      console.log("created")
-      if(!this.$keycloak.authenticated) {
-        console.log("login")
-        this.$keycloak.login();
-        this.$store.dispatch("userSignIn", this.$keycloak);
-      } else {
-        console.log("not login")
-      }
       console.log(this.$store.getters.getUser)
       this.$i18n.locale = this.$store.getters.getLanguage;
       // reset repository in the store
