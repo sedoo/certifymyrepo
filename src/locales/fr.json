@@ -103,7 +103,6 @@
   "profile.screen.label.name": "Nom",
   "profile.screen.label.email": "Courriel",
   "profile.screen.label.notification.checkbox": "Cochez cette case si vous ne souhaitez pas être averti pour de nouveaux commentaires sur un rapport.",
-  "profile.screen.message.email": "Veuillez noter, pour vous connecter via Renater, ce courriel doit être celui de votre compte Renater. Si vous n'utilisez que la connexion via ORCID, vous pouvez renseigner n'importe quel email valide afin de recevoir des notifications.",
   "profile.screen.error.email.mandatory": "Veuillez entrer voute courriel",
   "profile.screen.error.email.validation": "Le courriel doit être valide",
   "profile.screen.confirmation.message": "Le profil a été sauvegardé",

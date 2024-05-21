@@ -4,55 +4,68 @@
     <unidoo-alert></unidoo-alert>
     <unidoo-confirm-dialog />
 
-    <v-app-bar-nav-icon v-if="type!='external' || $vuetify.breakpoint.mobile" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-    <v-navigation-drawer
-      v-model="drawer"
-      absolute
-      temporary app
-    >
-      <v-list
-        nav
-        dense
+    <v-toolbar flat dense v-if="!$vuetify.breakpoint.mobile">
+      <v-spacer></v-spacer>
+      <v-toolbar-items flat class="mr-20">
+        <v-btn icon color="black" v-for="(link, i) in links"
+            :key="i" @click="navigate(link.route)" style="border-right: 1px solid #555;"
+            ><v-icon>{{ link.icon }}</v-icon></v-btn>
+          <v-btn icon @click="goTo(helpUrl)" color="black" style="border-right: 1px solid #555;"><v-icon>mdi-help-circle</v-icon></v-btn>
+          <v-btn icon @click="goTo(docUrl)" color="black"><v-icon>mdi-information-outline</v-icon></v-btn>
+          <v-btn icon @click="logout" color="#fb8c00" ><v-icon>mdi-application-export</v-icon></v-btn>
+      </v-toolbar-items>
+    </v-toolbar>
+      <v-app-bar-nav-icon v-else @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-navigation-drawer
+        v-model="drawer"
+        absolute
+        temporary app
       >
-        <v-list-item-group v-if="authenticated" 
-          v-model="group"
-          active-class="deep-purple--text text--accent-4"
+        <v-list
+          nav
+          dense
         >
-          <v-list-item v-for="(link, i) in links"
-            :key="i" router :to="link.route"
-            color="secondary"
-            >
-            <v-list-item-icon><v-icon>{{ link.icon }}</v-icon></v-list-item-icon>
-            <v-list-item-title>{{ $t(link.label) }}</v-list-item-title>
-          </v-list-item>
+          <v-list-item-group v-if="authenticated" 
+            v-model="group"
+            active-class="deep-purple--text text--accent-4"
+          >
+            <v-list-item v-for="(link, i) in links"
+              :key="i" @click="navigate(link.route)"
+              color="secondary"
+              >
+              <v-list-item-icon><v-icon>{{ link.icon }}</v-icon></v-list-item-icon>
+              <v-list-item-title>{{ $t(link.label) }}</v-list-item-title>
+            </v-list-item>
 
-          <v-list-item :href="helpUrl" target="_blank" v-if="authenticated">
-            <v-list-item-icon><v-icon>mdi-help-circle</v-icon></v-list-item-icon>
-            <v-list-item-title>{{ $t('page.help') }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item :href="docUrl" target="_blank" v-if="authenticated">
-            <v-list-item-icon><v-icon>mdi-information-outline</v-icon></v-list-item-icon>
-            <v-list-item-title>{{ $t('page.documentation') }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="logout" v-if="authenticated">
-            <v-list-item-icon><v-icon>mdi-application-export</v-icon></v-list-item-icon>
-            <v-list-item-title class="text-wrap">{{ $t('logout', {msg: userName}) }}</v-list-item-title>
-          </v-list-item>
-        </v-list-item-group>
-        <v-list-item-group v-else
-          v-model="group"
-          active-class="deep-purple--text text--accent-4"
-        >
-          <v-list-item @click="login">
-            <v-list-item-icon><v-icon>mdi-application-import</v-icon></v-list-item-icon>
-            <v-list-item-title class="text-wrap">{{ this.$t('login') }}</v-list-item-title>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
-    </v-navigation-drawer>
+            <v-list-item @click="goTo(helpUrl)" v-if="authenticated">
+              <v-list-item-icon><v-icon>mdi-help-circle</v-icon></v-list-item-icon>
+              <v-list-item-title>{{ $t('page.help') }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="goTo(docUrl)" v-if="authenticated">
+              <v-list-item-icon><v-icon>mdi-information-outline</v-icon></v-list-item-icon>
+              <v-list-item-title>{{ $t('page.documentation') }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="logout" v-if="authenticated">
+              <v-list-item-icon><v-icon>mdi-application-export</v-icon></v-list-item-icon>
+              <v-list-item-title class="text-wrap">{{ $t('logout', {msg: userName}) }}</v-list-item-title>
+            </v-list-item>
+          </v-list-item-group>
+          <v-list-item-group v-else
+            v-model="group"
+            active-class="deep-purple--text text--accent-4"
+          >
+            <v-list-item @click="login">
+              <v-list-item-icon><v-icon>mdi-application-import</v-icon></v-list-item-icon>
+              <v-list-item-title class="text-wrap">{{ this.$t('login') }}</v-list-item-title>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-navigation-drawer>
+    
     <v-main class="ma-3">
       <router-view></router-view>
     </v-main>
+
 </v-app>
 </template>
 
@@ -82,7 +95,6 @@ export default {
       drawer : false,
       group: null,
       link: null,
-      links : [],
       linkRepositories: {label:"page.repositories", route: '/repositories', icon: 'mdi-archive'},
       linkUserInformation: {label:"page.information", route: "/information", icon: 'mdi-account-details-outline'},
       linkDashoard: {label:"page.dashboard", route: '/dashboard', icon: 'mdi-view-dashboard'},
@@ -97,6 +109,21 @@ export default {
 
     authenticated() {
       return this.$keycloak.authenticated;
+    },
+
+    links() {
+       let links = []
+      if(this.$store.getters.getUser.isAdmin) {
+       
+        links.push(this.linkRepositories)
+        links.push(this.linkUserInformation)
+        links.push(this.linkDashoard)
+        links.push(this.linkAdministration)
+      } else {
+        links.push(this.linkRepositories)
+        links.push(this.linkUserInformation)
+      }
+      return links
     },
 
     userName() {
@@ -127,11 +154,6 @@ export default {
     console.log(this.authenticated)
     this.$i18n.locale = this.language;
     this.$store.commit('setLanguage', this.language)
-    this.links = [
-          {label:"page.repositories", route: '/repositories', icon: 'mdi-archive'},
-          {label:"page.information", route: "/information", icon: 'mdi-account-details-outline'},
-        ]
-    //this.links.push(this.linkContact)
  },
 
   mounted: function() {
@@ -139,8 +161,6 @@ export default {
     if (aux) {
       let text = aux.innerText;
       aux.innerHTML = '<section class="toolbar-parent"><h1 class="entry-title">'+text+'</h1><div class="toolbar-fill-remaining-space"></div><div class="external-toolbar"></div></section>'
-      this.updateToolbar();
-      this.setExternalListeners();
     }
   },
 
@@ -151,8 +171,7 @@ export default {
         }
         // si on veut stocker le booléen authenticated dans le store pour l'utiliser à différents endroits de l'application
         this.$store.commit("setAuthenticated", value);
-        this.updateToolbar();
-      }
+      },
    },
     
   methods: {
@@ -160,38 +179,17 @@ export default {
     logout() {
        this.$store.dispatch("userSignOut")
        this.$keycloak.logout();
-       this.clearToolBar();
        window.location = this.$store.getters.getFrontEndUrl;
      },
 
-    clearToolBar() {
-      this.links = []
-      if (this.type=='external' && !this.$vuetify.breakpoint.mobile) {
-        let toolbar = document.querySelector("div.external-toolbar")
-        if (toolbar) {
-          toolbar.innerHTML = ""
-        }
-      }
-    },
-
     login() {
       this.$keycloak.login();
-    },
-
-    isAdmin() {
-      if(this.$store.getters.getUser) {
-        this.$store.getters.getUser.includes("")
-      }
     },
 
     /**
      * Update toolbar on production mode
      */
     updateToolbar() {
-      if(this.$store.getters.getUser.isAdmin) {
-        this.links.push(this.linkDashoard)
-        this.links.push(this.linkAdministration) 
-      } 
       let prefix='external-toolbar-button'
       if (this.type=='external' && !this.$vuetify.breakpoint.mobile) {
         let toolbar = document.querySelector("div.external-toolbar")
@@ -248,6 +246,11 @@ export default {
         }
       })
     this.listenersSet=true;
+    },
+
+    goTo(url) {
+      window.location = url
+      return
     },
 
     navigate(route) {

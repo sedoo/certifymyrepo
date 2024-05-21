@@ -104,7 +104,6 @@
   "profile.screen.label.name": "Name",
   "profile.screen.label.email": "Email",
   "profile.screen.label.notification.checkbox": "Check this if you do not want to be notified for new comments on a report.",
-  "profile.screen.message.email": "Please note if you want to login using Renater, this email must be your Renater email. If you only use ORCID login you can enter any valid email to receive notifications.",
   "profile.screen.error.email.mandatory": "Please enter your email",
   "profile.screen.error.email.validation": "E-mail must be valid",
   "profile.screen.confirmation.message": "The profile has been saved",

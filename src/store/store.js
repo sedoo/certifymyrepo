@@ -74,8 +74,6 @@ export const store = new Vuex.Store(
 export async function initUser(commit, keyCloak) {
   if (keyCloak.tokenParsed) {
     keyCloak.loadUserProfile().then((userProfile) => {
-      console.log(userProfile)
-      console.log(keyCloak.token)
       const attributes = userProfile.attributes;
       const id = keyCloak.tokenParsed.sub;
       const firstName = keyCloak.tokenParsed.given_name;
@@ -109,6 +107,7 @@ export async function initUser(commit, keyCloak) {
       .then(function(response) {
         user.isAdmin = response.data
         commit("setUser", user);
+        console.log(user)
       })
     });
   }

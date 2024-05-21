@@ -10,17 +10,8 @@
         <v-col cols="12">
           <v-text-field v-model="profile.name" prepend-inner-icon="mdi-account" :label="$t('profile.screen.label.name')" readonly filled outlined dense></v-text-field>
         </v-col>
-        <v-col cols="11">
-          <v-text-field v-model="profile.orcid" prepend-inner-icon="mdi-identifier" label="ORCID" readonly filled outlined dense></v-text-field>
-        </v-col>
-        <v-col cols="1">
-          <v-btn class="ml-3 " x-small :title="$t('profile.screen.label.search.orcid')" @click="dialogEditOrcid=true"  fab color="info"> 
-            <v-icon >mdi-pencil-outline</v-icon> 
-          </v-btn>
-        </v-col>
         <v-col cols="12">
-          <v-text-field class="required" v-model="profile.email"  :label="$t('profile.screen.label.email')" prepend-inner-icon="mdi-email"  :rules="rules.emailRules" outlined dense required></v-text-field>
-          <span class="text">{{ $t('profile.screen.message.email') }}</span>
+          <v-text-field class="required" v-model="profile.email"  :label="$t('profile.screen.label.email')" prepend-inner-icon="mdi-email"  readonly filled outlined dense></v-text-field>
         </v-col>
         <v-col cols="12">
           <v-checkbox prepend-icon="mdi-bell-off" v-model="profile.isNotificationOff" :label="$t('profile.screen.label.notification.checkbox')" dense></v-checkbox>
@@ -46,66 +37,6 @@
 
     </div>
     </v-flex>
-
-        <v-form v-model="validOrcid">
-            <v-dialog v-model="dialogEditOrcid" :width="$store.getters.getDialogWidth">
-                <v-card>
-                    <v-card-title class="headline grey lighten-2" primary-title>
-                    {{ $t('profile.screen.dialog.edit.orcid.title') }}
-                    </v-card-title>
-                    <v-card-text>
-                      <v-container fuild>
-                        <v-row>
-                          <v-col cols="12">
-                            <v-form v-model="wellFormedOrcid">
-                            <v-row>
-                              <v-col cols="10">
-                                <v-text-field class="required" 
-                                  v-model="orcidOrganisation.orcid" outlined dense 
-                                  prepend-inner-icon="mdi-identifier" :counter="19" 
-                                  :rules="rules.orcIdRules" label="ORCID" required>
-                                </v-text-field>
-                              </v-col>
-                              <v-col cols="2">
-                                <v-btn color="info" @click="searchOnOrcid" :disabled="!wellFormedOrcid" :loading="loadingUser">
-                                  {{ $t('button.search') }}
-                                </v-btn>
-                              </v-col>
-                            </v-row>
-                            </v-form>
-                          </v-col>
-                          <v-col cols="12">
-                            {{ $t('profile.screen.dialog.edit.orcid.message')}}
-                          </v-col>
-                          <v-col cols="12">
-                            <v-text-field class="required" :rules="rules.userNameOrcidRules" outlined dense 
-                              v-model="orcidOrganisation.name" prepend-inner-icon="mdi-account" 
-                              :label="$t('repository.screen.label.user.name')" readonly filled>
-                            </v-text-field>
-                          </v-col>
-                          <v-col cols="12">
-                            <v-text-field v-model="orcidOrganisation.email" outlined dense :rules="rules.emailRules"
-                              prepend-inner-icon="mdi-email" :label="$t('repository.screen.create.user.email')">
-                            </v-text-field>
-                          </v-col>
-                        </v-row>
-                      </v-container>
-
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions>
-                    <div class="flex-grow-1"></div>
-                    <v-btn @click="cancelCreateUser">
-                        {{ $t("button.cancel") }}
-                    </v-btn>
-                    <v-btn color="info" :disabled="!validOrcid" @click="confirmOrcid">
-                        {{ $t("button.confirm") }}
-                    </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </v-form>
-
   </v-layout>
 
 </template>
@@ -187,36 +118,13 @@ export default {
         });
     },
 
-    searchOnOrcid() {
-        console.log("searchOnOrcid")
-    },
-
-    confirmOrcid() {
-      this.dialogEditOrcid = false
-      this.profile.orcid = this.orcidOrganisation.orcid
-      this.profile.name = this.orcidOrganisation.name
-      if(this.orcidOrganisation.email) {
-        this.profile.email = this.orcidOrganisation.email
-      }
-    },
-
-    cancelCreateUser() {
-      this.dialogEditOrcid = false
-      this.orcidOrganisation.orcid = null
-      this.orcidOrganisation.name = null
-      this.orcidOrganisation.email = null
-    },
-
   },
 
   data() {
     return {
-      dialogEditOrcid: false,
       loading: false,
       saving: false,
       valid: false,
-      validOrcid: false,
-      wellFormedOrcid: false,
       profile: {
           id: null,
           email: null,
@@ -224,15 +132,8 @@ export default {
           orcid: null
       },
       loadingDelete: false,
-      loadingSimulation: false,
       loadingUser: false,
       warningMessage: null,
-      /** User to store the response of ORCID call*/
-      orcidOrganisation: {
-        orcid: null,
-        name: null,
-        email: null
-      },
       /** Rules */
       rules: {
         userNameOrcidRules: [v => !!v || this.$t('repository.screen.error.user.name.required.orcid.error')],

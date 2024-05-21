@@ -10,7 +10,6 @@ import MyRepository from './views/MyRepository.vue'
 import MyCertificationReports from './views/MyCertificationReports.vue'
 import MyCertificationReport from './views/MyCertificationReport.vue'
 import HomePage from "./views/HomePage.vue"
-import Logout from "./views/Logout.vue"
 import Contact from "./views/ContactApp.vue"
 import RequestValidation from "./views/RequestValidation.vue"
 
@@ -71,11 +70,6 @@ const router = new VueRouter({
           path: "/homepage",
           name: "homepage",
           component: HomePage
-        },
-        {
-          path: "/Logout",
-          name: "logout",
-          component: Logout
         },
         {
           path: "/contact",

@@ -27,10 +27,9 @@ Vue.use(UnidooKeycloak, { axios });
 
 Vue.prototype.$unidooInitKeycloak({
   ssoParams: {
-    onLoad: "login-required",
       url: "https://sso.aeris-data.fr/auth",
       realm: "aeris",
-      onLoad: "check-sso",
+      onLoad: "login-required",
       clientId: "crusoe-vjs",
       resource: "crusoe-vjs",
       authorizedDomains: ["http://localhost:8080", "http://localhost:8485", "https://api.sedoo.fr"]
