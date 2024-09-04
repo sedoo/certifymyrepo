@@ -571,7 +571,7 @@ export default {
             this.myRepository.affiliationId = this.editedAffiliation
             this.axios({
                 method: 'post',
-                url: this.$service+'/repository/v1_0/save?language='+this.language,
+                url: this.$service+'/repository/v1_0/save?language='+this.language+'',
                 data: this.myRepository
             }).then ( function () {
                 self.goToRepositories()
