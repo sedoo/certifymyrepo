@@ -406,7 +406,7 @@ export default {
                 self = this
                 this.axios({
                     method: 'post',
-                    url: this.service+'/certificationReport/v1_0/download?reportId='+report.id+"&language="+this.$store.getters.getLanguage+"&format="+this.format+"&attachments="+this.downloadAttachments+"&comments="+this.downloadComments,
+                    url: this.$service+'/certificationReport/v1_0/download?reportId='+report.id+"&language="+this.$store.getters.getLanguage+"&format="+this.format+"&attachments="+this.downloadAttachments+"&comments="+this.downloadComments,
                     responseType: 'arraybuffer',
                     data: formData,
                     headers: {'Content-Type': 'multipart/form-data'}
@@ -504,10 +504,10 @@ export default {
             return option
         },
         deleteItem () {
-            return this.axios.delete(this.service+'/certificationReport/v1_0/delete/'+this.reportId)
+            return this.axios.delete(this.$service+'/certificationReport/v1_0/delete/'+this.reportId)
                 .then( () =>
                     this.axios
-                        .get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
+                        .get(this.$service+'/certificationReport/v1_0/listByRepositoryId/'+this.repositoryId)
                         .then(response => {
                             this.editExistingAllowed = response.data.editExistingAllowed
 	                        this.creationValidationAllowed = response.data.creationValidationAllowed
@@ -526,7 +526,7 @@ export default {
         copyItem (item) {
             var self = this;
             self.isCopyingReport = true
-            this.axios.get(this.service+'/certificationReport/v1_0/copy/'+item.id+'/to/'+this.repositoryId)
+            this.axios.get(this.$service+'/certificationReport/v1_0/copy/'+item.id+'/to/'+this.repositoryId)
                 .then( response =>
                     self.$router.push({path: '/myReport', query: { repositoryId: this.repositoryId, reportId: response.data.id } })
                 ).catch(function(error) {
@@ -615,7 +615,7 @@ export default {
         reloadConnectedUser(loading) {
             this.loadingEditingUser = loading
             if(this.reports) {
-                this.axios.get(this.service+"/certificationReport/v1_0/listConnectedUser?reportIdList="+this.reportsId+"&userId="+this.userId)
+                this.axios.get(this.$service+"/certificationReport/v1_0/listConnectedUser?reportIdList="+this.reportsId+"&userId="+this.userId)
                 .then((response) => {
                     this.reportsCurrentlyEdited = new Map(Object.entries(response.data))
                     this.reportsIdCurrentlyEdited = []
@@ -644,7 +644,7 @@ export default {
       this.$i18n.locale = this.$store.getters.getLanguage;
       var self = this
       this.axios
-      .get(this.service+'/certificationReport/v1_0/listByRepositoryId/'+this.$route.params.id)
+      .get(this.$service+'/certificationReport/v1_0/listByRepositoryId/'+this.$route.params.id)
       .then(response => {
         self.reports = response.data.reports
         if(self.reports) {

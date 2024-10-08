@@ -420,7 +420,7 @@ export default {
         let self = this
         this.axios({
                 method: 'get',
-                url: this.service+"/file/v1_0/"+reportId+"/"+code+"/"+fileName,
+                url: this.$service+"/file/v1_0/"+reportId+"/"+code+"/"+fileName,
                 responseType: 'arraybuffer'
             })
             .then(response => {
@@ -465,7 +465,7 @@ export default {
         self = this
         this.axios({
                 method: 'post',
-                url: this.service+"/file/v1_0/upload?reportId="+ this.myReport.id+"&codeRequirement="+this.currentRequirementCode,
+                url: this.$service+"/file/v1_0/upload?reportId="+ this.myReport.id+"&codeRequirement="+this.currentRequirementCode,
                 data: formData,
                 headers: {
                     'content-type': 'multipart/form-data'
@@ -494,7 +494,7 @@ export default {
         let self = this
         this.axios({
                 method: 'delete',
-                url: this.service+"/file/v1_0/delete?reportId="+this.myReport.id+
+                url: this.$service+"/file/v1_0/delete?reportId="+this.myReport.id+
                   "&codeRequirement="+this.currentRequirementCode+
                   "&fileName="+this.fileToDelete,
             })
@@ -533,7 +533,7 @@ export default {
         });
         this.axios({
             method: 'post',
-            url: this.service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&repositoryId='+this.myReport.repositoryId+'&requirementCode='+requirementCode+'&language='+this.language,
+            url: this.$service+'/certificationReport/v1_0/saveComments?reportId='+this.myReport.id+'&repositoryId='+this.myReport.repositoryId+'&requirementCode='+requirementCode+'&language='+this.language,
             data: comments
         }).catch(function(error) {
           self.$unidooAlert.showError(self.$unidooAlert.formatError(self.$t('error.notification'), error), self.$t('button.close'))
@@ -571,7 +571,7 @@ export default {
           var self = this;
           this.axios({
               method: 'post',
-              url: this.service+'/certificationReport/v1_0/save?language='+this.language,
+              url: this.$service+'/certificationReport/v1_0/save?language='+this.language,
               data: this.myReport
           }).then( function (response) {
             self.myReport.id = response.data.id
@@ -652,7 +652,7 @@ export default {
 
       refreshConnectedUser() {
           if(this.myReport.id && this.editExistingAllowed) {
-            this.axios.post(this.service+"/certificationReport/v1_0/updateConnectedUser?reportId="+this.myReport.id+"&userId="+this.userId+"&userName="+this.userName)
+            this.axios.post(this.$service+"/certificationReport/v1_0/updateConnectedUser?reportId="+this.myReport.id+"&userId="+this.userId+"&userName="+this.userName)
               .then(() => {
                 console.log("Cache user updated at " + new Date()+ " for userId "+this.userId)
               }).catch((error) => {
@@ -672,7 +672,7 @@ export default {
           var self = this
           // getReport return as result the report, the comments by requirement, a boolean ISREADONLY and the certification report template
           this.axios
-          .get(this.service+'/certificationReport/v1_0/getReport/'+id)
+          .get(this.$service+'/certificationReport/v1_0/getReport/'+id)
           .then( function (response) {
             self.myReport = response.data.report
             self.myReport.repositoryId = self.$route.query.repositoryId
@@ -752,7 +752,7 @@ export default {
         } else {
           var self = this
           this.axios
-          .get(this.service+'/certificationReport/v1_0/getCertificationReportTemplate?name='+this.$route.query.template)
+          .get(this.$service+'/certificationReport/v1_0/getCertificationReportTemplate?name='+this.$route.query.template)
           .then( function (response) {
             // Add requirements label for user language into myReport object
             let requirementsLocal = []
